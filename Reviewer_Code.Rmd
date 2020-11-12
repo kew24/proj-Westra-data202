@@ -35,9 +35,9 @@ library(patchwork)
 library(geepack)
 library(scales)
 library(table1)
-library(svglite)
+#library(svglite)
 library(magick)
-library(iCARE)
+#library(iCARE) package ‘iCARE’ is not available (for R version 3.6.2)
 
 options(na.action = "na.omit")
 source('toolbox.R')
@@ -50,6 +50,7 @@ knitr::opts_chunk$set(message = FALSE)
 ```{r}
 #Input data
 M_long = suppressWarnings(data.table::fread('M_long.txt', sep = '\t', header = T))  %>% as.data.frame()
+unzip(zipfile = 'M_wide_all.txt.zip')
 M_wide_all = suppressWarnings(data.table::fread('M_wide_all.txt', sep = '\t', header = T))  %>% as.data.frame()
 M2_all = suppressWarnings(data.table::fread('M2_all.txt', sep = '\t', header = T))  %>% as.data.frame()
 M_tmn_wide_st = suppressWarnings(data.table::fread('M_tmn_wide_st.txt', sep = '\t', header = T))  %>% as.data.frame()
@@ -1499,7 +1500,7 @@ uni_plot = plot_forest(
 do_plot(uni_plot, "figure4a.png", w = 3, h = 4)
 ```
 
-```{r Figure 4b/c}
+```{r Figure 4b/c, eval=FALSE}
 #Dont include PPM1D and SRSF2 b/c missing in some
 gene_vars = c("TET2","SF3B1","TP53","U2AF1")
 mut_vars = c("VAF_nonsilent_r","n_mut_r")
@@ -1701,7 +1702,7 @@ do_plot(p_zoom, "figure4c_box.svg", w = 6, h = 3)
 # Extended and Supplemental Figures and Tables
 
 #eTable1 - baseline demographics
-```{r}
+```{r, eval=FALSE}
 tally_variable = function(D, baseline_cols, variable) {
     
     if (variable == 'Total') {
@@ -2233,7 +2234,7 @@ table(c$mult)
 ```
 
 #eTable 2 - associations with CH by PD
-```{r}
+```{r, eval=FALSE}
 
 #All
 D = M_wide %>% 
@@ -2464,7 +2465,7 @@ df <- D %>% group_by(ch_pancan_pd) %>% summarise(median=median(VAF_N))
 
 ```
 #eTable 3 - associations with VAF
-```{r}
+```{r, eval=FALSE}
 D = M %>% 
     filter(!is.na(smoke_bin)) %>%
     mutate(
@@ -2510,7 +2511,7 @@ display_kable('etable3.pdf')
 ```
 
 #eTable 4 - associations with mutation number
-```{r}
+```{r, eval=FALSE}
 D = M_wide %>%
     mutate(
         race_b = factor(ifelse(race_b == 1, 'White', 'Other'), c('White', 'Other')),
