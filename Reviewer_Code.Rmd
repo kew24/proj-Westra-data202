@@ -43,6 +43,7 @@ options(na.action = "na.omit")
 source('toolbox.R')
 source('get_chemo_features.R')
 knitr::opts_chunk$set(message = FALSE)
+set.seed(2020)
 
 #BiocManager::install("iCARE")
 ```
