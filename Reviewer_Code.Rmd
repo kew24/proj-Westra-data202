@@ -50,7 +50,7 @@ knitr::opts_chunk$set(message = FALSE)
 ```{r}
 #Input data
 M_long = suppressWarnings(data.table::fread('./data/M_long.txt', sep = '\t', header = T))  %>% as.data.frame()
-unzip(zipfile = 'M_wide_all.txt.zip')
+unzip(zipfile = './data/M_wide_all.txt.zip', exdir = "./data")
 M_wide_all = suppressWarnings(data.table::fread('./data/M_wide_all.txt', sep = '\t', header = T))  %>% as.data.frame()
 M2_all = suppressWarnings(data.table::fread('./data/M2_all.txt', sep = '\t', header = T))  %>% as.data.frame()
 M_tmn_wide_st = suppressWarnings(data.table::fread('./data/M_tmn_wide_st.txt', sep = '\t', header = T))  %>% as.data.frame()
@@ -94,7 +94,7 @@ do_plot = function(p, f, w, h, r = 300, save_pdf = T) {
   if (save_pdf) {
     ggsave(paste0('./figures/', str_remove(f, '\\..+'), '.pdf'), plot = p, width = w, height = h, dpi = r)
   }
-  knitr::include_graphics(f)
+  knitr::include_graphics(paste0('./figures/',f))
 }
 
 display_kable = function(kable, file = 'test.pdf')  {
@@ -563,7 +563,7 @@ p_heatmap = ggplot(
 
 ggsave("./figures/p_heatmap.png", plot = p_heatmap, width = 4, height = 4, dpi = 300)
 
-knitr::include_graphics("p_heatmap.png")
+knitr::include_graphics("./figures/p_heatmap.png")
 
 ## Systemic therapies ##
 
@@ -776,7 +776,7 @@ p_forest
 
 ggsave("./figures/p_forest.png", plot = p_forest, width = 4, height = 4, dpi = 300)
 
-knitr::include_graphics("p_forest.png")
+knitr::include_graphics("./figures/p_forest.png")
  
 formula = paste0(
     'ch_pancan_pd ~ ',
@@ -930,7 +930,7 @@ p_dose = ggplot(
 
 ggsave("./figures/p_dose.png", plot = p_dose, width = 4, height = 2, dpi = 300)
 
-knitr::include_graphics("p_dose.png")
+knitr::include_graphics("./figures/p_dose.png")
 
 panel = (p_forest + labs(title = 'a') | ((p_dose + labs(title = 'b'))/ (p_heatmap + labs(title = 'c')) + plot_layout(heights = c(3,5)))) + plot_layout(widths = c(3, 2))
 
