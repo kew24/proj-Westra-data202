@@ -60,7 +60,6 @@ tmn_inc = read_tsv('CumIncByYear-20190716_KB_Wolff.txt', col_types = cols()) %>%
 mort_inc = read_tsv('overall_mort_50_75.txt', col_types = cols()) %>%
     dplyr::select(time, year_inc) %>% as.data.frame %>% unname %>% as.matrix
 
-
 #Dictionaries:
 class_dict <- read.csv("chemoclass_jan2019_revised.csv", stringsAsFactors = F)
 
@@ -78,5 +77,31 @@ class_dict <- class_dict %>% filter(drugclass_c=="cytotoxic_therapy")
 - which variant class (silent, missense, splice, frameshift, etc) or variant type (deletion, insertion, SNV) leads
 * Characteristics of the data that will allow me to answer those questions: _____ (e.g., names of specific columns in specific datasets that have that data)
 -columns include: "generaltumortype", "Gene", "VariantClass", "variant_type", "myeloid_gene", "smoke"/"smoke_bin", "therapy_binary", "ind_anychemo", "ind_radiotherapy", "ind_cytotoxic_therapy".
+
+```{r begin-EDA}
+datasets_names <- c('M_long', 'M_wide_all', 'M2_all', 'M_tmn_wide_st', 'M_tmn_h', 'M_tmn_long', 'P_serial', 'T_seer', 'tmn_inc', 'mort_inc')
+class_dict %>% glimpse()
+drugsets_dict %>% glimpse()
+```
+
+"which genes (Gene) have more mutations in patients that have undergone cancer therapy (ind_target_therapy)(ind_immune_therapy)(XRT)(ind_cytotoxic_therapy)?"
+
+```{r}
+View(M_long)
+```
+
+
+### Dataset Summaries
+
+`M_long`: 
+- each row contains information about a specific genetic mutation (variant), including the basic information about it (chromosome, position, reference allele, alternate allele), along with more helpful annotation information, such as what gene the variant is found in, the variant's class (e.g., Missense) & type (e.g., Single Nucleotide Variant), the DNA change and rseulting Amino Acid change, 
+
+```{r}
+glimpse(M_long)
+nrow(M_long) == M_long %>%
+  mutate(variant_ID = paste(Chrom, Start, Ref, Alt, sep = "-")) %>%
+  dplyr::n_distinct(.$variant_ID)
+```
+
 
 
