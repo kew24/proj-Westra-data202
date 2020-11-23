@@ -49,23 +49,23 @@ knitr::opts_chunk$set(message = FALSE)
 
 ```{r}
 #Input data
-M_long = suppressWarnings(data.table::fread('M_long.txt', sep = '\t', header = T))  %>% as.data.frame()
+M_long = suppressWarnings(data.table::fread('./data/M_long.txt', sep = '\t', header = T))  %>% as.data.frame()
 unzip(zipfile = 'M_wide_all.txt.zip')
-M_wide_all = suppressWarnings(data.table::fread('M_wide_all.txt', sep = '\t', header = T))  %>% as.data.frame()
-M2_all = suppressWarnings(data.table::fread('M2_all.txt', sep = '\t', header = T))  %>% as.data.frame()
-M_tmn_wide_st = suppressWarnings(data.table::fread('M_tmn_wide_st.txt', sep = '\t', header = T))  %>% as.data.frame()
-M_tmn_h = suppressWarnings(data.table::fread('M_tmn_h.txt', sep = '\t', header = T))  %>% as.data.frame()
-M_tmn_long = suppressWarnings(data.table::fread('M_tmn_long.txt', sep = '\t', header = T))  %>% as.data.frame()
-P_serial = suppressWarnings(data.table::fread('P_serial.txt', sep = '\t', header = T))  %>% as.data.frame()
+M_wide_all = suppressWarnings(data.table::fread('./data/M_wide_all.txt', sep = '\t', header = T))  %>% as.data.frame()
+M2_all = suppressWarnings(data.table::fread('./data/M2_all.txt', sep = '\t', header = T))  %>% as.data.frame()
+M_tmn_wide_st = suppressWarnings(data.table::fread('./data/M_tmn_wide_st.txt', sep = '\t', header = T))  %>% as.data.frame()
+M_tmn_h = suppressWarnings(data.table::fread('./data/M_tmn_h.txt', sep = '\t', header = T))  %>% as.data.frame()
+M_tmn_long = suppressWarnings(data.table::fread('./data/M_tmn_long.txt', sep = '\t', header = T))  %>% as.data.frame()
+P_serial = suppressWarnings(data.table::fread('./data/P_serial.txt', sep = '\t', header = T))  %>% as.data.frame()
 
-T_seer = read_tsv('breast_prop_chemo.txt', col_types = cols()) 
-tmn_inc = read_tsv('CumIncByYear-20190716_KB_Wolff.txt', col_types = cols()) %>%
+T_seer = read_tsv('./data/breast_prop_chemo.txt', col_types = cols()) 
+tmn_inc = read_tsv('./data/CumIncByYear-20190716_KB_Wolff.txt', col_types = cols()) %>%
     dplyr::select(Year, yearly_inc) %>% as.data.frame %>% unname %>% as.matrix
-mort_inc = read_tsv('overall_mort_50_75.txt', col_types = cols()) %>%
+mort_inc = read_tsv('./data/overall_mort_50_75.txt', col_types = cols()) %>%
     dplyr::select(time, year_inc) %>% as.data.frame %>% unname %>% as.matrix
 
-class_dict <- read.csv("chemoclass_jan2019_revised.csv", stringsAsFactors = F)
-drugsets_dict <- read.csv("top_sets_dec2018.csv", header = T, stringsAsFactors = F)
+class_dict <- read.csv("./data/chemoclass_jan2019_revised.csv", stringsAsFactors = F)
+drugsets_dict <- read.csv("./data/top_sets_dec2018.csv", header = T, stringsAsFactors = F)
 class_dict <- class_dict %>% filter(drugclass_c=="cytotoxic_therapy")
     
 ```
@@ -90,16 +90,16 @@ panel_theme = theme_bw() + theme(
 therapy_colors = c('untreated' = '#0072B2', 'treated' = '#D55E00')
 
 do_plot = function(p, f, w, h, r = 300, save_pdf = T) {
-  ggsave(f, plot = p, width = w, height = h, dpi = r)
+  ggsave(paste0('./figures/',f), plot = p, width = w, height = h, dpi = r)
   if (save_pdf) {
-    ggsave(paste0(str_remove(f, '\\..+'), '.pdf'), plot = p, width = w, height = h, dpi = r)
+    ggsave(paste0('./figures/', str_remove(f, '\\..+'), '.pdf'), plot = p, width = w, height = h, dpi = r)
   }
   knitr::include_graphics(f)
 }
 
 display_kable = function(kable, file = 'test.pdf')  {
   
-  kable %>% save_kable(file = file)
+  kable %>% save_kable(file = paste0('./figures/', file))
 
   kable %>% as_image()
     
@@ -561,7 +561,7 @@ p_heatmap = ggplot(
         legend.key.size = unit(10, "pt")
     )
 
-ggsave("p_heatmap.png", plot = p_heatmap, width = 4, height = 4, dpi = 300)
+ggsave("./figures/p_heatmap.png", plot = p_heatmap, width = 4, height = 4, dpi = 300)
 
 knitr::include_graphics("p_heatmap.png")
 
@@ -774,7 +774,7 @@ gt$heights[panels] <- unit(vtiles, "null")
 p_forest = as.ggplot(gt)
 p_forest
 
-ggsave("p_forest.png", plot = p_forest, width = 4, height = 4, dpi = 300)
+ggsave("./figures/p_forest.png", plot = p_forest, width = 4, height = 4, dpi = 300)
 
 knitr::include_graphics("p_forest.png")
  
@@ -928,7 +928,7 @@ p_dose = ggplot(
        legend.position = 'none'
     )
 
-ggsave("p_dose.png", plot = p_dose, width = 4, height = 2, dpi = 300)
+ggsave("./figures/p_dose.png", plot = p_dose, width = 4, height = 2, dpi = 300)
 
 knitr::include_graphics("p_dose.png")
 
