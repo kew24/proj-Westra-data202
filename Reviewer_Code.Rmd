@@ -90,7 +90,7 @@ panel_theme = theme_bw() + theme(
 
 therapy_colors = c('untreated' = '#0072B2', 'treated' = '#D55E00')
 
-do_plot = function(p, f, w, h, r = 300, save_pdf = T) {
+do_plot = function(p, f, w, h, r = 300, save_pdf = F) {
   ggsave(paste0('./figures/',f), plot = p, width = w, height = h, dpi = r)
   if (save_pdf) {
     ggsave(paste0('./figures/', str_remove(f, '\\..+'), '.pdf'), plot = p, width = w, height = h, dpi = r)
@@ -461,7 +461,7 @@ p_forest = plot_forest(
 
 combo = ((p_hist + labs(title = 'A')) / (p_stack + labs(title = 'B'))) | (p_forest+ labs(title = 'C'))
 
-do_plot(combo, "fig1.png", 10, 6, save_pdf = T)
+do_plot(combo, "fig1.png", 10, 6, save_pdf = F) #no pdf
 ```
 
 #Figure 2 - therapy and genes
@@ -936,7 +936,7 @@ knitr::include_graphics("./figures/p_dose.png")
 panel = (p_forest + labs(title = 'a') | ((p_dose + labs(title = 'b'))/ (p_heatmap + labs(title = 'c')) + plot_layout(heights = c(3,5)))) + plot_layout(widths = c(3, 2))
 
 # panel
-do_plot(panel, "fig2.png", 10, 6, save_pdf = T)
+do_plot(panel, "fig2.png", 10, 6, save_pdf = F) #no pdf
 ```
 
 #Figure 3 - clonal dynamics
@@ -1358,7 +1358,7 @@ panel = (p_spider + labs(title = 'A')) /
   ((p_dose_ddr + labs(title = 'D'))| p_dose_other) / 
   (p_comp + labs(title = 'E'))
 
-do_plot(panel, "figure3.png", 6.5, 11, save_pdf = T)
+do_plot(panel, "figure3.png", 6.5, 11, save_pdf = F) #no pdf
 ```
 
 ##Figure 4 - CH to tMN
@@ -1963,7 +1963,7 @@ scale_fill_nejm() + scale_color_nejm() + labs(title = 'A')
 
 combo = (genes / panel) + plot_layout(ncol = 1, heights = c(1, 1))
 
-do_plot(p = combo, f = "sfig2.png", w = 14, h = 8, save_pdf = T)
+do_plot(p = combo, f = "sfig2.png", w = 14, h = 8, save_pdf = F) #no pdf
 ```
 
 #eFigure 1 - tumor types and CH
@@ -2013,7 +2013,7 @@ p = plot_forest(
   scale_color_nejm() +
   scale_x_discrete(expand = c(0.025, 0))
 
-do_plot(p, "efig1.png", 8, 5, save_pdf = T)
+do_plot(p, "efig1.png", 8, 5, save_pdf = F) #no pdf
 ```
 
 #eFigure 2 - prop CH by tumor type
@@ -2073,7 +2073,7 @@ theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
 scale_fill_brewer(palette = "Paired") +
 ylab('Proportion With Mutation')
 
-do_plot(p, "efig2.png", 8, 5, save_pdf = T)
+do_plot(p, "efig2.png", 8, 5, save_pdf = F) #no pdf
 ```
 #Proportion of mutations by primary tumor site in untreated patients
 ```{r}
@@ -2226,7 +2226,7 @@ p <- egg::ggarrange(
     draw = F
 )
 
-do_plot(p, "efig3.png", w = 12, h = 12, save_pdf = T)
+do_plot(p, "efig3.png", w = 12, h = 12, save_pdf = F) #no pdf
 
 #number of pts recieving multiple classes of cytotoxic therapy
 c <- M_wide %>% mutate(sum=ind_platinum+ind_antimetabolite+ind_nucleoside_analogue+ind_taxane+ind_topoisomerase_ii_inh+ind_alkylating_agent+ind_anthracycline+ind_topoisomerase_i_inhi+ind_folic_acid_analog+ind_microtubule_damaging)
@@ -2457,7 +2457,7 @@ panel <-  ggarrange(
         labels = c('A', 'B', 'C')
     )
 
-do_plot(panel, "SuppFig3.png", w = 9, h = 4, save_pdf = T)
+do_plot(panel, "SuppFig3.png", w = 9, h = 4, save_pdf = F) #no pdf
 
 #calculate medians
 
@@ -2788,7 +2788,7 @@ p_len = ggplot(
 panel = ggarrange(p_my, p_pd, p_silent, p_nuc, p_indel, p_len, p_vc,
           ncol = 2, nrow = 4, common.legend = F, legend = "top", align = 'hv', labels = 'AUTO')
 
-do_plot(panel, 'supp_fig5.png', w = 11, h = 9, save_pdf = T)
+do_plot(panel, 'supp_fig5.png', w = 11, h = 9, save_pdf = F) #no pdf
 ```
 
 ```{r}
@@ -2821,7 +2821,7 @@ xlab("DNMT3A Mutation Amino Acid Change") +
 ylab("VAF") +
 scale_fill_nejm() + scale_color_nejm()
 
-do_plot(p, 'supp_fig4.png', w = 11, h = 9, save_pdf = T)
+do_plot(p, 'supp_fig4.png', w = 11, h = 9, save_pdf = F) #no pdf
 
 #Perform Regression
 D_nomiss<- na.omit(subset(D, select = c(VAF_N, age, race, smoke_bin, STUDY_ID, dnmt3a_status, therapy_binary)))
@@ -3037,7 +3037,7 @@ combo <- age + therapy + smoking +
 guide_area() + 
   plot_layout(guides = 'collect')
 
-do_plot(combo, "SuppFig3.png", w = 5, h = 6, save_pdf = T)
+do_plot(combo, "SuppFig3.png", w = 5, h = 6, save_pdf = F) #no pdf
 ```
 ## Chemo and XRT by time tx CH-PD (Figure not included)
 ```{r}
@@ -3256,7 +3256,7 @@ p4 <- ggplot(
     scale_y_continuous(expand = c(0.1, 0))
 
 combo <- p1 + p2 + p3 + p4
-do_plot(combo, 'sfigx.png', w = 10, h = 4, save_pdf = T)
+do_plot(combo, 'sfigx.png', w = 10, h = 4, save_pdf = F) #no pdf
 ```
 
 #eFigure 4 - drugset and CH
@@ -3331,7 +3331,7 @@ p = D %>%
   scale_fill_nejm() +
   scale_color_nejm()
 
-do_plot(p, 'efig4.png', w = 6, h = 4, save_pdf = T)
+do_plot(p, 'efig4.png', w = 6, h = 4, save_pdf = F) #no pdf
 
 ```
 # Tabulate serial
@@ -3412,7 +3412,7 @@ p = ggplot(
   xlab('number of mutations') +
   ylab('log growth rate')
 
-do_plot(p, 'supp8.png', w = 6, h = 6, save_pdf = T)
+do_plot(p, 'supp8.png', w = 6, h = 6, save_pdf = F) #no pdf
 ```
 
 #Supplementary Figure 9 - bar chart singletons
@@ -3528,7 +3528,7 @@ xlab('') +
 ylab('proportion of patients') +
 scale_fill_nejm()
 
-do_plot(p, "supp_fig9.png", w = 6, h = 4, save_pdf = T)
+do_plot(p, "supp_fig9.png", w = 6, h = 4, save_pdf = F) #no pdf
 
 D2 %>% filter(event_type=="newly observed") %>%
 group_by(event_type, therapy_binary) %>%
@@ -3554,7 +3554,7 @@ p3 <- ggplot(D, aes(x=time_end_cyto1, y=delta_vaf)) +
 
 p <- D %>% lm(formula = delta_vaf ~ time_end_cyto1 + pct_cytotoxic_therapy1, data = .) %>% tab_model()
 
-do_plot(p3, 'time_serial.png', w = 6, h = 6, save_pdf = T)
+do_plot(p3, 'time_serial.png', w = 6, h = 6, save_pdf = F) #no pdf
 ```
 
 #Supp Table 2 tMN cohort descriptive table
@@ -3739,5 +3739,5 @@ theme(
       legend.title = element_text(size=7)
 )
 
-do_plot(p, "supp_figure_10.png", w = 5, h = 4, save_pdf = T)
+do_plot(p, "supp_figure_10.png", w = 5, h = 4, save_pdf = F) #no pdf
 ```
