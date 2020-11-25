@@ -9,6 +9,7 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 #include packages here, if needed
 library(tidyverse)
+library(ggsci)
 ```
 
 
@@ -30,6 +31,8 @@ Read in Data from repo (code copied from author's .Rmd):
 
 ```{r input}
 #Input data
+setwd('./data')
+
 M_long = suppressWarnings(data.table::fread('M_long.txt', sep = '\t', header = T)) %>%
   as.data.frame()
 
@@ -66,6 +69,8 @@ class_dict <- read.csv("chemoclass_jan2019_revised.csv", stringsAsFactors = F)
 drugsets_dict <- read.csv("top_sets_dec2018.csv", header = T, stringsAsFactors = F)
 
 class_dict <- class_dict %>% filter(drugclass_c=="cytotoxic_therapy")
+
+setwd('../')
 ```
 
 ## Exploratory Data Analysis
@@ -87,20 +92,109 @@ drugsets_dict %>% glimpse()
 "which genes (Gene) have more mutations in patients that have undergone cancer therapy (ind_target_therapy)(ind_immune_therapy)(XRT)(ind_cytotoxic_therapy)?"
 
 ```{r}
-View(M_long)
+M_long %>% names()
+
+cytotoxic_patients <- c()
+cytotoxic_patients$yes_cyto <- sum(M_long$ind_cytotoxic_therapy == 1, na.rm = TRUE)
+cytotoxic_patients$no_cyto <- sum(M_long$ind_cytotoxic_therapy == 0, na.rm = TRUE)
+cytotoxic_patients <- as.data.frame(cytotoxic_patients)
+
+M_long %>%
+  group_by(Gene) %>%
+  count() %>%
+  mutate(geneprop = n / nrow(M_long)) %>%
+  arrange(desc(geneprop)) %>%
+  head(15) %>%
+  ggplot(aes(y = Gene, x = geneprop)) +
+    geom_col() +
+    labs(title = "What % of variants are found in this gene?")
+
+M_long[(M_long$ind_cytotoxic_therapy == 1) & (!is.na(M_long$ind_cytotoxic_therapy)),] %>%
+  group_by(Gene) %>%
+  count() %>%
+  mutate(geneprop = n / nrow(M_long)) %>%
+  arrange(desc(geneprop)) %>%
+  head(15) %>%
+  ggplot(aes(y = Gene, x = geneprop)) +
+    geom_col() +
+    labs(title = "What % of variants (in cytotoxic patients) are found in this gene?")
+
+M_long %>%
+  filter(!is.na(ind_cytotoxic_therapy)) %>%
+  group_by(Gene, ind_cytotoxic_therapy) %>%
+  summarize(n = n()) %>%
+  ungroup() %>%
+  group_by(Gene) %>%
+  summarize(n_gene = sum(n),
+            Gene, ind_cytotoxic_therapy, n) %>%
+  arrange(desc(n_gene)) %>%
+  head(20) %>%
+  mutate(ind_cytotoxic_therapy = as.factor(ind_cytotoxic_therapy)) %>%
+  ggplot(aes(y = Gene, x=n, fill = ind_cytotoxic_therapy)) +
+    geom_col(position = "dodge")
 ```
 
 
 ### Dataset Summaries
 
 `M_long`: 
-- each row contains information about a specific genetic mutation (variant), including the basic information about it (chromosome, position, reference allele, alternate allele), along with more helpful annotation information, such as what gene the variant is found in, the variant's class (e.g., Missense) & type (e.g., Single Nucleotide Variant), the DNA change and rseulting Amino Acid change, 
+- each row contains information about a specific genetic mutation (variant), including the basic information about it (chromosome, position, reference allele, alternate allele), along with more helpful annotation information, such as what gene the variant is found in, the variant's class (e.g., Missense) & type (e.g., Single Nucleotide Variant), the DNA change and rseulting Amino Acid change, .... etc.  
+- *"We identified 11,076 unique CH mutations in 7,216 individ- uals, representing 30% of patients in our cohort."*: `M_long` is `r nrow(M_long)` rows long :)  
+- *"CH mutations followed expected patterns of positive selection for truncating variants and missense mutations in tumor suppressors and oncogenes"*
 
 ```{r}
 glimpse(M_long)
 nrow(M_long) == M_long %>%
   mutate(variant_ID = paste(Chrom, Start, Ref, Alt, sep = "-")) %>%
   dplyr::n_distinct(.$variant_ID)
+```
+
+
+## Additional Data:
+
+We can use the [Tumor Suppressor Gene Database (TSGene)](https://bioinfo.uth.edu/TSGene/download.cgi?csrt=9096171844716038094)'s list of 1217 human [tumor suppressor genes](https://bioinfo.uth.edu/TSGene/Human_TSGs.txt?csrt=9096171844716038094) to determine the category of each of our top genes.
+
+```{r}
+tumor_suppressors <- read.delim('./data/tumor_suppressor_tsgene.txt') %>%
+  mutate(Gene = GeneSymbol,
+         TumorSuppressor = TRUE)
+M_long_ts <- left_join(M_long, tumor_suppressors, "Gene")
+M_long_ts <- M_long_ts %>%
+  mutate(TumorSuppressor = case_when(is.na(TumorSuppressor) ~ FALSE,
+                                    TRUE ~ TRUE))
+
+
+
+M_long2 <- M_long_ts %>%
+  filter(!is.na(ind_cytotoxic_therapy)) %>%
+  group_by(Gene, ind_cytotoxic_therapy, TumorSuppressor) %>%
+  summarize(n = n()) %>%
+  ungroup() %>%
+  group_by(Gene) %>%
+  summarize(n_gene = sum(n),
+            Gene, ind_cytotoxic_therapy, n, TumorSuppressor) %>%
+  arrange(desc(n_gene)) #%>%
+  #pivot_wider(names_from = ind_cytotoxic_therapy, values_from = "ind_cytotoxic_therapy")
+
+with_cyto_M_long <- M_long2 %>%
+  filter(ind_cytotoxic_therapy == 1) %>%
+  select(-ind_cytotoxic_therapy)
+
+without_cyto_M_long <- M_long2 %>%
+  filter(ind_cytotoxic_therapy == 0) %>%
+  select(Gene, n)
+
+new_M_long <- full_join(with_cyto_M_long, without_cyto_M_long,
+                        by = "Gene", suffix = c("_without","_with")) %>%
+  mutate(prop_with = n_with / cytotoxic_patients$yes_cyto,
+         prop_without = n_without / cytotoxic_patients$no_cyto,
+         with_div_without = prop_with / prop_without)
+
+new_M_long %>%
+  filter(n_gene > 30) %>%
+  arrange(desc(prop_with)) %>%
+  ggplot(mapping = aes(x = with_div_without, y = fct_reorder(Gene, with_div_without), fill = TumorSuppressor)) +
+    geom_col()
 ```
 
 
