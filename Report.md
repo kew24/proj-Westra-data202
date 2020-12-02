@@ -1,0 +1,112 @@
+Genetic Mutations in Cancer Therapies
+================
+Kaitlyn Westra
+12/1/2020
+
+-   [About](#about)
+-   [Question(s)](#questions)
+-   [Dataset](#dataset)
+-   [(?) Data Wrangling](#data-wrangling)
+-   [Exploratory Data Analysis](#exploratory-data-analysis)
+-   [Modeling](#modeling)
+-   [Findings:](#findings)
+-   [Limitations:](#limitations)
+-   [Future Directions:](#future-directions)
+
+### About
+
+This is an outline of the things that need to be included for this final project. Below, I've copied & pasted the project outline from Professor Arnold's project description. Interspersed is bullet points of specific rubric objectives (copied & pasted from the "3 points" column in Moodle). This hopefully makes it easier to see what progress has been made & what we have left to do. At the very end, when these sections are filled in, the filler words can be deleted.
+
+Question(s)
+-----------
+
+A **real-world question** that you’d like to explore, and *why* it’s interesting. (This question should be stated in language that is understandable to someone who hasn’t studied data science and doesn’t know the details of your dataset.)
+
+-   Real-world question is well motivated, e.g., by prior literature
+
+A **modeling question** for which you’ll use regression, classification, or some other kind of modeling. (This question should be stated in more specific technical terms and reference the particular features of your dataset.) This question ideally helps answer the real-world question, but it’s okay if it doesn’t.
+
+An analysis of the appropriateness of your dataset for addressing these questions.
+
+Dataset
+-------
+
+A brief (2-4 sentences) verbal description of the dataset: what is the dataset about?
+
+-   **High-level dataset description:** Scholarly-level background about the data is provided. *(more than "Data Clearly Described")*
+
+A description of its provenance: where did the data come from originally? Where did you download it from? And (as much as you can tell or speculate) how did it end up available there?
+
+-   **Data provenance**: Thoughtful consideration of provenance, e.g., selecting between different datasets based on provenance considerations, or drawing implications for results based on provenance
+    -   more than: *Answers basic provenance questions: where did the data come from originally? Where did you download it from? And (as much as you can tell or speculate) how did it end up available there? What does all of this say about whether the data is reliable for addressing the real-world questions of interest? (2 points)*
+
+The number of records in the dataset, and what each one represents
+
+A list of the features in the dataset and their types
+
+-   **Data strcuture**: Data structure clearly identified: number of records, what each record is, what each feature is and what type it is, with examples (2 points)
+    -   \*\*WITH:\* ... with thoughtful and critical reflection, e.g., consideration of the appropriateness of different data types (full 3 points)
+-   **Approach** *(not entirely sure where this fits in)*: Approach clearly stated and thoughtfully motivated by the intersection of the real-world question and the available data
+    -   more than: *Approach stated clearly in terms that map clearly to the data used*
+-   **Data Appropriateness**: Particularly thoughtful consideration of data appropriateness
+    -   more than: *Reflected on how the provenance and structure of the data make it appropriate (or not appropriate) for the task*
+
+(?) Data Wrangling
+------------------
+
+\[?\] *Not included explictly on outline, but I think this section would be helpful...*
+
+-   Thoughtful reflection on choices made in data wrangling and/or their implications on subsequent analysis
+    -   more than: *Correctly performed needed data wrangling, e.g., merging multiple data sources, aggregating, re-coding data, identifying and dealing with missing data*
+
+Exploratory Data Analysis
+-------------------------
+
+Show plots illustrating the distribution of at least 4 variables in your dataset. Comment on anything interesting you observe.
+
+-   **Univariate EDA**: Includes insightful / thoughtful commentary on implications of the distributions plotted (perhaps how that informs further analysis)
+    -   more than: *Includes plots illustrating the distribution of more than one variable in the dataset, with some commentary.*
+
+Show plots illustrating bivariate relationships for at least 2 pairs of variables. Explain what you observe (e.g., positive/negative correlation, no correlation, etc.).
+
+-   **Bivariate EDA**: Includes insightful / thoughtful commentary on the implication of the relationships plotted
+    -   more than: *Includes plots illustrating bivariate relationships for at least 2 pairs of variables and some description of observations (e.g., strength of relationship, dependence on other factors).*
+
+Modeling
+--------
+
+Clearly state what is the target variable you are trying to predict, which variables (features) you are using to predict it, and why you chose those features.
+
+-   **Modeling setup/ task description**: Modeling task is both clearly described and well motivated (e.g., alternative decisions are identified and considered)
+    -   more than: *Clear description of the model setup. e.g., for a predictive model, what are the features and targets, why those were chosen, what validation method was employed and why, etc.*
+
+Fit a basic predictive model using one of the techniques we discussed in class (regression: Nearest Neighbors or Linear Regression, classification: Nearest Neighbors or Logistic Regression; other choices such as Decision Trees are also fine)
+
+Report the results of your basic predictive model on held-out data or via cross-validation.
+
+-   **Modeling baselie results**: A baseline was thoughtfully chosen and evaluated.
+    -   more than: *Results of a correctly applied baseline model are reported correctly*
+
+Make one or more changes to the predictive model to improve the accuracy. Discuss what changes you made, why you made them, and what the results were.
+
+-   **Modeling refinements**: Particular thought or insight was given to the choice of changes to make and/or analysis of their implications.
+    -   more than: *Reports what changes were made, why they were made, and what the results were.*
+
+**Alternative**: instead of a supervised prediction task, you can define an unsupervised learning task and use clustering. In this case, clearly state what you want to understand through the clustering, and report your observations.
+
+\[FIXTHIS: pick up on rubric here... **Discussion of findings**\]
+
+Findings:
+---------
+
+Summarize the analyses you performed and what the results told you. What do your findings say about the real-world and prediction (or clustering) questions you posed?
+
+Limitations:
+------------
+
+What are some limitations of your analyses and potential biases of the data you used?
+
+Future Directions:
+------------------
+
+What new questions came up following your exploration of this data? Describe at least one question that could not be answered using your data alone, and specify what additional data you would collect to address it.
