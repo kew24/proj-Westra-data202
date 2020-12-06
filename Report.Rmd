@@ -1,7 +1,7 @@
 ---
-title: "Genetic Mutations in Cancer Therapies"
+title: "Genetic Mutations from Cancer Therapies"
 author: "Kaitlyn Westra"
-date: "12/1/2020"
+date: "Fall 2020"
 output: 
   github_document:
     toc: TRUE
@@ -15,18 +15,38 @@ knitr::opts_chunk$set(echo = TRUE)
 
 This is an outline of the things that need to be included for this final project. Below, I've copied & pasted the project outline from Professor Arnold's project description. Interspersed is bullet points of specific rubric objectives (copied & pasted from the "3 points" column in Moodle). This hopefully makes it easier to see what progress has been made & what we have left to do. At the very end, when these sections are filled in, the filler words can be deleted.
 
-## Question(s)
+## Introduction
 
-A **real-world question** that you’d like to explore, and *why* it’s interesting. (This question should be stated in language that is understandable to someone who hasn’t studied data science and doesn’t know the details of your dataset.)
+*Nature Genetics* is one of the most well-known and well-respected journals in the field of genetics. The work that these articles are based on reflect years of rigorous research, and presents some of the latest and greatest ideas in the field. Due to this, many experts regard getting published in the journal as a great achievement and frequently read these published articles. 
 
-- Real-world question is well motivated, e.g., by prior literature
+Over the past 6 months, I've worked as a research intern at Grand Rapids' Van Andel Institute, in a [lab](https://braslab.vai.org) that studies the genetics of neurodegenerative diseases, like Parkinson's Disease, Alzhiemer's Disease, and dementia with Lewy bodies. Throughout this internship, I have been able to learn about the intersection of genetics, disease, and data science, using R and other genomics tools to analyze genetic mutation data and make discoveries that have an impact on people's lives.  
 
-A **modeling question** for which you’ll use regression, classification, or some other kind of modeling. (This question should be stated in more specific technical terms and reference the particular features of your dataset.) This question ideally helps answer the real-world question, but it’s okay if it doesn’t.
+Because of this introduction I've had to the field of genetics annd bioinformatics, I have been curious what *other* labs and groups do with similar data. This lead me to browse through the [cBioPortal for Cancer Genomics](https://www.cbioportal.org), which I had heard about from a series of online [Dataviz + Cancer Microlabs](https://apply.hub.ki/cancerplusviz/) that occured earlier this year. The dataset I had found was used in a recent *Nature Genetics* article, "[Cancer therapy shapes the fitness landscape of clonal hematopoiesis](https://www.nature.com/articles/s41588-020-00710-0)" so I decided this would be perfect for my final project.
 
-An analysis of the appropriateness of your dataset for addressing these questions.
+## Question
+
+#### Background
+
+The background of this article follows first author Kelly Bolton, a physician scientist (MD-PhD) and first year fellow in medical oncology at Memorial Sloan Kettering, the world’s oldest and largest private cancer center. Bolton was new to studying clonal hematopoiesis (CH), but jumped on the opportunity to research it, especially to understand if specific therapy types resulted in a higher frequency of CH. With her knowledge of epidemiology, she realized that she could use data from both electronic health records and sequential samples from patients, to understand how therapy could be promoting pre-existing CH or inducing new mutations.  
+
+CH essentially happens when a hematopoietic stem cell, which can develop into different types of blood cells, starts making cells with the same genetic mutation in individuals without a blood disease. As such, clonal hematopoiesis [includes](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7065480/) the entire spectrum of premalignant conditions related to somatic mutations in genes associated with myeloid disorders. CH remains benign in most people, but sometimes progresses to malignancy. 
+
+Previously, studies have shown that certain types of chemotherapy lead to a higher risk of developing myeloid neoplasms (a class of clonal hematopoietic stem cell disorders), and also that the presence of clonal hematopoiesis increases the risk of developing these therapy-related myleoid neoplasm diseases (tMNs). Thus, the relationship between specific therapies and CH is important to investigate. Understanding this relationship can aid in the understanding of the mechanisms by which therapy-related myeloid diseases occur, and from there, can help develop interventions. 
+
+#### Project
+
+With this project, I aim to replicate this lab's findings that mutations in genes are enriched based on specific exposures. Specifically, I will set out to verify that "**mutations in *ASXL1* are enriched in current or former smokers, whereas cancer therapy with radiation, platinum and topoisomerase II inhibitors preferentially selects for mutations in DNA damage response genes (*TP53*, *PPM1D*, *CHEK2*).**"
+
+To do so, I will use exactly the same data the authors used, with analyses using a combination of their published R code and some of my own original code. In this process, I will be thoroughly narrating my steps to give insight into the process and decisions that were made. This demonstrates the knowledge I've gained this semester in DATA-202, and that I am equipped to practically apply this in new situations.
+
+
+> *Much of the technical background information, including specific phrases, from this section was found in Bolton's [Nature Research blog post](https://cancercommunity.nature.com/posts/cancer-therapy-shapes-the-fitness-landscape-of-clonal-hematopoiesis).*
 
 
 ## Dataset
+
+
+An analysis of the appropriateness of your dataset for addressing these questions.
 
 A brief (2-4 sentences) verbal description of the dataset: what is the dataset about?
 
@@ -131,5 +151,10 @@ What are some limitations of your analyses and potential biases of the data you 
 What new questions came up following your exploration of this data? Describe at least one question that could not be answered using your data alone, and specify what additional data you would collect to address it.
 
 
+## Conclusions
 
+> this is my own added section. see if I want to include this or not. if not, put this paragraph somewhere else
+
+
+In addressing this question, I gained not only an understanding of how data science is used in my chosen career field, but also an appreciation for the hard work done by women in STEM -- as, to my surprise, first author Kelly Bolton MD PhD, as well as lab PI, Elli Papaemmanuil, PhD, are both women. 
 
