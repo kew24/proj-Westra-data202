@@ -45,12 +45,22 @@ Previously, studies have shown that certain types of chemotherapy lead to a high
 
 With this project, I aim to replicate this lab's findings that mutations in genes are enriched based on specific exposures. Specifically, I will set out to verify that "**mutations in *ASXL1* are enriched in current or former smokers, whereas cancer therapy with radiation, platinum and topoisomerase II inhibitors preferentially selects for mutations in DNA damage response genes (*TP53*, *PPM1D*, *CHEK2*).**"
 
-To do so, I will use exactly the same data the authors used, with analyses using a combination of their published R code and some of my own original code. In this process, I will be thoroughly narrating my steps to give insight into the process and decisions that were made. This demonstrates the knowledge I've gained this semester in DATA-202, and that I am equipped to practically apply this in new situations.
+To do so, I will be recreating their **Figure 1c** using exactly the same data the authors used, and a combination of their published R code and some of my own original code. In this process, I will be thoroughly narrating my steps to give insight into the process and decisions that were made. Because a big part of data science and computer science is looking through others' code, understanding it, and adapting it to fit your needs, doing so with this available example will be an exercise in this skill. Being able to accomplish the objectives I have outlined herein demonstrate the knowledge I've gained this semester in DATA-202, and that I am equipped to practically apply this in new situations.
 
-> *Much of the technical background information, including specific phrases, from this section was found in Bolton's [Nature Research blog post](https://cancercommunity.nature.com/posts/cancer-therapy-shapes-the-fitness-landscape-of-clonal-hematopoiesis).*
+> *Much of the technical background information, including specific phrases, in this section was found in Bolton's [Nature Research blog post](https://cancercommunity.nature.com/posts/cancer-therapy-shapes-the-fitness-landscape-of-clonal-hematopoiesis).*
 
 Dataset
 -------
+
+The dataset used in Figure 1c is called `M_wide`. It comes from a larger dataset named `M_wide_all`, which contains \_\_\_\_\_\_\_\_. It
+
+``` r
+M_wide_all = suppressWarnings(data.table::fread('./data/M_wide_all.txt', sep = '\t', header = T)) %>%
+  as.data.frame()
+
+#Define wide data frame with treatment known
+M_wide <- M_wide_all %>% filter(therapy_known==1)
+```
 
 An analysis of the appropriateness of your dataset for addressing these questions.
 
@@ -118,6 +128,219 @@ Make one or more changes to the predictive model to improve the accuracy. Discus
 **Alternative**: instead of a supervised prediction task, you can define an unsupervised learning task and use clustering. In this case, clearly state what you want to understand through the clustering, and report your observations.
 
 \[FIXTHIS: pick up on rubric here... **Discussion of findings**\]
+
+Direct Code from Reviewer\_Code.Rmd (from here, I just need 1c):
+
+``` r
+## Main figures
+# Figure 1 - mutational characteristics
+panel_theme = theme_bw() + theme(
+    panel.border = element_blank(),
+    legend.position = "none",
+    panel.grid.minor = element_blank(),
+    plot.subtitle = element_text(hjust = 0.5, size = 8),
+    plot.title = element_text(face = 'bold', size = 12, hjust = 0, vjust = -11),
+    panel.grid.major = element_blank(),
+    strip.background = element_blank(),
+    strip.text = element_text(size = 6),
+    axis.text.y = element_text(size = 6),
+    axis.text.x = element_text(size = 6),
+    axis.title = element_text(size = 8),
+    axis.line = element_line(),
+    plot.margin = unit(c(0,0,0,0), 'pt')
+) 
+
+age_groups = c("0-10", "11-20", "21-30", "31-40", "41-50", "51-60", "61-70", "71-80", "81-90", "91-100")
+
+get_ch_grouped = function(M_wide, CI = T) {
+
+    CH_by_age_grouped = M_wide %>% select(STUDY_ID, age_cat, CH) %>%
+        mutate(CH = ifelse(is.na(CH), 0, CH)) %>%
+        group_by(age_cat) %>%
+        summarise(CH = sum(CH), total = n()) %>% 
+        filter(!is.na(age_cat)) %>%
+        mutate(freq = CH / total)
+    
+    if (CI) {
+        CH_by_age_grouped = CH_by_age_grouped %>%
+        cbind(
+            apply(CH_by_age_grouped, 1, function(row) {
+                CI = prop.test(row['CH'], row['total'], conf.level=0.95)$conf.int[1:2]
+                return(c(lower = CI[1], upper = CI[2]))
+            }) %>% t
+        )
+    }
+    
+    return(CH_by_age_grouped)
+}
+
+font_size = 8
+age_curve_theme = 
+  theme(
+      legend.position = 'top',
+      legend.key.size = unit(5, 'mm'),
+      legend.title = element_blank(),
+      legend.direction = 'horizontal',
+      plot.title = element_text(hjust = -0.08),
+      axis.text.x = element_text(angle = 45, vjust = 0.5, size = font_size),
+      axis.text.y = element_text(size = font_size),
+      axis.title = element_text(size = font_size),
+      legend.text = element_text(size = font_size)
+  )
+
+hide_for_now <- function() {
+  # this is a fake function for me to be able to hide this section of the chunk while still keeping it in (using RStudio's nice arrow things). Eventually, I will delete this, but I wanted to keep it in for a bit. 
+  # ## Histogram by gene frequency
+  # gene_list = M %>% count(Gene) %>% arrange(-n) %>% .$Gene %>% unique %>% .[1:10]
+  # 
+  # n_treated = M_wide %>% count(therapy_binary) %>% filter(therapy_binary == 'treated') %>% pull(n)
+  # n_untreated = M_wide %>% count(therapy_binary) %>% filter(therapy_binary == 'untreated') %>% pull(n)
+  # 
+  # # tally
+  # D = M %>% 
+  #     filter(CH_nonsilent == 1) %>%
+  #     reshape2::dcast(
+  #         formula = Gene + therapy_binary ~ .,
+  #         value.var = 'STUDY_ID',
+  #         fun.aggregate = function(STUDY_IDs) {length(unique(STUDY_IDs))}
+  #     ) %>%
+  #     dplyr::rename("n_patient" = ".") %>%
+  #     mutate(
+  #         prop_patient = case_when(
+  #             therapy_binary == 'treated' ~ n_patient/n_treated,
+  #             therapy_binary == 'untreated' ~ n_patient/n_untreated
+  #         )
+  #     ) %>%
+  #     filter(Gene %in% gene_list) %>%
+  #     mutate(
+  #         Gene = factor(Gene, gene_list),
+  #         therapy_binary = factor(therapy_binary, c('untreated', 'treated'))
+  #     ) %>%
+  #     arrange(Gene)
+  # 
+  # # need to test for ch_nonsilent, the gene columns in M_wide are ch_pancan_pd
+  # asterisks = lapply(gene_list, 
+  #     function(gene) {
+  #         model = glm(
+  #             formula = paste0(gene, ' ~ age_scaled + smoke_bin + race_b + Gender + therapy_binary'),
+  #             data = M_wide,
+  #             family = "binomial")
+  #         treatment_pval = model %>% summary %$% coefficients %>% .['therapy_binarytreated', 'Pr(>|z|)']
+  #         treatment_qval = p.adjust(treatment_pval, method = 'fdr', n = length(gene_list))
+  #         return(signif.num(treatment_qval, ns = F))
+  #     }
+  # )
+  # 
+  # p_hist = ggplot(
+  #       D,
+  #       aes(x = Gene, y = prop_patient, fill = therapy_binary)
+  #   ) +
+  #   geom_bar(stat = 'identity', position = "dodge", color = 'black', size = 0.25) +
+  #   panel_theme +
+  #   theme(
+  #       panel.grid.major = element_blank(), 
+  #       panel.border = element_blank(),
+  #       axis.line = element_line(colour = "black"),
+  #       legend.title = element_blank(),
+  #       legend.key.size = unit(5, 'mm'),
+  #       legend.position = 'top',
+  #       legend.direction = 'horizontal',
+  #       axis.title = element_text(size = font_size),
+  #       axis.text.x = element_text(angle = 45, hjust = 1, size = font_size),
+  #       legend.text = element_text(size = font_size)
+  #   ) +
+  #   annotate('text', x = gene_list, y = 0.11, label = asterisks, size = 4) +
+  #   ylab("Proportion with mutated Gene") +
+  #   xlab('') +
+  #   scale_fill_manual(values = therapy_colors) +
+  #   scale_color_manual(values = therapy_colors)
+}
+
+## forest plot
+DTA = c('DNMT3A', 'TET2', 'ASXL1')
+DDR = c('PPM1D', 'TP53', 'CHEK2')
+SPL = c('SF3B1', 'SRSF2')
+OTH = c('JAK2', 'ATM')
+
+gene_list = c(DDR, DTA, SPL, OTH)
+
+#ALL adjusted for treatment
+logit_gene_var = list()
+
+for (gene in gene_list) {
+    logit = glm(
+        formula = get(gene) ~ age_scaled + smoke_bin + race_b + Gender + therapy_binary,
+        data = M_wide,
+        family = "binomial")
+    logit_data = logit %>% sjPlot::get_model_data(type="est") %>% cbind(Gene = gene)
+    logit_gene_var = rbind(logit_gene_var, logit_data)
+}
+
+# for each gene
+D = logit_gene_var %>%
+    filter(!term %in% c("GenderFemale", "race_b")) %>%
+    mutate(
+        term = c(
+            'therapy_binarytreated' = 'Therapy',
+            'smoke_bin1' = 'Smoking',
+            'age_scaled' = 'Age'
+        )[as.character(term)]
+    ) %>%
+    mutate(term = factor(term, c("Age", "Therapy", "Smoking"))) %>%
+    mutate(p_fdr = p.adjust(p.value, method = "fdr")) %>%
+    mutate(termGene = paste0(term, Gene)) %>%
+    arrange(estimate, Gene) %>%
+    mutate(termGene = factor(termGene, levels = termGene)) %>%
+    mutate(gene_cat = case_when(
+        Gene %in% DTA ~ 'DTA', 
+        Gene %in% DDR ~ 'DDR', 
+        Gene %in% SPL ~ 'Splicing', 
+        T ~ 'Other'
+      )
+    ) %>% 
+    mutate(gene_cat = factor(gene_cat, c('DDR', 'DTA', 'Splicing', 'Other'))) %>%
+    mutate(
+        q.value = p.adjust(p.value, n = nrow(.), method = 'fdr'), #"p.adjust" adjusts p-values for multiple comparisons (using the Benjamini & Hochberg (1995) correction method)
+        q.label = paste0(signif(estimate, 2), signif.num(q.value)),
+        q.star = signif.num(q.value)
+    )
+
+p_forest = plot_forest(
+      D,
+      x = "termGene",
+      label = 'q.star',
+      eb_w = 0,
+      eb_s = 0.3,
+      ps = 1.5,
+      or_s = 2,
+      nudge = -0.3,
+      col = 'gene_cat'
+  ) + 
+  facet_wrap(~term, scale = 'free_y', ncol = 1) +
+  scale_x_discrete(
+      breaks = D$termGene,
+      labels = D$Gene,
+      expand = c(0.1,0)
+  ) +
+  xlab('') + ylab('Odds Ratio of CH-PD') +
+  scale_color_nejm() +
+  panel_theme +
+  theme(
+    axis.text = element_text(size = font_size),
+    axis.title = element_text(size = font_size),
+    strip.text = element_text(size = font_size),
+    legend.position = 'top',
+    legend.title = element_blank(),
+    legend.text = element_text(size = font_size/1.2),
+    legend.key.size = unit(3, "mm")
+  ) 
+
+combo = ((p_hist + labs(title = 'A')) / (p_stack + labs(title = 'B'))) | (p_forest+ labs(title = 'C'))
+
+do_plot(combo, "fig1c.png", 10, 6, save_pdf = F) #no pdf
+```
+
+\`\`\`
 
 Findings:
 ---------
