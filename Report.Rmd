@@ -49,15 +49,65 @@ To do so, I will be recreating their **Figure 1c** using exactly the same data t
 
 ## Dataset
 
-The dataset used in Figure 1c is called `M_wide`. It comes from a larger dataset named `M_wide_all`, which contains ________. It 
-
-```{r}
+```{r load-M_wide_all}
 M_wide_all = suppressWarnings(data.table::fread('./data/M_wide_all.txt', sep = '\t', header = T)) %>%
   as.data.frame()
-
-#Define wide data frame with treatment known
-M_wide <- M_wide_all %>% filter(therapy_known==1)
 ```
+
+The dataset used in Figure 1c is originally called `M_wide_all`. It contains `r nrow(M_wide_all)` rows, with `r ncol(M_wide_all)` columns, making it an extremely large dataset. Because there are `r M_wide_all$STUDY_ID %>% as.factor %>% nlevels()` unique `STUDY_ID`s and `r nrow(M_wide_all)` rows in this dataset, we know that the `STUDY_ID` acts as a unique identifier for every row. Each row contains data from one patient and their tumor, with columns for:    
+- their `STUDY_ID`  
+- the presence/number of mutations in each specific gene (`BRCA1`, `DNAJB1`, `ERBB4`, `FOXO1`, `TET2`, `TP53`, etc.)  
+- information about these mutations' variant allele frequency (`VAF_all`, `VAF_nonsilent`, `VAF_silent`, `VAF_my`, etc.)  
+- the number of different types of mutations (`mutnum_all`, `mutnum_nonsilent`, `mutnum_my`, etc.)  
+- the presence of clonal hematopoiesis mutations (`ch_nonmy`, `CH_nonsilent`, `ch_my_pd` [PD being "putative cancer-driver mutations"], etc.)  
+- demographic information about the patient (`Gender`, `race`, `age`)  
+- the patient's exposures (`therapy_known`, `therapy_binary`, `smoke`, `ind_cytotoxic_therapy`, `ind_ds_fluorouracil`, etc.). 
+
+In `M_wide_all`, it appears as if some preprocessing steps have already been taken, such as adding a column for the age categories -- breaking down each person's exact decimal age, into an age bracket. To explore how these age categories are broken down, I did the following:
+
+```{r}
+#how many age groups are there?
+table(M_wide_all$age_cat) %>%
+  as.data.frame() %>%
+  rename(`Age Group` = Var1,
+         `Number of People` = Freq) %>%
+  knitr::kable()
+
+ggplot(data = as.data.frame(table(M_wide_all$age_cat)), aes(x = Var1, y = Freq)) +
+  geom_col(fill = "#5691c1") +
+  theme_classic() +
+  labs(x = "Age Group", y = "Number of People")
+```
+
+From the above, we know that there are 9 different age categories, each with the following number of people.
+
+To gain an understanding of what ages are included in each gorup, I did the following:
+
+```{r}
+#give min of each boxplot / age group:
+age_cutoffs <- c()
+for (num in 1:9) {
+  age_cutoffs <- c(age_cutoffs, M_wide_all[M_wide_all$age_cat == num,] %>%
+    select(age) %>%
+    min())
+}
+ggplot(M_wide_all, aes(y = age, x = as.factor(age_cat), fill = as.factor(age_cat))) +
+  geom_boxplot() +
+  scale_fill_brewer(palette = "BuGn") +
+  theme_classic() +
+  labs(x = "Age Group", y = "Age") +
+  geom_hline(aes(yintercept = age_cutoffs[2]), linetype = "dashed", color = "grey") +
+  geom_hline(aes(yintercept = age_cutoffs[3]), linetype = "dashed", color = "grey") +
+  geom_hline(aes(yintercept = age_cutoffs[4]), linetype = "dashed", color = "grey") +
+  geom_hline(aes(yintercept = age_cutoffs[5]), linetype = "dashed", color = "grey") +
+  geom_hline(aes(yintercept = age_cutoffs[6]), linetype = "dashed", color = "grey") +
+  geom_hline(aes(yintercept = age_cutoffs[7]), linetype = "dashed", color = "grey") +
+  geom_hline(aes(yintercept = age_cutoffs[8]), linetype = "dashed", color = "grey") +
+  geom_hline(aes(yintercept = age_cutoffs[9]), linetype = "dashed", color = "grey")
+```
+
+As shown above, the age cutoffs for each categroy are: `r age_cutoffs`, indicating that they chose 0, 11, 21, 31, 41, 51, 61, 71, 81 as their minimum ages for each age group.
+
 
 
 An analysis of the appropriateness of your dataset for addressing these questions.
@@ -86,7 +136,45 @@ A list of the features in the dataset and their types
   
 
 
+
+```{r}
+M_wide_all$ch_nonpd %>% as.factor %>% levels()
+M_wide_all$CH_nonsilent %>% as.factor %>% levels()
+
+colcount <- 0
+for (col in M_wide_all %>% select(starts_with("ch"))){
+  a <- col
+  as.factor(col) %>%
+    levels() %>%
+    print()
+  colcount <- colcount + 1
+}
+print(colcount)
+
+M_wide_all$pct_cytotoxic_therapy %>% as.factor %>% levels()
+
+M_wide_all$pct_microtubule_damaging %>% as.factor %>% levels()
+
+M_wide_all$pct_alkylating_agent %>% as.factor %>% levels()
+
+M_wide_all$pct_targeted_therapy %>% as.factor %>% levels()
+
+M_wide_all$ind_ds_fluorouracil %>% as.factor %>% levels()
+
+M_wide_all$pct_topoisomerase_i_inhi %>% as.factor %>% levels()
+
+M_wide_all$pct_topoisomerase_ii_inh %>% as.factor %>% levels()
+```
+
+
+
 ## (?) Data Wrangling  
+
+```{r}
+#Define wide data frame with treatment known
+M_wide <- M_wide_all %>% filter(therapy_known==1)
+```
+
 
 [?] *Not included explictly on outline, but I think this section would be helpful...*
 
