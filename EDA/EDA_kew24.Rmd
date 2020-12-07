@@ -31,7 +31,7 @@ Read in Data from repo (code copied from author's .Rmd):
 
 ```{r input}
 #Input data
-setwd('./data')
+setwd('../data')
 
 M_long = suppressWarnings(data.table::fread('M_long.txt', sep = '\t', header = T)) %>%
   as.data.frame()
@@ -70,7 +70,7 @@ drugsets_dict <- read.csv("top_sets_dec2018.csv", header = T, stringsAsFactors =
 
 class_dict <- class_dict %>% filter(drugclass_c=="cytotoxic_therapy")
 
-setwd('../')
+setwd('../EDA')
 ```
 
 ## Exploratory Data Analysis
