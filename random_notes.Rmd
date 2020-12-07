@@ -1,0 +1,110 @@
+---
+title: "random notes"
+author: "Kaitlyn Westra"
+date: "11/11/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+```{r read-data}
+M2_all <- read.delim('./M2_all.txt')
+M_tmn_wide_st <- read.delim('./M_tmn_wide_st.txt')
+glimpse(M2_all)
+glimpse(M_tmn_wide_st)
+#M_tmn_long <- read.delim('./M_wide_all.txt.zip')
+```
+
+
+
+Make a model combining a few of those all together, and have all of these as predictors?? Like have "Gene" or "generaltumortype" as our response variable, and have the exposures/therapies ("smoke" and "ind_target_therapy" etc) together to see how well our model's results confirms their findings.
+
+
+- which genes (Gene) predict specific types of tumors (generaltumortype)?
+
+
+##### GENE AS OUTCOME ("y")
+
+- which genes (Gene) have more mutations in smokers (smoke)?
+
+- which genes (Gene) have more mutations in patients that have undergone cancer therapy (ind_target_therapy)(ind_immune_therapy)(XRT)(ind_cytotoxic_therapy)?
+
+GOAL: see if our model predicts ASXL1 when there are smokers, and the other genes when there are cancer therapies?
+
+
+
+##### QUESTIONS
+
+This is more *classification*, not *regression*, and I think all we've done in class so far is regression (predicting home prices...). 
+
+
+
+Models?  
+- decision tree  
+- lin reg  
+
+
+When we've used decision trees in class/lab, it's still been in the context of regression, where our outcome variable is a continuous number. But it would make sense if we could use decision trees for classifcation, too...  
+- we did this in class today?
+
+
+
+
+##### OTHER
+
+- add info from Gene Ontology, get information about certain classes of genes (all involved in the same processes / pathways, etc.)
+
+
+
+##### prof. arnold's thoughts
+
+- try to find some analysis from the paper to do
+- easiest: add prediction to 1st project
+- other models, other things to delve into
+
+
+- do the stuff we did in class today  
+
+- if it's not regression, how do we make that work?
+
+- binary does/doesn't have mutation
+  - mult features: smoker, radiation therapy, 
+  - inference task in a classification setting. inference about a logistic regression
+  - model will give conf intervals if we ask it. see if they include 0.
+  - predictionns: of all the things we know, what mutations will there be
+  - @ timepoints: 1st timepoint + other data + age + gender + smoker + timeframe in between + therapy.
+    - not necessarily include that mutaion in gene A = = > gene B, not causes each other.
+  - somewhat obvious extensions.
+  
+  
+  - how it would be collected, what it means, totally realistic.
+  - coding / modeling -- doesn't take that much time in comparison to the scope.
+  -how to robustly tell teh story of what you figured out.
+  - defend why.
+  - here's the evidence why i think this is right. based on (1) original code, it must meean this or (2) according to underlying biology, this must be the relationship.
+  - a GOOD PROJECT has robust narrative & a small amount of targetted, simple code. nothing requires a LOT of code, just the RIGHT code.
+  - if you can go deep on this, figure out how to bound the risk (like figuring out what data made a figure), go for it.
+  - GET RMD running, delete stuff until it doesn't work. help to identity what's needed for making figure X. 
+  - exploring the code, you don't need a lisence if you're sharing the results. we're fine using it as is.
+
+- geom_freq_poly()
+
+- inference: which one is more important. how does intervention play out? Why would changing oxidation be different.
+  - for people w/ autism, how doese % oxidation diffeer?
+  - is this a *real* difference? or just a statistical artifact? 
+  #### theoery based approach
+  - data %>% specify(`% oxidized` ~ Group) %>% hypothesis(null = "independence") %>% generate(1000, type = "permute") %>% calculate("diff in means") %>% visualize()-- empirical difference in means
+  ^^ if there's no difference, we would expect this range. Simulation-Based Null Distribution
+  - to mark where we are: point estimate! see where we are. infer package. get_p_value -- null_distribution, ovs_state = oint_estimate, direction = "two-sided"
+  - yet he's sceptical of this type of *analysis*: is this causal? idk? tempting to say that [x] causes [y]. 
+  - expiremental design: if we did something that changed x, we can say that it was casual on y.
+  - OR, an all else being equal situation. Matched case-control. Econometrics: instrumental variables to measure that even if you can't match up people. BUT, you need to have confidence that you're measuring everything, that you're measuring any hidden confounding variable.
+
+
+- prediction: classify as autism or not. look @ patterns in coefficients. Queestion isn't what doees % oxidation of metabolites mean. Just trying to make good predictions.
+
+
+
