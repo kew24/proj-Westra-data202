@@ -91,11 +91,14 @@ for (num in 1:9) {
     select(age) %>%
     min())
 }
-ggplot(M_wide_all, aes(y = age, x = as.factor(age_cat), fill = as.factor(age_cat))) +
+split_age_box <- ggplot(M_wide_all, aes(y = age, x = as.factor(age_cat), fill = as.factor(age_cat))) +
   geom_boxplot() +
   scale_fill_brewer(palette = "BuGn") +
   theme_classic() +
-  labs(x = "Age Group", y = "Age") +
+  theme(legend.position = "none") +
+  labs(x = "Age Group", y = "Age", fill = "Age Group") +
+  scale_y_continuous(breaks = c(0, 11, 21, 31, 41, 51, 61, 71, 81),
+                   labels = c(0, 11, 21, 31, 41, 51, 61, 71, 81)) +
   geom_hline(aes(yintercept = age_cutoffs[2]), linetype = "dashed", color = "grey") +
   geom_hline(aes(yintercept = age_cutoffs[3]), linetype = "dashed", color = "grey") +
   geom_hline(aes(yintercept = age_cutoffs[4]), linetype = "dashed", color = "grey") +
@@ -104,9 +107,21 @@ ggplot(M_wide_all, aes(y = age, x = as.factor(age_cat), fill = as.factor(age_cat
   geom_hline(aes(yintercept = age_cutoffs[7]), linetype = "dashed", color = "grey") +
   geom_hline(aes(yintercept = age_cutoffs[8]), linetype = "dashed", color = "grey") +
   geom_hline(aes(yintercept = age_cutoffs[9]), linetype = "dashed", color = "grey")
+
+together_age_violin <- ggplot(M_wide_all, aes(y = age, x = 0)) +
+  geom_violin(fill = "white") +
+  theme_void() +
+  labs(x = "Full Dataset", y = "Age") +
+  theme(axis.ticks.x = element_blank(),
+        axis.text.x = element_blank())
+
+cowplot::plot_grid(split_age_box, together_age_violin, ncol = 2, rel_widths = c(.75, .25), align = "h")
 ```
 
 As shown above, the age cutoffs for each categroy are: `r age_cutoffs`, indicating that they chose 0, 11, 21, 31, 41, 51, 61, 71, 81 as their minimum ages for each age group.
+
+To understand some of the other variables, I did some 
+
 
 
 
@@ -166,14 +181,35 @@ M_wide_all$pct_topoisomerase_i_inhi %>% as.factor %>% levels()
 M_wide_all$pct_topoisomerase_ii_inh %>% as.factor %>% levels()
 ```
 
-
-
-## (?) Data Wrangling  
+They go on to "Process dataframes a bit", which I'll walk through next. 
 
 ```{r}
+M_wide_all = M_wide_all %>%
+    mutate(race_b = as.integer(race == "White")) %>%
+    mutate(age_scaled = as.vector(scale(age)),
+           age_d=age/10) %>%
+    mutate(mutnum_all_r = case_when(
+      mutnum_all ==0 ~ 0,
+      mutnum_all == 1 ~ 1,
+      mutnum_all >= 2 ~ 2)) %>%
+    mutate(smoke_bin=case_when(
+      smoke==0 ~ 0,
+      smoke==1 ~ 1,
+      smoke==2 ~ 1)) %>%
+    mutate(
+      Gender = relevel(factor(Gender), ref = 'Male'),
+      race = relevel(factor(race), "White"),
+      smoke = relevel(factor(smoke), "0"),
+      smoke_bin = relevel(factor(smoke_bin), "0"),
+      therapy_binary = relevel(factor(therapy_binary), 'untreated')
+    )
+
 #Define wide data frame with treatment known
 M_wide <- M_wide_all %>% filter(therapy_known==1)
 ```
+
+
+## (?) Data Wrangling  
 
 
 [?] *Not included explictly on outline, but I think this section would be helpful...*
