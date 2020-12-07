@@ -1,0 +1,63 @@
+---
+title: "YOUR PROJECT TITLE HERE"
+author: "YOUR NAME"
+date: '2020-12-11'
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+```
+
+
+## Overview
+
+### Real-world question
+
+### Data Source
+
+
+## Approach
+
+### Problem Description
+
+### Data 
+
+#### Provenance
+
+#### Structure
+
+#### Appropriateness for task
+
+### Modeling Question and Approach
+
+
+## Exploratory Data Analysis
+
+### Individual Variables
+
+### Combinations of Variables
+
+
+## Modeling
+
+### Baseline
+
+### Refined
+
+
+## Summary
+
+### Discussion of Findings
+
+### Limitations and Ethical Considerations
+
+### Future Directions
+
+
+## Appendix
+
+
+```{r all-code, ref.label=knitr::all_labels(), eval=FALSE}
+```
