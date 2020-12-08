@@ -54,7 +54,15 @@ M_wide_all = suppressWarnings(data.table::fread('./data/M_wide_all.txt', sep = '
   as.data.frame()
 ```
 
-The dataset used in Figure 1c is originally called `M_wide_all`. It contains `r nrow(M_wide_all)` rows, with `r ncol(M_wide_all)` columns, making it an extremely large dataset. Because there are `r M_wide_all$STUDY_ID %>% as.factor %>% nlevels()` unique `STUDY_ID`s and `r nrow(M_wide_all)` rows in this dataset, we know that the `STUDY_ID` acts as a unique identifier for every row. Each row contains data from one patient and their tumor, with columns for:    
+The dataset used in Figure 1c is originally called `M_wide_all`. It contains brings together data on patients' demographics, exposures, and blood/tumor mutations. Used together, this information allows for correlations to be tested. 
+
+The `M_wide_all` dataset was obtained directly from the lab's available [Github repo](https://github.com/papaemmelab/bolton_NG_CH) for this project. Descriptions of how this data was originally acquired, though, are found in the Methods section of the published paper. While a comprehensive overview of the exact details can be found in the paper, a summary is provided here as well. Patients in the MSK-IMPACT cohort had nonhematologic cancers at Memorial Sloan Kettering (MSK) Cancer Center, and data on these patients' ancestry, smoking, date of birth and cancer history was extracted from the MSK cancer registry. Additional blood sample data was added from their Serial Sampling cohort. All participants underwent matched tumor and blood sequencing, which encompassed the exomes of all cancer-associated genes. After sequencing, variant calling for each blood sample was performed by various methods, and variants that were called by two callers were retained. Further, variants were annotated, leaving us with the dataset that appears to be `M_wide_all`. 
+
+> *Much of the technical methods information, including specific phrases, in this section was found in the [Nature Article](https://www.nature.com/articles/s41588-020-00710-0) itself.*
+
+Because the authors followed standard scientific protocols, because the study was reviewed and accepted by a Institutional Review Board, and because the final paper was published in a high impact journal, I feel comfortable saying the data is reliable. Additionally, because this data is from real patients in a well known cancer treatment / research institution, this data is applicable to the questions the authors set out to answer.
+
+`M_wide_all` contains `r nrow(M_wide_all)` rows, with `r ncol(M_wide_all)` columns, making it an extremely large dataset. Because there are `r M_wide_all$STUDY_ID %>% as.factor %>% nlevels()` unique `STUDY_ID`s and `r nrow(M_wide_all)` rows in this dataset, we know that the `STUDY_ID` acts as a unique identifier for every row. Each row contains data from one patient and their blood/tumor, with columns for:    
 - their `STUDY_ID`  
 - the presence/number of mutations in each specific gene (`BRCA1`, `DNAJB1`, `ERBB4`, `FOXO1`, `TET2`, `TP53`, etc.)  
 - information about these mutations' variant allele frequency (`VAF_all`, `VAF_nonsilent`, `VAF_silent`, `VAF_my`, etc.)  
@@ -63,9 +71,53 @@ The dataset used in Figure 1c is originally called `M_wide_all`. It contains `r 
 - demographic information about the patient (`Gender`, `race`, `age`)  
 - the patient's exposures (`therapy_known`, `therapy_binary`, `smoke`, `ind_cytotoxic_therapy`, `ind_ds_fluorouracil`, etc.). 
 
+This very large dataset is appropriate for answering the question answered in Figure 1c. As stated above, there are columns for mutations in many specific genes, which is what we are measuring. Additionally, there are columns for the exposures as well, including Therapy and Smoking. As these are the two primary things shown in Figure 1c, this dataset is applicable to our question of interest. 
+
+This dataframe is read in with `fread`, and most columns' data type is as expected. However, there are some instances where I think it would be best if the data were factors (many of the indicator variables or categories) but instead, they are coded as integers or strings. In all of our columns, the data types are broken down below:
+
+```{r datatypes-table}
+knitr::kable(table(sapply(M_wide_all, class)), col.names = c("Type", "# of Columns"))
+```
+
+Some examples of variables I think should be renamed include: 
+
+```{r datatypes-ideal}
+data.frame(Variable = c("Gender",
+                        "ind_ds_fluorouracil",
+                        "age_cat",
+                        "smoke"),
+           `CurrentType` = c(typeof(M_wide_all$Gender),
+                              typeof(M_wide_all$ind_ds_fluorouracil),
+                              typeof(M_wide_all$age_cat),
+                              typeof(M_wide_all$smoke)),
+           `IdealType` = c(rep("factor",4))) %>%
+  knitr::kable(col.names = c("Variable", "Current Type", "Ideal Type"))
+```
+
+As seen in the table above, I would change most datatypes to factor, which could be easily done with the `data.table::fread()` option, `stringsAsFactors = TRUE`. I am unsure of why they chose to leave strings as characters, but because it doesn't really affect the analysis, this isn't an imperative issue.
+
+
+
+
+
+
+
+- **Approach** *(not entirely sure where this fits in)*: Approach clearly stated and thoughtfully motivated by the intersection of the real-world question and the available data  
+    - more than: *Approach stated clearly in terms that map clearly to the data used*
+
+- **Data Appropriateness**: Particularly thoughtful consideration of data appropriateness  
+    - more than: *Reflected on how the provenance and structure of the data make it appropriate (or not appropriate) for the task*
+  
+  
+  
+================================================================
+
+
+
+
 In `M_wide_all`, it appears as if some preprocessing steps have already been taken, such as adding a column for the age categories -- breaking down each person's exact decimal age, into an age bracket. To explore how these age categories are broken down, I did the following:
 
-```{r}
+```{r age-bars}
 #how many age groups are there?
 table(M_wide_all$age_cat) %>%
   as.data.frame() %>%
@@ -83,7 +135,7 @@ From the above, we know that there are 9 different age categories, each with the
 
 To gain an understanding of what ages are included in each gorup, I did the following:
 
-```{r}
+```{r age-boxes}
 #give min of each boxplot / age group:
 age_cutoffs <- c()
 for (num in 1:9) {
@@ -125,34 +177,10 @@ To understand some of the other variables, I did some
 
 
 
-An analysis of the appropriateness of your dataset for addressing these questions.
-
-A brief (2-4 sentences) verbal description of the dataset: what is the dataset about?
-
-- **High-level dataset description:** Scholarly-level background about the data is provided. *(more than "Data Clearly Described")*
-
-A description of its provenance: where did the data come from originally? Where did you download it from? And (as much as you can tell or speculate) how did it end up available there?
-
-- **Data provenance**: Thoughtful consideration of provenance, e.g., selecting between different datasets based on provenance considerations, or drawing implications for results based on provenance  
-    - more than: *Answers basic provenance questions: where did the data come from originally? Where did you download it from? And (as much as you can tell or speculate) how did it end up available there? What does all of this say about whether the data is reliable for addressing the real-world questions of interest? (2 points)*
-
-The number of records in the dataset, and what each one represents
-
-A list of the features in the dataset and their types
-
-- **Data strcuture**: Data structure clearly identified: number of records, what each record is, what each feature is and what type it is, with examples (2 points)  
-    - **WITH:* ... with thoughtful and critical reflection, e.g., consideration of the appropriateness of different data types (full 3 points)
-
-- **Approach** *(not entirely sure where this fits in)*: Approach clearly stated and thoughtfully motivated by the intersection of the real-world question and the available data  
-    - more than: *Approach stated clearly in terms that map clearly to the data used*
-
-- **Data Appropriateness**: Particularly thoughtful consideration of data appropriateness  
-    - more than: *Reflected on how the provenance and structure of the data make it appropriate (or not appropriate) for the task*
-  
 
 
 
-```{r}
+```{r FIXTHIS-assorted-output}
 M_wide_all$ch_nonpd %>% as.factor %>% levels()
 M_wide_all$CH_nonsilent %>% as.factor %>% levels()
 
@@ -183,7 +211,7 @@ M_wide_all$pct_topoisomerase_ii_inh %>% as.factor %>% levels()
 
 They go on to "Process dataframes a bit", which I'll walk through next. 
 
-```{r}
+```{r dataframe-processing}
 M_wide_all = M_wide_all %>%
     mutate(race_b = as.integer(race == "White")) %>%
     mutate(age_scaled = as.vector(scale(age)),
@@ -240,6 +268,10 @@ Show plots illustrating bivariate relationships for at least 2 pairs of variable
 
 ## Modeling
 
+From the figure legend, we see that the question in Figure 1c is whether *specific molecular subtypes of CH-PD correlate with age, previous therapy exposure and smoking history*. The authors answer this question by creating *multivariable logistic regression models adjusted for therapy, smoking, ancestry, age, sex and time from diagnosis to blood draw.* In Figure 1c, they display the odds ratio with its 95% confidence interval for CH-PD mutations in the ten most commonly mutated genes. They show three consecutive forest plots displaying different groups compared; for the top, increasing age (n = 10,138); middle, patients previously exposed to cancer therapy (n = 5,978) compared with those with no exposure (n = 4,160); bottom, current/former smokers (n = 4,989) compared with nonsmokers (n = 5,145). Significance levels are determined by Q values (FDR-corrected P values): \* Q < 0.05, \*\* Q < 0.01, \*\*\* Q < 0.001. 
+
+
+
 Clearly state what is the target variable you are trying to predict, which variables (features) you are using to predict it, and why you chose those features.
 
 - **Modeling setup/ task description**: Modeling task is both clearly described and well motivated (e.g., alternative decisions are identified and considered)  
@@ -267,7 +299,7 @@ Make one or more changes to the predictive model to improve the accuracy. Discus
 
 Direct Code from Reviewer_Code.Rmd (from here, I just need 1c):
 
-```{r eval=FALSE}
+```{r reviewer-code, eval=FALSE}
 ## Main figures
 # Figure 1 - mutational characteristics
 panel_theme = theme_bw() + theme(
@@ -476,7 +508,7 @@ combo = ((p_hist + labs(title = 'A')) / (p_stack + labs(title = 'B'))) | (p_fore
 do_plot(combo, "fig1c.png", 10, 6, save_pdf = F) #no pdf
 ```
 
-```
+
 
 
 
@@ -509,4 +541,10 @@ What new questions came up following your exploration of this data? Describe at 
 
 
 In addressing this question, I gained not only an understanding of how data science is used in my chosen career field, but also an appreciation for the hard work done by women in STEM -- as, to my surprise, first author Kelly Bolton MD PhD, as well as lab PI, Elli Papaemmanuil, PhD, are both women. 
+
+## Appendix
+
+
+```{r all-code, ref.label=knitr::all_labels(), eval=FALSE}
+```
 
