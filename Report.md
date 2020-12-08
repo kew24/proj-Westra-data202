@@ -9,6 +9,7 @@ Fall 2020
     -   [Background](#background)
     -   [Project](#project)
 -   [Dataset](#dataset)
+    -   [Exploratory EDA](#exploratory-eda)
 -   [(?) Data Wrangling](#data-wrangling)
 -   [Exploratory Data Analysis](#exploratory-data-analysis)
 -   [Modeling](#modeling)
@@ -36,7 +37,7 @@ Question
 
 #### Background
 
-The background of this article follows first author Kelly Bolton, a physician scientist (MD-PhD) and first year fellow in medical oncology at Memorial Sloan Kettering, the world’s oldest and largest private cancer center. Bolton was new to studying clonal hematopoiesis (CH), but jumped on the opportunity to research it, especially to understand if specific therapy types resulted in a higher frequency of CH. With her knowledge of epidemiology, she realized that she could use data from both electronic health records and sequential samples from patients, to understand how therapy could be promoting pre-existing CH or inducing new mutations.
+The story behind this article follows first author Kelly Bolton, a physician scientist (MD-PhD) and first year fellow in medical oncology at Memorial Sloan Kettering, the world’s oldest and largest private cancer center. Bolton was new to studying clonal hematopoiesis (CH), but jumped on the opportunity to research it, especially to understand if specific therapy types resulted in a higher frequency of CH. With her knowledge of epidemiology, she realized that she could use data from both electronic health records and sequential samples from patients, to understand how therapy could be promoting pre-existing CH or inducing new mutations.
 
 CH essentially happens when a hematopoietic stem cell, which can develop into different types of blood cells, starts making cells with the same genetic mutation in individuals without a blood disease. As such, clonal hematopoiesis [includes](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7065480/) the entire spectrum of premalignant conditions related to somatic mutations in genes associated with myeloid disorders. CH remains benign in most people, but sometimes progresses to malignancy.
 
@@ -64,12 +65,12 @@ The `M_wide_all` dataset was obtained directly from the lab's available [Github 
 
 > *Much of the technical methods information, including specific phrases, in this section was found in the [Nature Article](https://www.nature.com/articles/s41588-020-00710-0) itself.*
 
-Because the authors followed standard scientific protocols, because the study was reviewed and accepted by a Institutional Review Board, and because the final paper was published in a high impact journal, I feel comfortable saying the data is reliable. Additionally, because this data is from real patients in a well known cancer treatment / research institution, this data is applicable to the questions the authors set out to answer.
+I am comfortable saying the data is reliable due to the fact that the authors followed standard scientific protocols, the study was reviewed and accepted by a Institutional Review Board, and the final paper was peer reviewed and published in a high impact journal. Additionally, because this data is from real patients in a well known cancer treatment / research institution, this data is applicable to the questions the authors set out to answer.
 
 `M_wide_all` contains 24146 rows, with 562 columns, making it an extremely large dataset. Because there are 24146 unique `STUDY_ID`s and 24146 rows in this dataset, we know that the `STUDY_ID` acts as a unique identifier for every row. Each row contains data from one patient and their blood/tumor, with columns for:
 - their `STUDY_ID`
 - the presence/number of mutations in each specific gene (`BRCA1`, `DNAJB1`, `ERBB4`, `FOXO1`, `TET2`, `TP53`, etc.)
-- information about these mutations' variant allele frequency (`VAF_all`, `VAF_nonsilent`, `VAF_silent`, `VAF_my`, etc.)
+- information about these mutations' variant allele fraction (`VAF_all`, `VAF_nonsilent`, `VAF_silent`, `VAF_my`, etc.)
 - the number of different types of mutations (`mutnum_all`, `mutnum_nonsilent`, `mutnum_my`, etc.)
 - the presence of clonal hematopoiesis mutations (`ch_nonmy`, `CH_nonsilent`, `ch_my_pd` \[PD being "putative cancer-driver mutations"\], etc.)
 - demographic information about the patient (`Gender`, `race`, `age`)
@@ -79,10 +80,6 @@ This very large dataset is appropriate for answering the question answered in Fi
 
 This dataframe is read in with `fread`, and most columns' data type is as expected. However, there are some instances where I think it would be best if the data were factors (many of the indicator variables or categories) but instead, they are coded as integers or strings. In all of our columns, the data types are broken down below:
 
-``` r
-knitr::kable(table(sapply(M_wide_all, class)), col.names = c("Type", "# of Columns"))
-```
-
 | Type      |  \# of Columns|
 |:----------|--------------:|
 | character |              4|
@@ -91,19 +88,6 @@ knitr::kable(table(sapply(M_wide_all, class)), col.names = c("Type", "# of Colum
 
 Some examples of variables I think should be renamed include:
 
-``` r
-data.frame(Variable = c("Gender",
-                        "ind_ds_fluorouracil",
-                        "age_cat",
-                        "smoke"),
-           `CurrentType` = c(typeof(M_wide_all$Gender),
-                              typeof(M_wide_all$ind_ds_fluorouracil),
-                              typeof(M_wide_all$age_cat),
-                              typeof(M_wide_all$smoke)),
-           `IdealType` = c(rep("factor",4))) %>%
-  knitr::kable(col.names = c("Variable", "Current Type", "Ideal Type"))
-```
-
 | Variable              | Current Type | Ideal Type |
 |:----------------------|:-------------|:-----------|
 | Gender                | character    | factor     |
@@ -111,14 +95,11 @@ data.frame(Variable = c("Gender",
 | age\_cat              | integer      | factor     |
 | smoke                 | integer      | factor     |
 
-As seen in the table above, I would change most datatypes to factor, which could be easily done with the `data.table::fread()` option, `stringsAsFactors = TRUE`. I am unsure of why they chose to leave strings as characters, but because it doesn't really affect the analysis, this isn't an imperative issue.
+As seen in the table above, I would change most datatypes to factor, which could be easily done with the `data.table::fread()` option, `stringsAsFactors = TRUE`. It would make sense to change these to factors due to their use in this analysis -- `Gender` was essentially considered a factor, with the following options: Female, Male, and the indicator variables (like `ind_ds_fluorouracil`) having the following levels: 0, 1. I am unsure of why they chose to leave strings as characters, but because it doesn't really affect the analysis, this isn't an imperative issue.
 
--   **Approach** *(not entirely sure where this fits in)*: Approach clearly stated and thoughtfully motivated by the intersection of the real-world question and the available data
-    -   more than: *Approach stated clearly in terms that map clearly to the data used*
--   **Data Appropriateness**: Particularly thoughtful consideration of data appropriateness
-    -   more than: *Reflected on how the provenance and structure of the data make it appropriate (or not appropriate) for the task*
+With the knowledge of which variable names are included in this dataset, it makes sense to explore individual variables further and determine what they mean, what the distribution looks like, and how they're related to other variables. This allows us to to make choices about how to further interpret and analyze this data, as well as give some ideas on which data wrangling steps need to be taken.
 
-================================================================
+#### Exploratory EDA
 
 In `M_wide_all`, it appears as if some preprocessing steps have already been taken, such as adding a column for the age categories -- breaking down each person's exact decimal age, into an age bracket. To explore how these age categories are broken down, I did the following:
 
@@ -152,9 +133,9 @@ ggplot(data = as.data.frame(table(M_wide_all$age_cat)), aes(x = Var1, y = Freq))
 
 ![](Report_files/figure-markdown_github/age-bars-1.png)
 
-From the above, we know that there are 9 different age categories, each with the following number of people.
+From the above, we know that there are 9 different age categories, each with the specified number of people. This distribution is left-skewed, and most people appear to be in the higher numbered age groups.
 
-To gain an understanding of what ages are included in each gorup, I did the following:
+To gain an understanding of what ages are included in each group, I did the following:
 
 ``` r
 #give min of each boxplot / age group:
@@ -193,98 +174,9 @@ cowplot::plot_grid(split_age_box, together_age_violin, ncol = 2, rel_widths = c(
 
 ![](Report_files/figure-markdown_github/age-boxes-1.png)
 
-As shown above, the age cutoffs for each categroy are: 0.128679, 11.093771, 21.0047913, 31.0006847, 41.0047913, 51.0061607, 61.0020523, 71.0006866, 81.0047913, indicating that they chose 0, 11, 21, 31, 41, 51, 61, 71, 81 as their minimum ages for each age group.
+As shown above, the age cutoffs for each categroy are: 0.128679, 11.093771, 21.0047913, 31.0006847, 41.0047913, 51.0061607, 61.0020523, 71.0006866, 81.0047913, indicating that they chose 0, 11, 21, 31, 41, 51, 61, 71, 81 as their minimum ages for each age group. These cutoffs appear in grey dashed lines on the series of boxplots, demonstrating that these categories are chosen based on age itself, as opposed to having category containing the same number of people (e.g., 9 quantiles). The violin plot shown demonstrates how many samples are included in the entire dataset, by age, aligned with the violin plots to give a insight into the comparative amount of patients in each group.
 
-To understand some of the other variables, I did some
-
-``` r
-M_wide_all$ch_nonpd %>% as.factor %>% levels()
-```
-
-    ## [1] "0" "1"
-
-``` r
-M_wide_all$CH_nonsilent %>% as.factor %>% levels()
-```
-
-    ## [1] "0" "1"
-
-``` r
-colcount <- 0
-for (col in M_wide_all %>% select(starts_with("ch"))){
-  a <- col
-  as.factor(col) %>%
-    levels() %>%
-    print()
-  colcount <- colcount + 1
-}
-```
-
-    ## [1] "0" "1"
-    ## [1] "0" "1"
-    ## [1] "0" "1"
-    ## [1] "0" "1"
-    ## [1] "0" "1"
-    ## [1] "0" "1"
-    ## [1] "0" "1"
-    ## [1] "0" "1"
-    ## [1] "0" "1"
-    ## [1] "0" "1"
-    ## [1] "0" "1"
-    ## [1] "0" "1"
-    ## [1] "0" "1"
-    ## [1] "0" "1"
-    ## [1] "0" "1"
-
-``` r
-print(colcount)
-```
-
-    ## [1] 15
-
-``` r
-M_wide_all$pct_cytotoxic_therapy %>% as.factor %>% levels()
-```
-
-    ## [1] "0" "1" "2" "3"
-
-``` r
-M_wide_all$pct_microtubule_damaging %>% as.factor %>% levels()
-```
-
-    ## [1] "0" "1" "2" "3"
-
-``` r
-M_wide_all$pct_alkylating_agent %>% as.factor %>% levels()
-```
-
-    ## [1] "0" "1" "2" "3"
-
-``` r
-M_wide_all$pct_targeted_therapy %>% as.factor %>% levels()
-```
-
-    ## [1] "0" "1" "2" "3"
-
-``` r
-M_wide_all$ind_ds_fluorouracil %>% as.factor %>% levels()
-```
-
-    ## [1] "0" "1"
-
-``` r
-M_wide_all$pct_topoisomerase_i_inhi %>% as.factor %>% levels()
-```
-
-    ## [1] "0" "1" "2" "3"
-
-``` r
-M_wide_all$pct_topoisomerase_ii_inh %>% as.factor %>% levels()
-```
-
-    ## [1] "0" "1" "2" "3"
-
-They go on to "Process dataframes a bit", which I'll walk through next.
+Some of the other variables that are primarily used to create Figure 1c are `race`, `mutnum_all`, `smoke`, `Gender`, and `therapy_binary`. However, before creating the figure, they "process dataframes a bit", which I'll walk through next.
 
 ``` r
 M_wide_all = M_wide_all %>%
@@ -292,7 +184,7 @@ M_wide_all = M_wide_all %>%
     mutate(age_scaled = as.vector(scale(age)),
            age_d=age/10) %>%
     mutate(mutnum_all_r = case_when(
-      mutnum_all ==0 ~ 0,
+      mutnum_all == 0 ~ 0,
       mutnum_all == 1 ~ 1,
       mutnum_all >= 2 ~ 2)) %>%
     mutate(smoke_bin=case_when(
@@ -306,10 +198,195 @@ M_wide_all = M_wide_all %>%
       smoke_bin = relevel(factor(smoke_bin), "0"),
       therapy_binary = relevel(factor(therapy_binary), 'untreated')
     )
+```
 
+This step of consecutive mutating essentially makes a lot of the variables of interest into a binary factor, which is similar to what I had suggested with the original dataframe. In these above steps, the following variables are created:
+
+-   `race_b`: a binary version of `race`, with a value of 1 for "White", and a 0 for anything else.
+-   `age_scaled`: the `age` value, centered (by subtracting the mean `age`) and scaled (by dividing the centered `age` by its standard deviation).
+-   `age_d`: simply takes the `age` value and divides it by 10.
+-   `mutnum_all_r`: the number of mutations, with a value of 2 for any individual with 2+ mutations.
+-   `smoke_bin`: a binary version of `smoke`, with a value of 1 if patient is a current (`smoke` value of 1) or former (`smoke` value of 2) smoker
+
+In the last step of the above code, the variables `Gender`, `race`, `smoke`, `smoke_bin`, and `therapy_binary` are factored and releveled with specific references. - Reference values are important when modelling because any differences are in comparison to the reference category. Because its the basis for which values are compared to, this can change the interpretation of the reuslts.
+- After releveling, the resulting base level for the following values are:
+<ul>
+-   `Gender`: Male
+-   `race`: White
+-   `smoke`: 0 (never smoker)
+-   `smoke_bin`: 0 (never smoker)
+-   `therapy_binary`: untreated (no cancer directed therapy during interval other than hormonal therapy)
+
+</ul>
+To observe some of these changes, we'll look at what these variables look like before and after the change:
+
+**Number of Mutations**
+
+Originally, the number of mutations, `mutnum_all`, is broken down into 9 categories. The new variable, `mutnum_all_r`, only has r`M_wide_all$mutnum_all_r %>% as.factor() %>% nlevels()` categories. Below is the breakdown of each of these:
+
+<table>
+<caption>
+mutnum all
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Number of Mutations
+</th>
+<th style="text-align:right;">
+Number of People
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:right;">
+16930
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:right;">
+4952
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2
+</td>
+<td style="text-align:right;">
+1544
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+3
+</td>
+<td style="text-align:right;">
+496
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+4
+</td>
+<td style="text-align:right;">
+158
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+5
+</td>
+<td style="text-align:right;">
+46
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+6
+</td>
+<td style="text-align:right;">
+14
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+7
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+8
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+</tbody>
+</table>
+<table>
+<caption>
+mutnum all r
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Number of Mutations
+</th>
+<th style="text-align:right;">
+Number of People
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:right;">
+16930
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:right;">
+4952
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2
+</td>
+<td style="text-align:right;">
+2264
+</td>
+</tr>
+</tbody>
+</table>
+From this, we see that any people with more than 2 mutations have been included in the `mutnum_all_r` "2" category.
+
+**Age Scaling**
+
+``` r
+original_age_density <- ggplot(data = M_wide_all, aes(x = age)) +
+  geom_density(fill = "#5691c1") +
+  theme_classic() +
+  labs(x = "Age", y = "Number of People") +
+  theme(axis.ticks.y = element_blank(),
+        axis.text.y = element_blank())
+
+scaled_age_denstiy <- ggplot(data = M_wide_all, aes(x = age_scaled)) +
+  geom_density(fill = "#5691c1") +
+  theme_classic() +
+  labs(x = "Scaled Age", y = "Number of People") +
+  theme(axis.ticks.y = element_blank(),
+        axis.text.y = element_blank()) +
+  scale_x_continuous(position = "top") +
+  scale_y_reverse()
+cowplot::plot_grid(original_age_density, scaled_age_denstiy, nrow = 2, align = "v")
+```
+
+![](Report_files/figure-markdown_github/mutate-changes-1.png)
+
+Note the different x-axis value range for `age_scaled`.
+
+``` r
 #Define wide data frame with treatment known
 M_wide <- M_wide_all %>% filter(therapy_known==1)
 ```
+
+In this newly created dataset, `M_wide`, contains only the row where the therapy information is known. This ensures that the data we're using allows for the comparisons to be made.
 
 (?) Data Wrangling
 ------------------
@@ -653,38 +730,12 @@ together_age_violin <- ggplot(M_wide_all, aes(y = age, x = 0)) +
         axis.text.x = element_blank())
 
 cowplot::plot_grid(split_age_box, together_age_violin, ncol = 2, rel_widths = c(.75, .25), align = "h")
-M_wide_all$ch_nonpd %>% as.factor %>% levels()
-M_wide_all$CH_nonsilent %>% as.factor %>% levels()
-
-colcount <- 0
-for (col in M_wide_all %>% select(starts_with("ch"))){
-  a <- col
-  as.factor(col) %>%
-    levels() %>%
-    print()
-  colcount <- colcount + 1
-}
-print(colcount)
-
-M_wide_all$pct_cytotoxic_therapy %>% as.factor %>% levels()
-
-M_wide_all$pct_microtubule_damaging %>% as.factor %>% levels()
-
-M_wide_all$pct_alkylating_agent %>% as.factor %>% levels()
-
-M_wide_all$pct_targeted_therapy %>% as.factor %>% levels()
-
-M_wide_all$ind_ds_fluorouracil %>% as.factor %>% levels()
-
-M_wide_all$pct_topoisomerase_i_inhi %>% as.factor %>% levels()
-
-M_wide_all$pct_topoisomerase_ii_inh %>% as.factor %>% levels()
 M_wide_all = M_wide_all %>%
     mutate(race_b = as.integer(race == "White")) %>%
     mutate(age_scaled = as.vector(scale(age)),
            age_d=age/10) %>%
     mutate(mutnum_all_r = case_when(
-      mutnum_all ==0 ~ 0,
+      mutnum_all == 0 ~ 0,
       mutnum_all == 1 ~ 1,
       mutnum_all >= 2 ~ 2)) %>%
     mutate(smoke_bin=case_when(
@@ -698,7 +749,30 @@ M_wide_all = M_wide_all %>%
       smoke_bin = relevel(factor(smoke_bin), "0"),
       therapy_binary = relevel(factor(therapy_binary), 'untreated')
     )
+table(M_wide_all$mutnum_all) %>%
+  knitr::kable(col.names = c("Number of Mutations","Number of People"),
+               caption = "mutnum all",
+               format = "html")
+table(M_wide_all$mutnum_all_r) %>%
+  knitr::kable(col.names = c("Number of Mutations","Number of People"),
+               caption = "mutnum all r",
+               format = "html")
+original_age_density <- ggplot(data = M_wide_all, aes(x = age)) +
+  geom_density(fill = "#5691c1") +
+  theme_classic() +
+  labs(x = "Age", y = "Number of People") +
+  theme(axis.ticks.y = element_blank(),
+        axis.text.y = element_blank())
 
+scaled_age_denstiy <- ggplot(data = M_wide_all, aes(x = age_scaled)) +
+  geom_density(fill = "#5691c1") +
+  theme_classic() +
+  labs(x = "Scaled Age", y = "Number of People") +
+  theme(axis.ticks.y = element_blank(),
+        axis.text.y = element_blank()) +
+  scale_x_continuous(position = "top") +
+  scale_y_reverse()
+cowplot::plot_grid(original_age_density, scaled_age_denstiy, nrow = 2, align = "v")
 #Define wide data frame with treatment known
 M_wide <- M_wide_all %>% filter(therapy_known==1)
 ## Main figures
