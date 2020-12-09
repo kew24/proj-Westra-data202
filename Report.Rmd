@@ -1,7 +1,7 @@
 ---
 title: "Genetic Mutations from Cancer Therapies"
 author: "Kaitlyn Westra"
-date: "Fall 2020"
+date: "11 December 2020"
 output: 
   github_document:
     toc: TRUE
@@ -14,10 +14,6 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r quietly-install-packages, include=FALSE}
 library(tidyverse)
 ```
-
-### About
-
-This is an outline of the things that need to be included for this final project. Below, I've copied & pasted the project outline from Professor Arnold's project description. Interspersed is bullet points of specific rubric objectives (copied & pasted from the "3 points" column in Moodle). This hopefully makes it easier to see what progress has been made & what we have left to do. At the very end, when these sections are filled in, the filler words can be deleted.
 
 ## Introduction
 
@@ -49,6 +45,8 @@ To do so, I will be recreating their **Figure 1c** using exactly the same data t
 
 ## Dataset
 
+#### Dataset Background
+
 ```{r load-M_wide_all}
 M_wide_all = suppressWarnings(data.table::fread('./data/M_wide_all.txt', sep = '\t', header = T)) %>%
   as.data.frame()
@@ -61,6 +59,8 @@ The `M_wide_all` dataset was obtained directly from the lab's available [Github 
 > *Much of the technical methods information, including specific phrases, in this section was found in the [Nature Article](https://www.nature.com/articles/s41588-020-00710-0) itself.*
 
 I am comfortable saying the data is reliable due to the fact that the authors followed standard scientific protocols, the study was reviewed and accepted by a Institutional Review Board, and the final paper was peer reviewed and published in a high impact journal. Additionally, because this data is from real patients in a well known cancer treatment / research institution, this data is applicable to the questions the authors set out to answer.
+
+#### Dataset Description
 
 `M_wide_all` contains `r nrow(M_wide_all)` rows, with `r ncol(M_wide_all)` columns, making it an extremely large dataset. Because there are `r M_wide_all$STUDY_ID %>% as.factor %>% nlevels()` unique `STUDY_ID`s and `r nrow(M_wide_all)` rows in this dataset, we know that the `STUDY_ID` acts as a unique identifier for every row. Each row contains data from one patient and their blood/tumor, with columns for:    
 - their `STUDY_ID`  
@@ -98,11 +98,11 @@ As seen in the table above, I would change most datatypes to factor, which could
 
 With the knowledge of which variable names are included in this dataset, it makes sense to explore individual variables further and determine what they mean, what the distribution looks like, and how they're related to other variables. This allows us to to make choices about how to further interpret and analyze this data, as well as give some ideas on which data wrangling steps need to be taken.
 
-#### Exploratory Data Analysis and Data Wrangling
+#### Exploratory Data Analysis
 
-In `M_wide_all`, it appears as if some preprocessing steps have already been taken, such as adding a column for the age categories -- breaking down each person's exact decimal age, into an age bracket. To explore how these age categories are broken down, I did the following:
+In `M_wide_all`, it appears as if some preprocessing steps have already been taken, such as adding a column for the age categories -- breaking down each person's exact decimal age, into an age bracket. To explore how these age categories are broken down, I created the following table and bar graph:
 
-```{r age-bars}
+```{r age-bars, echo=FALSE}
 #how many age groups are there?
 table(M_wide_all$age_cat) %>%
   as.data.frame() %>%
@@ -116,11 +116,11 @@ ggplot(data = as.data.frame(table(M_wide_all$age_cat)), aes(x = Var1, y = Freq))
   labs(x = "Age Group", y = "Number of People")
 ```
 
-From the above, we know that there are 9 different age categories, each with the specified number of people. This distribution is left-skewed, and most people appear to be in the higher numbered age groups.
+From this table and bar graph, we know that there are 9 different age categories, each with the specified number of people. This distribution is left-skewed, and most people appear to be in the higher numbered age groups.
 
-To gain an understanding of what ages are included in each group, I did the following:
+To gain an understanding of what ages are included in each group, I made the following exploratory plot:
 
-```{r age-boxes}
+```{r age-boxes, echo=FALSE}
 #give min of each boxplot / age group:
 age_cutoffs <- c()
 for (num in 1:9) {
@@ -181,7 +181,7 @@ M_wide_all = M_wide_all %>%
     )
 ```
 
-This step of consecutive mutating essentially makes a lot of the variables of interest into a binary factor, which is similar to what I had suggested with the original dataframe. In these above steps, the following variables are created:
+This step of consecutive mutating essentially makes many of the variables of interest into binary factors, which is similar to what I had suggested with the original dataframe. In these above steps, the following variables are created:
 
 - `race_b`: a binary version of `race`, with a value of 1 for "White", and a 0 for anything else. 
 - `age_scaled`: the `age` value, centered (by subtracting the mean `age`) and scaled (by dividing the centered `age` by its standard deviation).  
@@ -205,7 +205,7 @@ To observe some of these changes, we'll look at what these variables look like b
 
 **Number of Mutations**
 
-Originally, the number of mutations, `mutnum_all`, is broken down into `r M_wide_all$mutnum_all %>% as.factor() %>% nlevels()` categories. The new variable, `mutnum_all_r`, only has `r M_wide_all$mutnum_all_r %>% as.factor() %>% nlevels()` categories. Below is the breakdown of each of these:
+Originally, the number of mutations, `mutnum_all`, is broken down into `r M_wide_all$mutnum_all %>% as.factor() %>% nlevels()` categories. The new variable, `mutnum_all_r`, only has `r M_wide_all$mutnum_all_r %>% as.factor() %>% nlevels()` categories. By comparing the breakdowns, we see that any people with more than 2 mutations have been included in the `mutnum_all_r` "2" category. Below is the breakdown of these two variables:
 
 ```{r mutnum_table, echo=FALSE}
 table(M_wide_all$mutnum_all) %>%
@@ -218,11 +218,11 @@ table(M_wide_all$mutnum_all_r) %>%
                format = "html")
 ```
 
-From this, we see that any people with more than 2 mutations have been included in the `mutnum_all_r` "2" category.
-
 **Age Scaling**
 
-```{r mutate-changes}
+In the plot below, the distribution of `age` is shown on top of the distribution of `age_scaled`. The distribution itself is the same, but the age values change (due to the centering and scaling). To see the new values, note the different x-axis value range for `age_scaled`.
+
+```{r mutate-changes, echo=FALSE}
 original_age_density <- ggplot(data = M_wide_all, aes(x = age)) +
   geom_density(fill = "#5691c1") +
   theme_classic() +
@@ -241,9 +241,7 @@ scaled_age_denstiy <- ggplot(data = M_wide_all, aes(x = age_scaled)) +
 cowplot::plot_grid(original_age_density, scaled_age_denstiy, nrow = 2, align = "v")
 ```
 
-In the above plot, the distribution of `age` is shown on top of the distribution of `age_scaled`. The distribution itself is the same, but the age values change (due to the centering and scaling). To see the new values, note the different x-axis value range for `age_scaled`.
-
-From this point, the dataset was wrangled to create a new dataset:
+From this point, the dataset was subsetted to create a new dataset:
 
 ```{r wide-with-treatment}
 #Define wide data frame with treatment known
@@ -532,15 +530,16 @@ Summarize the analyses you performed and what the results told you. What do your
 
 
 
-## Limitations: 
+## Limitations
 
 What are some limitations of your analyses and potential biases of the data you used?
 
+and Ethical Considerations
 
 
 
 
-## Future Directions: 
+## Future Directions
 
 What new questions came up following your exploration of this data? Describe at least one question that could not be answered using your data alone, and specify what additional data you would collect to address it.
 
@@ -551,6 +550,10 @@ What new questions came up following your exploration of this data? Describe at 
 
 
 In addressing this question, I gained not only an understanding of how data science is used in my chosen career field, but also an appreciation for the hard work done by women in STEM -- as, to my surprise, first author Kelly Bolton MD PhD, as well as lab PI, Elli Papaemmanuil, PhD, are both women. 
+
+### Author
+
+###### <img align="left" src="./background/headshot.png" width=90 height=90 style="margin-right: 5px;"> Kaitlyn Westra is an undergraduate student at Calvin University, studying Biochemistry (ACS Certified), Data Analytics, and Public Health. Her interests include bioinformatics, genomics, and computational biology, and she hopes to attend graduate school to continue learning about and contributing towards these fields. 
 
 ## Appendix
 

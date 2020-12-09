@@ -1,26 +1,24 @@
 Genetic Mutations from Cancer Therapies
 ================
 Kaitlyn Westra
-Fall 2020
+11 December 2020
 
--   [About](#about)
 -   [Introduction](#introduction)
 -   [Question](#question)
     -   [Background](#background)
     -   [Project](#project)
 -   [Dataset](#dataset)
-    -   [Exploratory Data Analysis and Data Wrangling](#exploratory-data-analysis-and-data-wrangling)
--   [Exploratory Data Analysis](#exploratory-data-analysis)
+    -   [Dataset Background](#dataset-background)
+    -   [Dataset Description](#dataset-description)
+    -   [Exploratory Data Analysis](#exploratory-data-analysis)
+-   [Exploratory Data Analysis](#exploratory-data-analysis-1)
 -   [Modeling](#modeling)
 -   [Findings:](#findings)
--   [Limitations:](#limitations)
--   [Future Directions:](#future-directions)
+-   [Limitations](#limitations)
+-   [Future Directions](#future-directions)
 -   [Conclusions](#conclusions)
+    -   [Author](#author)
 -   [Appendix](#appendix)
-
-### About
-
-This is an outline of the things that need to be included for this final project. Below, I've copied & pasted the project outline from Professor Arnold's project description. Interspersed is bullet points of specific rubric objectives (copied & pasted from the "3 points" column in Moodle). This hopefully makes it easier to see what progress has been made & what we have left to do. At the very end, when these sections are filled in, the filler words can be deleted.
 
 Introduction
 ------------
@@ -53,6 +51,8 @@ To do so, I will be recreating their **Figure 1c** using exactly the same data t
 Dataset
 -------
 
+#### Dataset Background
+
 ``` r
 M_wide_all = suppressWarnings(data.table::fread('./data/M_wide_all.txt', sep = '\t', header = T)) %>%
   as.data.frame()
@@ -65,6 +65,8 @@ The `M_wide_all` dataset was obtained directly from the lab's available [Github 
 > *Much of the technical methods information, including specific phrases, in this section was found in the [Nature Article](https://www.nature.com/articles/s41588-020-00710-0) itself.*
 
 I am comfortable saying the data is reliable due to the fact that the authors followed standard scientific protocols, the study was reviewed and accepted by a Institutional Review Board, and the final paper was peer reviewed and published in a high impact journal. Additionally, because this data is from real patients in a well known cancer treatment / research institution, this data is applicable to the questions the authors set out to answer.
+
+#### Dataset Description
 
 `M_wide_all` contains 24146 rows, with 562 columns, making it an extremely large dataset. Because there are 24146 unique `STUDY_ID`s and 24146 rows in this dataset, we know that the `STUDY_ID` acts as a unique identifier for every row. Each row contains data from one patient and their blood/tumor, with columns for:
 - their `STUDY_ID`
@@ -98,18 +100,9 @@ As seen in the table above, I would change most datatypes to factor, which could
 
 With the knowledge of which variable names are included in this dataset, it makes sense to explore individual variables further and determine what they mean, what the distribution looks like, and how they're related to other variables. This allows us to to make choices about how to further interpret and analyze this data, as well as give some ideas on which data wrangling steps need to be taken.
 
-#### Exploratory Data Analysis and Data Wrangling
+#### Exploratory Data Analysis
 
-In `M_wide_all`, it appears as if some preprocessing steps have already been taken, such as adding a column for the age categories -- breaking down each person's exact decimal age, into an age bracket. To explore how these age categories are broken down, I did the following:
-
-``` r
-#how many age groups are there?
-table(M_wide_all$age_cat) %>%
-  as.data.frame() %>%
-  rename(`Age Group` = Var1,
-         `Number of People` = Freq) %>%
-  knitr::kable()
-```
+In `M_wide_all`, it appears as if some preprocessing steps have already been taken, such as adding a column for the age categories -- breaking down each person's exact decimal age, into an age bracket. To explore how these age categories are broken down, I created the following table and bar graph:
 
 | Age Group |  Number of People|
 |:----------|-----------------:|
@@ -123,53 +116,11 @@ table(M_wide_all$age_cat) %>%
 | 8         |              4219|
 | 9         |              1027|
 
-``` r
-ggplot(data = as.data.frame(table(M_wide_all$age_cat)), aes(x = Var1, y = Freq)) +
-  geom_col(fill = "#5691c1") +
-  theme_classic() +
-  labs(x = "Age Group", y = "Number of People")
-```
-
 ![](Report_files/figure-markdown_github/age-bars-1.png)
 
-From the above, we know that there are 9 different age categories, each with the specified number of people. This distribution is left-skewed, and most people appear to be in the higher numbered age groups.
+From this table and bar graph, we know that there are 9 different age categories, each with the specified number of people. This distribution is left-skewed, and most people appear to be in the higher numbered age groups.
 
-To gain an understanding of what ages are included in each group, I did the following:
-
-``` r
-#give min of each boxplot / age group:
-age_cutoffs <- c()
-for (num in 1:9) {
-  age_cutoffs <- c(age_cutoffs, M_wide_all[M_wide_all$age_cat == num,] %>%
-    select(age) %>%
-    min())
-}
-split_age_box <- ggplot(M_wide_all, aes(y = age, x = as.factor(age_cat), fill = as.factor(age_cat))) +
-  geom_boxplot() +
-  scale_fill_brewer(palette = "BuGn") +
-  theme_classic() +
-  theme(legend.position = "none") +
-  labs(x = "Age Group", y = "Age", fill = "Age Group") +
-  scale_y_continuous(breaks = c(0, 11, 21, 31, 41, 51, 61, 71, 81),
-                   labels = c(0, 11, 21, 31, 41, 51, 61, 71, 81)) +
-  geom_hline(aes(yintercept = age_cutoffs[2]), linetype = "dashed", color = "grey") +
-  geom_hline(aes(yintercept = age_cutoffs[3]), linetype = "dashed", color = "grey") +
-  geom_hline(aes(yintercept = age_cutoffs[4]), linetype = "dashed", color = "grey") +
-  geom_hline(aes(yintercept = age_cutoffs[5]), linetype = "dashed", color = "grey") +
-  geom_hline(aes(yintercept = age_cutoffs[6]), linetype = "dashed", color = "grey") +
-  geom_hline(aes(yintercept = age_cutoffs[7]), linetype = "dashed", color = "grey") +
-  geom_hline(aes(yintercept = age_cutoffs[8]), linetype = "dashed", color = "grey") +
-  geom_hline(aes(yintercept = age_cutoffs[9]), linetype = "dashed", color = "grey")
-
-together_age_violin <- ggplot(M_wide_all, aes(y = age, x = 0)) +
-  geom_violin(fill = "white") +
-  theme_void() +
-  labs(x = "Full Dataset", y = "Age") +
-  theme(axis.ticks.x = element_blank(),
-        axis.text.x = element_blank())
-
-cowplot::plot_grid(split_age_box, together_age_violin, ncol = 2, rel_widths = c(.75, .25), align = "h")
-```
+To gain an understanding of what ages are included in each group, I made the following exploratory plot:
 
 ![](Report_files/figure-markdown_github/age-boxes-1.png)
 
@@ -199,7 +150,7 @@ M_wide_all = M_wide_all %>%
     )
 ```
 
-This step of consecutive mutating essentially makes a lot of the variables of interest into a binary factor, which is similar to what I had suggested with the original dataframe. In these above steps, the following variables are created:
+This step of consecutive mutating essentially makes many of the variables of interest into binary factors, which is similar to what I had suggested with the original dataframe. In these above steps, the following variables are created:
 
 -   `race_b`: a binary version of `race`, with a value of 1 for "White", and a 0 for anything else.
 -   `age_scaled`: the `age` value, centered (by subtracting the mean `age`) and scaled (by dividing the centered `age` by its standard deviation).
@@ -221,7 +172,7 @@ To observe some of these changes, we'll look at what these variables look like b
 
 **Number of Mutations**
 
-Originally, the number of mutations, `mutnum_all`, is broken down into 9 categories. The new variable, `mutnum_all_r`, only has 3 categories. Below is the breakdown of each of these:
+Originally, the number of mutations, `mutnum_all`, is broken down into 9 categories. The new variable, `mutnum_all_r`, only has 3 categories. By comparing the breakdowns, we see that any people with more than 2 mutations have been included in the `mutnum_all_r` "2" category. Below is the breakdown of these two variables:
 
 <table>
 <caption>
@@ -353,34 +304,13 @@ Number of People
 </tr>
 </tbody>
 </table>
-From this, we see that any people with more than 2 mutations have been included in the `mutnum_all_r` "2" category.
-
 **Age Scaling**
 
-``` r
-original_age_density <- ggplot(data = M_wide_all, aes(x = age)) +
-  geom_density(fill = "#5691c1") +
-  theme_classic() +
-  labs(x = "Age", y = "Number of People") +
-  theme(axis.ticks.y = element_blank(),
-        axis.text.y = element_blank())
-
-scaled_age_denstiy <- ggplot(data = M_wide_all, aes(x = age_scaled)) +
-  geom_density(fill = "#5691c1") +
-  theme_classic() +
-  labs(x = "Scaled Age", y = "Number of People") +
-  theme(axis.ticks.y = element_blank(),
-        axis.text.y = element_blank()) +
-  scale_x_continuous(position = "top") +
-  scale_y_reverse()
-cowplot::plot_grid(original_age_density, scaled_age_denstiy, nrow = 2, align = "v")
-```
+In the plot below, the distribution of `age` is shown on top of the distribution of `age_scaled`. The distribution itself is the same, but the age values change (due to the centering and scaling). To see the new values, note the different x-axis value range for `age_scaled`.
 
 ![](Report_files/figure-markdown_github/mutate-changes-1.png)
 
-In the above plot, the distribution of `age` is shown on top of the distribution of `age_scaled`. The distribution itself is the same, but the age values change (due to the centering and scaling). To see the new values, note the different x-axis value range for `age_scaled`.
-
-From this point, the dataset was wrangled to create a new dataset:
+From this point, the dataset was subsetted to create a new dataset:
 
 ``` r
 #Define wide data frame with treatment known
@@ -648,13 +578,15 @@ Findings:
 
 Summarize the analyses you performed and what the results told you. What do your findings say about the real-world and prediction (or clustering) questions you posed?
 
-Limitations:
-------------
+Limitations
+-----------
 
 What are some limitations of your analyses and potential biases of the data you used?
 
-Future Directions:
-------------------
+and Ethical Considerations
+
+Future Directions
+-----------------
 
 What new questions came up following your exploration of this data? Describe at least one question that could not be answered using your data alone, and specify what additional data you would collect to address it.
 
@@ -664,6 +596,10 @@ Conclusions
 > this is my own added section. see if I want to include this or not. if not, put this paragraph somewhere else
 
 In addressing this question, I gained not only an understanding of how data science is used in my chosen career field, but also an appreciation for the hard work done by women in STEM -- as, to my surprise, first author Kelly Bolton MD PhD, as well as lab PI, Elli Papaemmanuil, PhD, are both women.
+
+### Author
+
+###### <img align="left" src="./background/headshot.png" width=90 height=90 style="margin-right: 5px;"> Kaitlyn Westra is an undergraduate student at Calvin University, studying Biochemistry (ACS Certified), Data Analytics, and Public Health. Her interests include bioinformatics, genomics, and computational biology, and she hopes to attend graduate school to continue learning about and contributing towards these fields.
 
 Appendix
 --------
