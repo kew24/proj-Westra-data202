@@ -5,19 +5,14 @@ Kaitlyn Westra
 
 -   [Introduction](#introduction)
 -   [Question](#question)
-    -   [Background](#background)
-    -   [Project](#project)
 -   [Dataset](#dataset)
-    -   [Dataset Background](#dataset-background)
-    -   [Dataset Description](#dataset-description)
-    -   [Exploratory Data Analysis](#exploratory-data-analysis)
--   [Exploratory Data Analysis](#exploratory-data-analysis-1)
+-   [Exploratory Data Analysis](#exploratory-data-analysis)
 -   [Modeling](#modeling)
 -   [Findings:](#findings)
 -   [Limitations](#limitations)
 -   [Future Directions](#future-directions)
 -   [Conclusions](#conclusions)
-    -   [Author](#author)
+-   [Author](#author)
 -   [Appendix](#appendix)
 
 Introduction
@@ -100,7 +95,10 @@ As seen in the table above, I would change most datatypes to factor, which could
 
 With the knowledge of which variable names are included in this dataset, it makes sense to explore individual variables further and determine what they mean, what the distribution looks like, and how they're related to other variables. This allows us to to make choices about how to further interpret and analyze this data, as well as give some ideas on which data wrangling steps need to be taken.
 
-#### Exploratory Data Analysis
+Exploratory Data Analysis
+-------------------------
+
+#### Univariate EDA
 
 In `M_wide_all`, it appears as if some preprocessing steps have already been taken, such as adding a column for the age categories -- breaking down each person's exact decimal age, into an age bracket. To explore how these age categories are broken down, I created the following table and bar graph:
 
@@ -127,6 +125,10 @@ To gain an understanding of what ages are included in each group, I made the fol
 As shown above, the age cutoffs for each categroy are: 0.128679, 11.093771, 21.0047913, 31.0006847, 41.0047913, 51.0061607, 61.0020523, 71.0006866, 81.0047913, indicating that they chose 0, 11, 21, 31, 41, 51, 61, 71, 81 as their minimum ages for each age group. These cutoffs appear in grey dashed lines on the series of boxplots, demonstrating that these categories are chosen based on age itself, as opposed to having category containing the same number of people (e.g., 9 quantiles). The violin plot shown demonstrates how many samples are included in the entire dataset, by age, aligned with the violin plots to give a insight into the comparative amount of patients in each group.
 
 Some of the other variables that are primarily used to create Figure 1c are `race`, `mutnum_all`, `smoke`, `Gender`, and `therapy_binary`. However, before creating the figure, they "process dataframes a bit", which I'll walk through next.
+
+#### Data Wrangling
+
+The following code displays the main data wrangling steps used on this data. Below, I explain what this code does, and how it impacts the rest of the analysis.
 
 ``` r
 M_wide_all = M_wide_all %>%
@@ -168,7 +170,7 @@ In the last step of the above code, the variables `Gender`, `race`, `smoke`, `sm
 -   `therapy_binary`: untreated (no cancer directed therapy during interval other than hormonal therapy)
 
 </ul>
-To observe some of these changes, we'll look at what these variables look like before and after the change:
+To observe some of these changes, we'll look at what two these variables look like before and after the change:
 
 **Number of Mutations**
 
@@ -310,29 +312,58 @@ In the plot below, the distribution of `age` is shown on top of the distribution
 
 ![](Report_files/figure-markdown_github/mutate-changes-1.png)
 
-From this point, the dataset was subsetted to create a new dataset:
+In addition to `age_scaled` and `mutnum_all_r`, the variables that are used in Figure 1c include `smoke_bin`, `race_b`, `Gender`, and `therapy_binary`.
+
+**Smoke Binned**
+
+In the processing code above, we saw that `smoke_bin` has a value of 1 if patient is a current (`smoke` value of 1) or former (`smoke` value of 2) smoker, and a 0 if they have never been a smoker. The number of people in each of these categories is shown below, demonstrating that there is a similar amount of people who are current/former smokes and have never smoked.
+
+![](Report_files/figure-markdown_github/smoke-binned-EDA-1.png)
+
+**Race Binary**
+
+`race_b` was also created in the processing code shown above, as a binary version of `race` with a value of 1 for "White", and a 0 for anything else. The amount of people that fall into each of these categories is shown below, with the majority of patients in this study being white.
+
+![](Report_files/figure-markdown_github/race-binary-1.png)
+
+**Gender**
+
+`Gender` is a factor with one of two values: Male or Female. Here is the breakdown for participants in this study, displaying a comparable number of each gender, with slightly more females.
+
+![](Report_files/figure-markdown_github/gender-plot-1.png)
+
+**Therapy Binary**
+
+Lastly, `therapy_binary` indicates if the patient had any cancer directed therapy other than hormonal therapy. Based on the distrubtion below, it is evident that for most of the original patients, it was unknown whether or not they had therapy during the interval. Of the patients where their therapy status was known, there were more treated patients than untreated.
+
+![](Report_files/figure-markdown_github/therapy-plot-1.png)
+
+From this point in the authors' code, the dataset was subsetted to create a new dataset:
 
 ``` r
 #Define wide data frame with treatment known
 M_wide <- M_wide_all %>% filter(therapy_known==1)
 ```
 
-In this newly created dataset, `M_wide`, contains only the row where the therapy information is known. This is an appropriate way to identify and deal with missing data, as it ensures that the data we're using allows for the comparisons to be made.
+This newly created dataset, `M_wide`, contains only the rows where the therapy information is known. This is an appropriate way to identify and deal with missing data, which is necessary due to the large amount of patients with unknown therapy history, as shown in the plot above. Subsetting this dataset into `M_wide` ensures that the data we're using contains all the information we need, and allows for the comparisons to be made.
 
-Exploratory Data Analysis
--------------------------
+#### Bivariate EDA
 
-Show plots illustrating the distribution of at least 4 variables in your dataset. Comment on anything interesting you observe.
+To do some exploratory bivariate data analysis, I made a series of quick plots to see what relationships might be present between our variables of interest.
 
--   **Univariate EDA**: Includes insightful / thoughtful commentary on implications of the distributions plotted (perhaps how that informs further analysis)
-    -   more than: *Includes plots illustrating the distribution of more than one variable in the dataset, with some commentary.*
+I am first looking at the relationship between the presence of mutations in the gene *TP53* (`TP53`) and whether the patient recieved therapy (`therapy_binary`) during this period. Because these are each binary variables, it really only makes sense to calculate the odds ratio, but to show this same idea in a figure, the number of people that belong to each of these categories is shown in a 2-by-2 table. From this, we see that there seems to be a higher percentage of people with *TP53* mutations in the treated group than the untreated group:
 
-Show plots illustrating bivariate relationships for at least 2 pairs of variables. Explain what you observe (e.g., positive/negative correlation, no correlation, etc.).
+![](Report_files/figure-markdown_github/EDA-tp53-therapy-1.png)
 
--   **Bivariate EDA**: Includes insightful / thoughtful commentary on the implication of the relationships plotted
-    -   more than: *Includes plots illustrating bivariate relationships for at least 2 pairs of variables and some description of observations (e.g., strength of relationship, dependence on other factors).*
+Similarly, we can make the same plot for `smoke_bin` and the mutations in the gene *ASXL1* (`ASXL1`). From this, we see that there seems to be a higher percentage of current/former smokers (`smoke_bin` == 1) with mutations in ASXL1 compared to non-smokers.
 
-Before creating the actual model used in Figure 1c, I decided to do a series of quick plots to see what relationsips might be present between our variables of interest.
+![](Report_files/figure-markdown_github/EDA-asxl1-smoke-1.png)
+
+Just out of curiousity, we'll check the same thing -- if the presence of mutations correlates with smoking status -- in a *different* gene: *TET2*. Based on Figure 1c, I'd expect this not to show a significant difference between the groups. As expected, the figure below shows that there doesn't appear to be a significnatly higher amount of current/former smokers with new mutations in this gene compared to non-smokers.
+
+![](Report_files/figure-markdown_github/EDA-tet2-smoke-1.png)
+
+All of these bivariate plots give us some insight into what we expect to see with the model we create, and the odds ratio we'll be calculating. These plots don't adjust or control for any variables though, so this is something to keep in mind as we move forward.
 
 Modeling
 --------
@@ -597,7 +628,8 @@ Conclusions
 
 In addressing this question, I gained not only an understanding of how data science is used in my chosen career field, but also an appreciation for the hard work done by women in STEM -- as, to my surprise, first author Kelly Bolton MD PhD, as well as lab PI, Elli Papaemmanuil, PhD, are both women.
 
-### Author
+Author
+------
 
 ###### <img align="left" src="./background/headshot.png" width=90 height=90 style="margin-right: 5px;"> Kaitlyn Westra is an undergraduate student at Calvin University, studying Biochemistry (ACS Certified), Data Analytics, and Public Health. Her interests include bioinformatics, genomics, and computational biology, and she hopes to attend graduate school to continue learning about and contributing towards these fields.
 
@@ -628,7 +660,7 @@ table(M_wide_all$age_cat) %>%
   knitr::kable()
 
 ggplot(data = as.data.frame(table(M_wide_all$age_cat)), aes(x = Var1, y = Freq)) +
-  geom_col(fill = "#5691c1") +
+  geom_col(fill = c("#e8c1b3", "#e8b8a7", "#e8b09b", "#e8a790", "#e89f84", "#e89679", "#e88e6d", "#e88561", "#e87d56")) + ##e79e84 base color
   theme_classic() +
   labs(x = "Age Group", y = "Number of People")
 #give min of each boxplot / age group:
@@ -706,8 +738,50 @@ scaled_age_denstiy <- ggplot(data = M_wide_all, aes(x = age_scaled)) +
   scale_x_continuous(position = "top") +
   scale_y_reverse()
 cowplot::plot_grid(original_age_density, scaled_age_denstiy, nrow = 2, align = "v")
+ggplot(data = M_wide_all, aes(x = smoke_bin)) +
+  geom_bar(fill = c("#8e3b18","#be5422", "#ef924e")) +
+  theme_classic() +
+  labs(x = "Smoking Status", y = "Number of People")
+ggplot(data = M_wide_all, aes(x = as.factor(race_b))) +
+  geom_bar(fill = c("#405484","#8691b1")) +
+  theme_classic() +
+  labs(x = "Race", y = "Number of People")
+ggplot(data = M_wide_all, aes(x = as.factor(Gender))) +
+  geom_bar(fill = c("#469d89","#9fcfc3")) +
+  theme_classic() +
+  labs(x = "Gender", y = "Number of People")
+ggplot(data = M_wide_all, aes(x = as.factor(therapy_binary))) +
+  geom_bar(fill = c("#e7c9c1", "#cc9685", "#bfbfbf")) +
+  theme_classic() +
+  labs(x = "Therapy", y = "Number of People")
 #Define wide data frame with treatment known
 M_wide <- M_wide_all %>% filter(therapy_known==1)
+M_wide %>%
+  group_by(therapy_binary, TP53) %>%
+  summarize(number = n(), .groups = "drop") %>%
+  ungroup() %>%
+  ggplot(data = ., aes(x = as.factor(TP53), y = as.factor(therapy_binary), label = number)) +
+    geom_label(label.size = .1, label.padding = unit(1, "lines")) +
+    labs(x = "TP53 Mutation", y = "Therapy") +
+    theme_light()
+M_wide %>%
+  filter(!is.na(smoke_bin)) %>%
+  group_by(smoke_bin, ASXL1) %>%
+  summarize(number = n(), .groups = "drop") %>%
+  ungroup() %>%
+  ggplot(data = ., aes(x = as.factor(ASXL1), y = as.factor(smoke_bin), label = number)) +
+    geom_label(label.size = .1, label.padding = unit(1, "lines")) +
+    labs(x = "ASXL1 Mutation", y = "Smoker") +
+    theme_light()
+M_wide %>%
+  filter(!is.na(smoke_bin)) %>%
+  group_by(smoke_bin, TET2) %>%
+  summarize(number = n(), .groups = "drop") %>%
+  ungroup() %>%
+  ggplot(data = ., aes(x = as.factor(TET2), y = as.factor(smoke_bin), label = number)) +
+    geom_label(label.size = .1, label.padding = unit(1, "lines")) +
+    labs(x = "TET2 Mutation", y = "Smoker") +
+    theme_light()
 ## Main figures
 # Figure 1 - mutational characteristics
 hide_this_too <- function(){
