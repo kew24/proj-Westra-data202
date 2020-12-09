@@ -9,8 +9,7 @@ Fall 2020
     -   [Background](#background)
     -   [Project](#project)
 -   [Dataset](#dataset)
-    -   [Exploratory EDA](#exploratory-eda)
--   [(?) Data Wrangling](#data-wrangling)
+    -   [Exploratory Data Analysis and Data Wrangling](#exploratory-data-analysis-and-data-wrangling)
 -   [Exploratory Data Analysis](#exploratory-data-analysis)
 -   [Modeling](#modeling)
 -   [Findings:](#findings)
@@ -99,7 +98,7 @@ As seen in the table above, I would change most datatypes to factor, which could
 
 With the knowledge of which variable names are included in this dataset, it makes sense to explore individual variables further and determine what they mean, what the distribution looks like, and how they're related to other variables. This allows us to to make choices about how to further interpret and analyze this data, as well as give some ideas on which data wrangling steps need to be taken.
 
-#### Exploratory EDA
+#### Exploratory Data Analysis and Data Wrangling
 
 In `M_wide_all`, it appears as if some preprocessing steps have already been taken, such as adding a column for the age categories -- breaking down each person's exact decimal age, into an age bracket. To explore how these age categories are broken down, I did the following:
 
@@ -222,7 +221,7 @@ To observe some of these changes, we'll look at what these variables look like b
 
 **Number of Mutations**
 
-Originally, the number of mutations, `mutnum_all`, is broken down into 9 categories. The new variable, `mutnum_all_r`, only has r`M_wide_all$mutnum_all_r %>% as.factor() %>% nlevels()` categories. Below is the breakdown of each of these:
+Originally, the number of mutations, `mutnum_all`, is broken down into 9 categories. The new variable, `mutnum_all_r`, only has 3 categories. Below is the breakdown of each of these:
 
 <table>
 <caption>
@@ -379,22 +378,16 @@ cowplot::plot_grid(original_age_density, scaled_age_denstiy, nrow = 2, align = "
 
 ![](Report_files/figure-markdown_github/mutate-changes-1.png)
 
-Note the different x-axis value range for `age_scaled`.
+In the above plot, the distribution of `age` is shown on top of the distribution of `age_scaled`. The distribution itself is the same, but the age values change (due to the centering and scaling). To see the new values, note the different x-axis value range for `age_scaled`.
+
+From this point, the dataset was wrangled to create a new dataset:
 
 ``` r
 #Define wide data frame with treatment known
 M_wide <- M_wide_all %>% filter(therapy_known==1)
 ```
 
-In this newly created dataset, `M_wide`, contains only the row where the therapy information is known. This ensures that the data we're using allows for the comparisons to be made.
-
-(?) Data Wrangling
-------------------
-
-\[?\] *Not included explictly on outline, but I think this section would be helpful...*
-
--   Thoughtful reflection on choices made in data wrangling and/or their implications on subsequent analysis
-    -   more than: *Correctly performed needed data wrangling, e.g., merging multiple data sources, aggregating, re-coding data, identifying and dealing with missing data*
+In this newly created dataset, `M_wide`, contains only the row where the therapy information is known. This is an appropriate way to identify and deal with missing data, as it ensures that the data we're using allows for the comparisons to be made.
 
 Exploratory Data Analysis
 -------------------------
@@ -408,6 +401,8 @@ Show plots illustrating bivariate relationships for at least 2 pairs of variable
 
 -   **Bivariate EDA**: Includes insightful / thoughtful commentary on the implication of the relationships plotted
     -   more than: *Includes plots illustrating bivariate relationships for at least 2 pairs of variables and some description of observations (e.g., strength of relationship, dependence on other factors).*
+
+Before creating the actual model used in Figure 1c, I decided to do a series of quick plots to see what relationsips might be present between our variables of interest.
 
 Modeling
 --------
@@ -440,59 +435,61 @@ Direct Code from Reviewer\_Code.Rmd (from here, I just need 1c):
 ``` r
 ## Main figures
 # Figure 1 - mutational characteristics
-panel_theme = theme_bw() + theme(
-    panel.border = element_blank(),
-    legend.position = "none",
-    panel.grid.minor = element_blank(),
-    plot.subtitle = element_text(hjust = 0.5, size = 8),
-    plot.title = element_text(face = 'bold', size = 12, hjust = 0, vjust = -11),
-    panel.grid.major = element_blank(),
-    strip.background = element_blank(),
-    strip.text = element_text(size = 6),
-    axis.text.y = element_text(size = 6),
-    axis.text.x = element_text(size = 6),
-    axis.title = element_text(size = 8),
-    axis.line = element_line(),
-    plot.margin = unit(c(0,0,0,0), 'pt')
-) 
-
-age_groups = c("0-10", "11-20", "21-30", "31-40", "41-50", "51-60", "61-70", "71-80", "81-90", "91-100")
-
-get_ch_grouped = function(M_wide, CI = T) {
-
-    CH_by_age_grouped = M_wide %>% select(STUDY_ID, age_cat, CH) %>%
-        mutate(CH = ifelse(is.na(CH), 0, CH)) %>%
-        group_by(age_cat) %>%
-        summarise(CH = sum(CH), total = n()) %>% 
-        filter(!is.na(age_cat)) %>%
-        mutate(freq = CH / total)
-    
-    if (CI) {
-        CH_by_age_grouped = CH_by_age_grouped %>%
-        cbind(
-            apply(CH_by_age_grouped, 1, function(row) {
-                CI = prop.test(row['CH'], row['total'], conf.level=0.95)$conf.int[1:2]
-                return(c(lower = CI[1], upper = CI[2]))
-            }) %>% t
-        )
-    }
-    
-    return(CH_by_age_grouped)
+hide_this_too <- function(){
+  # panel_theme = theme_bw() + theme(
+  #     panel.border = element_blank(),
+  #     legend.position = "none",
+  #     panel.grid.minor = element_blank(),
+  #     plot.subtitle = element_text(hjust = 0.5, size = 8),
+  #     plot.title = element_text(face = 'bold', size = 12, hjust = 0, vjust = -11),
+  #     panel.grid.major = element_blank(),
+  #     strip.background = element_blank(),
+  #     strip.text = element_text(size = 6),
+  #     axis.text.y = element_text(size = 6),
+  #     axis.text.x = element_text(size = 6),
+  #     axis.title = element_text(size = 8),
+  #     axis.line = element_line(),
+  #     plot.margin = unit(c(0,0,0,0), 'pt')
+  # ) 
+  # 
+  # age_groups = c("0-10", "11-20", "21-30", "31-40", "41-50", "51-60", "61-70", "71-80", "81-90", "91-100")
+  # 
+  # get_ch_grouped = function(M_wide, CI = T) {
+  # 
+  #     CH_by_age_grouped = M_wide %>% select(STUDY_ID, age_cat, CH) %>%
+  #         mutate(CH = ifelse(is.na(CH), 0, CH)) %>%
+  #         group_by(age_cat) %>%
+  #         summarise(CH = sum(CH), total = n()) %>% 
+  #         filter(!is.na(age_cat)) %>%
+  #         mutate(freq = CH / total)
+  #     
+  #     if (CI) {
+  #         CH_by_age_grouped = CH_by_age_grouped %>%
+  #         cbind(
+  #             apply(CH_by_age_grouped, 1, function(row) {
+  #                 CI = prop.test(row['CH'], row['total'], conf.level=0.95)$conf.int[1:2]
+  #                 return(c(lower = CI[1], upper = CI[2]))
+  #             }) %>% t
+  #         )
+  #     }
+  #     
+  #     return(CH_by_age_grouped)
+  # }
+  # 
+  # font_size = 8
+  # age_curve_theme = 
+  #   theme(
+  #       legend.position = 'top',
+  #       legend.key.size = unit(5, 'mm'),
+  #       legend.title = element_blank(),
+  #       legend.direction = 'horizontal',
+  #       plot.title = element_text(hjust = -0.08),
+  #       axis.text.x = element_text(angle = 45, vjust = 0.5, size = font_size),
+  #       axis.text.y = element_text(size = font_size),
+  #       axis.title = element_text(size = font_size),
+  #       legend.text = element_text(size = font_size)
+  #   )
 }
-
-font_size = 8
-age_curve_theme = 
-  theme(
-      legend.position = 'top',
-      legend.key.size = unit(5, 'mm'),
-      legend.title = element_blank(),
-      legend.direction = 'horizontal',
-      plot.title = element_text(hjust = -0.08),
-      axis.text.x = element_text(angle = 45, vjust = 0.5, size = font_size),
-      axis.text.y = element_text(size = font_size),
-      axis.title = element_text(size = font_size),
-      legend.text = element_text(size = font_size)
-  )
 
 hide_for_now <- function() {
   # this is a fake function for me to be able to hide this section of the chunk while still keeping it in (using RStudio's nice arrow things). Eventually, I will delete this, but I wanted to keep it in for a bit. 
@@ -777,59 +774,61 @@ cowplot::plot_grid(original_age_density, scaled_age_denstiy, nrow = 2, align = "
 M_wide <- M_wide_all %>% filter(therapy_known==1)
 ## Main figures
 # Figure 1 - mutational characteristics
-panel_theme = theme_bw() + theme(
-    panel.border = element_blank(),
-    legend.position = "none",
-    panel.grid.minor = element_blank(),
-    plot.subtitle = element_text(hjust = 0.5, size = 8),
-    plot.title = element_text(face = 'bold', size = 12, hjust = 0, vjust = -11),
-    panel.grid.major = element_blank(),
-    strip.background = element_blank(),
-    strip.text = element_text(size = 6),
-    axis.text.y = element_text(size = 6),
-    axis.text.x = element_text(size = 6),
-    axis.title = element_text(size = 8),
-    axis.line = element_line(),
-    plot.margin = unit(c(0,0,0,0), 'pt')
-) 
-
-age_groups = c("0-10", "11-20", "21-30", "31-40", "41-50", "51-60", "61-70", "71-80", "81-90", "91-100")
-
-get_ch_grouped = function(M_wide, CI = T) {
-
-    CH_by_age_grouped = M_wide %>% select(STUDY_ID, age_cat, CH) %>%
-        mutate(CH = ifelse(is.na(CH), 0, CH)) %>%
-        group_by(age_cat) %>%
-        summarise(CH = sum(CH), total = n()) %>% 
-        filter(!is.na(age_cat)) %>%
-        mutate(freq = CH / total)
-    
-    if (CI) {
-        CH_by_age_grouped = CH_by_age_grouped %>%
-        cbind(
-            apply(CH_by_age_grouped, 1, function(row) {
-                CI = prop.test(row['CH'], row['total'], conf.level=0.95)$conf.int[1:2]
-                return(c(lower = CI[1], upper = CI[2]))
-            }) %>% t
-        )
-    }
-    
-    return(CH_by_age_grouped)
+hide_this_too <- function(){
+  # panel_theme = theme_bw() + theme(
+  #     panel.border = element_blank(),
+  #     legend.position = "none",
+  #     panel.grid.minor = element_blank(),
+  #     plot.subtitle = element_text(hjust = 0.5, size = 8),
+  #     plot.title = element_text(face = 'bold', size = 12, hjust = 0, vjust = -11),
+  #     panel.grid.major = element_blank(),
+  #     strip.background = element_blank(),
+  #     strip.text = element_text(size = 6),
+  #     axis.text.y = element_text(size = 6),
+  #     axis.text.x = element_text(size = 6),
+  #     axis.title = element_text(size = 8),
+  #     axis.line = element_line(),
+  #     plot.margin = unit(c(0,0,0,0), 'pt')
+  # ) 
+  # 
+  # age_groups = c("0-10", "11-20", "21-30", "31-40", "41-50", "51-60", "61-70", "71-80", "81-90", "91-100")
+  # 
+  # get_ch_grouped = function(M_wide, CI = T) {
+  # 
+  #     CH_by_age_grouped = M_wide %>% select(STUDY_ID, age_cat, CH) %>%
+  #         mutate(CH = ifelse(is.na(CH), 0, CH)) %>%
+  #         group_by(age_cat) %>%
+  #         summarise(CH = sum(CH), total = n()) %>% 
+  #         filter(!is.na(age_cat)) %>%
+  #         mutate(freq = CH / total)
+  #     
+  #     if (CI) {
+  #         CH_by_age_grouped = CH_by_age_grouped %>%
+  #         cbind(
+  #             apply(CH_by_age_grouped, 1, function(row) {
+  #                 CI = prop.test(row['CH'], row['total'], conf.level=0.95)$conf.int[1:2]
+  #                 return(c(lower = CI[1], upper = CI[2]))
+  #             }) %>% t
+  #         )
+  #     }
+  #     
+  #     return(CH_by_age_grouped)
+  # }
+  # 
+  # font_size = 8
+  # age_curve_theme = 
+  #   theme(
+  #       legend.position = 'top',
+  #       legend.key.size = unit(5, 'mm'),
+  #       legend.title = element_blank(),
+  #       legend.direction = 'horizontal',
+  #       plot.title = element_text(hjust = -0.08),
+  #       axis.text.x = element_text(angle = 45, vjust = 0.5, size = font_size),
+  #       axis.text.y = element_text(size = font_size),
+  #       axis.title = element_text(size = font_size),
+  #       legend.text = element_text(size = font_size)
+  #   )
 }
-
-font_size = 8
-age_curve_theme = 
-  theme(
-      legend.position = 'top',
-      legend.key.size = unit(5, 'mm'),
-      legend.title = element_blank(),
-      legend.direction = 'horizontal',
-      plot.title = element_text(hjust = -0.08),
-      axis.text.x = element_text(angle = 45, vjust = 0.5, size = font_size),
-      axis.text.y = element_text(size = font_size),
-      axis.title = element_text(size = font_size),
-      legend.text = element_text(size = font_size)
-  )
 
 hide_for_now <- function() {
   # this is a fake function for me to be able to hide this section of the chunk while still keeping it in (using RStudio's nice arrow things). Eventually, I will delete this, but I wanted to keep it in for a bit. 
