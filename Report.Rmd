@@ -22,7 +22,7 @@ library(tidyverse)
 
 Over the past 6 months, I've worked as a research intern at Grand Rapids' Van Andel Institute, in a [lab](https://braslab.vai.org) that studies the genetics of neurodegenerative diseases, like Parkinson's Disease, Alzheimer's Disease, and dementia with Lewy bodies. Throughout this internship, I have been able to learn about the intersection of genetics, disease, and data science, using R and other genomics tools to analyze genetic mutation data and make discoveries that have an impact on people's lives.  
 
-Because of this introduction I've had to the field of genetics and bioinformatics, I have been curious what *other* labs and groups do with similar data. This lead me to browse through the [cBioPortal for Cancer Genomics](https://www.cbioportal.org), which I had heard about from a series of online [Dataviz + Cancer Microlabs](https://apply.hub.ki/cancerplusviz/) that occurred earlier this year. The dataset I had found was used in a recent *Nature Genetics* article, "[Cancer therapy shapes the fitness landscape of clonal hematopoiesis](https://www.nature.com/articles/s41588-020-00710-0)" so I decided this would be perfect for my final project.
+Because of this introduction I've had to the field of genetics and bioinformatics, I have been curious what *other* labs and groups do with similar data. This led me to browse through the [cBioPortal for Cancer Genomics](https://www.cbioportal.org), which I had heard about from a series of online [Dataviz + Cancer Microlabs](https://apply.hub.ki/cancerplusviz/) that occurred earlier this year. The dataset I had found was used in a recent *Nature Genetics* article, "[Cancer therapy shapes the fitness landscape of clonal hematopoiesis](https://www.nature.com/articles/s41588-020-00710-0)" so I decided this would be perfect for my final project.
 
 ## Question
 
@@ -324,7 +324,7 @@ M_wide %>%
     theme_light()
 ```
 
-Similarly, we can make the same plot for `smoke_bin` and the mutations in the gene *ASXL1* (`ASXL1`). From this, we see that there seems to be a higher percentage of current/former smokers (`smoke_bin` == 1) with mutations in ASXL1 compared to non-smokers.
+Similarly, we can make the same plot for `smoke_bin` and the mutations in the gene *ASXL1* (`ASXL1`). From this, we see that there seems to be a higher percentage of current/former smokers (`smoke_bin` == 1) with mutations in *ASXL1* compared to non-smokers:
 
 ```{r EDA-asxl1-smoke, echo=FALSE}
 M_wide %>%
@@ -338,7 +338,7 @@ M_wide %>%
     theme_light()
 ```
 
-Just out of curiosity, we'll check the same thing -- if the presence of mutations correlates with smoking status -- in a *different* gene: *TET2*. Based on Figure 1c, I'd expect this not to show a significant difference between the groups. As expected, the figure below shows that there doesn't appear to be a significantly higher amount of current/former smokers with new mutations in this gene compared to non-smokers.
+Just out of curiosity, we'll check the same thing -- if the presence of mutations correlates with smoking status -- in a *different* gene: *TET2*. Based on Figure 1c, I'd expect this not to show a significant difference between the groups. As expected, the figure below shows that there doesn't appear to be a significantly higher amount of current/former smokers with new mutations in this gene compared to non-smokers:
 
 ```{r EDA-tet2-smoke, echo=FALSE}
 M_wide %>%
@@ -372,7 +372,7 @@ OTH = c('JAK2', 'ATM')
 gene_list = c(DDR, DTA, SPL, OTH)
 ```
 
-From the article, we know that these genes were selected based on their biochemical pathway. A brief discription of the pathway is shown below:
+From the article, we know that these genes were selected based on their biochemical pathway. A brief description of the pathway is shown below:
 
 ```{r genelist-pretty, echo=FALSE}
 pretty_genelist <- c()
@@ -387,7 +387,7 @@ pretty_genelist %>%
                  justify = "clc")
 ```
 
-All of these pathway functions are pretty clear, except the "other" category. I couldn't find any reason in the article or code for why these 2 genes (*JAK2* and *ATM*) specifically were included. Looking through journal articles revealed that *ATM* is in a [key DDR-related pathway for "critical DNA damage response kinases"](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5961503/), and that mutations in *JAK2* have previously been [found in patients with myeloproliferative disorders](https://www.nature.com/articles/nature03546). Because of these previous studies, it would make sense that these two extra genes were included. However, I think it would have been better if a more thorough explaination had detailed why these two "other genes" were selected, instead of it being a seemingly haphazard choice.
+All of these pathway functions are pretty clear, except the "other" category. I couldn't find any reason in the article or code for why these 2 genes (*JAK2* and *ATM*) specifically were included. Looking through journal articles revealed that *ATM* is in a [key DDR-related pathway for "critical DNA damage response kinases"](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5961503/), and that mutations in *JAK2* have previously been [found in patients with myeloproliferative disorders](https://www.nature.com/articles/nature03546). Because of these previous studies, it would make sense that these two extra genes were included. However, I think it would have been better if a more thorough explanation had detailed why these two "other genes" were selected, instead of it being a seemingly haphazard choice.
 
 #### Model Creation
 
@@ -407,7 +407,7 @@ for (gene in gene_list) {
 }
 ```
 
-To break down what this code is doing, the first line starts out by making an empty list, `logit_gene_var`, that will eventually contain all the data on _____. Then, for each of the 10 genes in the `gene_list` that was previously created, a Binomial Regression Model (a type of Generalized Linear Model) is created, predicting `gene` from the variables `age_scaled`, `smoke_bin`, `race_b`, `Gender`, and `therapy_binary`. The model uses the Binomial error distribution, which is a discrete distribution where the outcomes are 0 and 1. 
+To break down what this code is doing, the first line starts out by making an empty list, `logit_gene_var`, that will eventually contain all the data on the predictors from the created models. Then, for each of the 10 genes in the `gene_list` that was previously created, a Binomial Regression Model (a type of Generalized Linear Model) is created, predicting `gene` from the variables `age_scaled`, `smoke_bin`, `race_b`, `Gender`, and `therapy_binary`. The model uses the Binomial error distribution, which is a discrete distribution where the outcomes are 0 and 1. 
 
 To verify that the binomial model is what we should be using, we'll make sure that each of our genes has values of either 0 or 1:
 
@@ -473,180 +473,6 @@ D = logit_gene_var %>%
 Direct Code from Reviewer_Code.Rmd (from here, I just need 1c):
 
 ```{r reviewer-code, eval=FALSE}
-## Main figures
-# Figure 1 - mutational characteristics
-hide_this_too <- function(){
-  # panel_theme = theme_bw() + theme(
-  #     panel.border = element_blank(),
-  #     legend.position = "none",
-  #     panel.grid.minor = element_blank(),
-  #     plot.subtitle = element_text(hjust = 0.5, size = 8),
-  #     plot.title = element_text(face = 'bold', size = 12, hjust = 0, vjust = -11),
-  #     panel.grid.major = element_blank(),
-  #     strip.background = element_blank(),
-  #     strip.text = element_text(size = 6),
-  #     axis.text.y = element_text(size = 6),
-  #     axis.text.x = element_text(size = 6),
-  #     axis.title = element_text(size = 8),
-  #     axis.line = element_line(),
-  #     plot.margin = unit(c(0,0,0,0), 'pt')
-  # ) 
-  # 
-  # age_groups = c("0-10", "11-20", "21-30", "31-40", "41-50", "51-60", "61-70", "71-80", "81-90", "91-100")
-  # 
-  # get_ch_grouped = function(M_wide, CI = T) {
-  # 
-  #     CH_by_age_grouped = M_wide %>% select(STUDY_ID, age_cat, CH) %>%
-  #         mutate(CH = ifelse(is.na(CH), 0, CH)) %>%
-  #         group_by(age_cat) %>%
-  #         summarise(CH = sum(CH), total = n()) %>% 
-  #         filter(!is.na(age_cat)) %>%
-  #         mutate(freq = CH / total)
-  #     
-  #     if (CI) {
-  #         CH_by_age_grouped = CH_by_age_grouped %>%
-  #         cbind(
-  #             apply(CH_by_age_grouped, 1, function(row) {
-  #                 CI = prop.test(row['CH'], row['total'], conf.level=0.95)$conf.int[1:2]
-  #                 return(c(lower = CI[1], upper = CI[2]))
-  #             }) %>% t
-  #         )
-  #     }
-  #     
-  #     return(CH_by_age_grouped)
-  # }
-  # 
-  # font_size = 8
-  # age_curve_theme = 
-  #   theme(
-  #       legend.position = 'top',
-  #       legend.key.size = unit(5, 'mm'),
-  #       legend.title = element_blank(),
-  #       legend.direction = 'horizontal',
-  #       plot.title = element_text(hjust = -0.08),
-  #       axis.text.x = element_text(angle = 45, vjust = 0.5, size = font_size),
-  #       axis.text.y = element_text(size = font_size),
-  #       axis.title = element_text(size = font_size),
-  #       legend.text = element_text(size = font_size)
-  #   )
-}
-
-hide_for_now <- function() {
-  # this is a fake function for me to be able to hide this section of the chunk while still keeping it in (using RStudio's nice arrow things). Eventually, I will delete this, but I wanted to keep it in for a bit. 
-  # ## Histogram by gene frequency
-  # gene_list = M %>% count(Gene) %>% arrange(-n) %>% .$Gene %>% unique %>% .[1:10]
-  # 
-  # n_treated = M_wide %>% count(therapy_binary) %>% filter(therapy_binary == 'treated') %>% pull(n)
-  # n_untreated = M_wide %>% count(therapy_binary) %>% filter(therapy_binary == 'untreated') %>% pull(n)
-  # 
-  # # tally
-  # D = M %>% 
-  #     filter(CH_nonsilent == 1) %>%
-  #     reshape2::dcast(
-  #         formula = Gene + therapy_binary ~ .,
-  #         value.var = 'STUDY_ID',
-  #         fun.aggregate = function(STUDY_IDs) {length(unique(STUDY_IDs))}
-  #     ) %>%
-  #     dplyr::rename("n_patient" = ".") %>%
-  #     mutate(
-  #         prop_patient = case_when(
-  #             therapy_binary == 'treated' ~ n_patient/n_treated,
-  #             therapy_binary == 'untreated' ~ n_patient/n_untreated
-  #         )
-  #     ) %>%
-  #     filter(Gene %in% gene_list) %>%
-  #     mutate(
-  #         Gene = factor(Gene, gene_list),
-  #         therapy_binary = factor(therapy_binary, c('untreated', 'treated'))
-  #     ) %>%
-  #     arrange(Gene)
-  # 
-  # # need to test for ch_nonsilent, the gene columns in M_wide are ch_pancan_pd
-  # asterisks = lapply(gene_list, 
-  #     function(gene) {
-  #         model = glm(
-  #             formula = paste0(gene, ' ~ age_scaled + smoke_bin + race_b + Gender + therapy_binary'),
-  #             data = M_wide,
-  #             family = "binomial")
-  #         treatment_pval = model %>% summary %$% coefficients %>% .['therapy_binarytreated', 'Pr(>|z|)']
-  #         treatment_qval = p.adjust(treatment_pval, method = 'fdr', n = length(gene_list))
-  #         return(signif.num(treatment_qval, ns = F))
-  #     }
-  # )
-  # 
-  # p_hist = ggplot(
-  #       D,
-  #       aes(x = Gene, y = prop_patient, fill = therapy_binary)
-  #   ) +
-  #   geom_bar(stat = 'identity', position = "dodge", color = 'black', size = 0.25) +
-  #   panel_theme +
-  #   theme(
-  #       panel.grid.major = element_blank(), 
-  #       panel.border = element_blank(),
-  #       axis.line = element_line(colour = "black"),
-  #       legend.title = element_blank(),
-  #       legend.key.size = unit(5, 'mm'),
-  #       legend.position = 'top',
-  #       legend.direction = 'horizontal',
-  #       axis.title = element_text(size = font_size),
-  #       axis.text.x = element_text(angle = 45, hjust = 1, size = font_size),
-  #       legend.text = element_text(size = font_size)
-  #   ) +
-  #   annotate('text', x = gene_list, y = 0.11, label = asterisks, size = 4) +
-  #   ylab("Proportion with mutated Gene") +
-  #   xlab('') +
-  #   scale_fill_manual(values = therapy_colors) +
-  #   scale_color_manual(values = therapy_colors)
-}
-# 
-# ## forest plot
-# DTA = c('DNMT3A', 'TET2', 'ASXL1')
-# DDR = c('PPM1D', 'TP53', 'CHEK2')
-# SPL = c('SF3B1', 'SRSF2')
-# OTH = c('JAK2', 'ATM')
-# 
-# gene_list = c(DDR, DTA, SPL, OTH)
-
-# #ALL adjusted for treatment
-# logit_gene_var = list()
-# 
-# for (gene in gene_list) {
-#     logit = glm(
-#         formula = get(gene) ~ age_scaled + smoke_bin + race_b + Gender + therapy_binary,
-#         data = M_wide,
-#         family = "binomial")
-#     logit_data = logit %>% sjPlot::get_model_data(type="est") %>% cbind(Gene = gene)
-#     logit_gene_var = rbind(logit_gene_var, logit_data)
-# }
-
-# # for each gene
-# D = logit_gene_var %>%
-#     filter(!term %in% c("GenderFemale", "race_b")) %>%
-#     mutate(
-#         term = c(
-#             'therapy_binarytreated' = 'Therapy',
-#             'smoke_bin1' = 'Smoking',
-#             'age_scaled' = 'Age'
-#         )[as.character(term)]
-#     ) %>%
-#     mutate(term = factor(term, c("Age", "Therapy", "Smoking"))) %>%
-#     mutate(p_fdr = p.adjust(p.value, method = "fdr")) %>%
-#     mutate(termGene = paste0(term, Gene)) %>%
-#     arrange(estimate, Gene) %>%
-#     mutate(termGene = factor(termGene, levels = termGene)) %>%
-#     mutate(gene_cat = case_when(
-#         Gene %in% DTA ~ 'DTA', 
-#         Gene %in% DDR ~ 'DDR', 
-#         Gene %in% SPL ~ 'Splicing', 
-#         T ~ 'Other'
-#       )
-#     ) %>% 
-#     mutate(gene_cat = factor(gene_cat, c('DDR', 'DTA', 'Splicing', 'Other'))) %>%
-#     mutate(
-#         q.value = p.adjust(p.value, n = nrow(.), method = 'fdr'), #"p.adjust" adjusts p-values for multiple comparisons (using the Benjamini & Hochberg (1995) correction method)
-#         q.label = paste0(signif(estimate, 2), signif.num(q.value)),
-#         q.star = signif.num(q.value)
-#     )
 
 p_forest = plot_forest(
       D,
@@ -688,11 +514,12 @@ do_plot(combo, "fig1c.png", 10, 6, save_pdf = F) #no pdf
 
 
 
-## Findings:  
+## Findings
 
 Summarize the analyses you performed and what the results told you. What do your findings say about the real-world and prediction (or clustering) questions you posed?
 
-
+- 3pts: *Particular thought or insight was given to how the findings connect to the questions*  
+- 2pts: *Results are summarized in a way that clearly connects to the questions that were posed*
 
 
 
@@ -703,6 +530,9 @@ What are some limitations of your analyses and potential biases of the data you 
 
 and Ethical Considerations
 
+- 3pts: *Particular thought was given to identifying and characterizing limitations*
+- 2pts: *includes a coherent discussion of limitations and potential biases of the data, analysis approach, or other aspects* -- not "superficial or limited"
+
 
 
 
@@ -710,13 +540,26 @@ and Ethical Considerations
 
 What new questions came up following your exploration of this data? Describe at least one question that could not be answered using your data alone, and specify what additional data you would collect to address it.
 
+- 3pts: *Identifies multiple questions, or particularly thoughtful questions*  
+- 2pts: *identifies at least one question that would require new data or a new analysis approach, and specifies what steps would be required*  
+- maybe pull something from *their* future directions section & discuss what type of data would be necessary for this?  
+- discuss what the rest of the analysis and figures go on to show... and what extra data is needed for this?
+
 
 ## Conclusions
 
 > this is my own added section. see if I want to include this or not. if not, put this paragraph somewhere else
 
+FIXTHIS: go back & take a look @ EDA plots. Decide if you want to keep the 0s and 1s, or change it to be the *actual* thing it *means*. I think that might be better for the sake of easy-reading. My text can still explain the 0s and 1s.
+
 
 In addressing this question, I gained not only an understanding of how data science is used in my chosen career field, but also an appreciation for the hard work done by women in STEM -- as, to my surprise, first author Kelly Bolton MD PhD, as well as lab PI, Elli Papaemmanuil, PhD, are both women. 
+
+**Results are replicable**
+- *Extra steps are taken towards reproducibility (e.g., data checksums provided, random seeds set, etc.)* -- or maybe a note on "because none of the functions rely on randomness, this same analysis will be repeated every time. An appendix is included at the bottom of this document with all the code, even for hidden chunks, which allows for maximal reproducibility. Additionally, this exact report Rmd can be found at https://github.com/Calvin-DS202-FA20/proj-Westra/blob/master/Report.Rmd for those with access to the repo. 
+
+**Responsibility and Justice**:  
+- *"Demonstrated humility and awareness throughout the project. e.g., included appropriate caveats with claims, included discussion of implications of decisions that were made during acquisition / modeling / communication. Identified potential ethical issues raised by existing data."* -- "Particularly thoughtful here."
 
 ## Author
 
