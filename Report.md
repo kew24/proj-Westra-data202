@@ -538,7 +538,56 @@ I am a bit curious why `cbind` was used instead of `mutate` to add the gene name
 
 #### Modeling Results Dataset
 
-From here, the specific dataframe for Figure 1c is created.
+From this point, the authors use the data from these models to create the figure. However, before this, the function `signif.num` needs to be defined. This comes from a script, `toolbox.R`, that is included in the Github repo. This is `source()`d in the "Reviewer\_Code.Rmd" document that I'm walking through, which allows forany of these manually defined functions to be used in the script. Below is the defintion of `signif.num()`:
+
+``` r
+signif.num <- function(x, ns = FALSE) {
+    if (ns) {
+        symbols = c("***", "**", "*", "ns")
+    } else {
+        symbols = c("***", "**", "*", "")
+    }
+    
+    symnum(unlist(x), corr = FALSE, na = FALSE, legend = FALSE,
+           cutpoints = c(0, 0.001, 0.01, 0.05, 1), 
+           symbols = symbols)
+}
+```
+
+To quickly summarize what this is doing, `signif.num` takes a list, `x`, and assigns a significance level to the items within it, depending on the value of each item. This, specifically, assigns the following values:
+
+<table style="width:53%;">
+<colgroup>
+<col width="25%" />
+<col width="27%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">Range of Values</th>
+<th align="center">Significance Level</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">0 - 0.001</td>
+<td align="center">***</td>
+</tr>
+<tr class="even">
+<td align="center">0.001 - 0.01</td>
+<td align="center">**</td>
+</tr>
+<tr class="odd">
+<td align="center">0.01 - 0.05</td>
+<td align="center">*</td>
+</tr>
+<tr class="even">
+<td align="center">0.05 - 1</td>
+<td align="center">ns or ''</td>
+</tr>
+</tbody>
+</table>
+
+Now that the function has been defined, we're ready to move on to create the specific dataframe used in Figure 1c. This code for this is shown below:
 
 ``` r
 # for each gene
@@ -565,11 +614,32 @@ D = logit_gene_var %>%
     ) %>% 
     mutate(gene_cat = factor(gene_cat, c('DDR', 'DTA', 'Splicing', 'Other'))) %>%
     mutate(
-        q.value = p.adjust(p.value, n = nrow(.), method = 'fdr'), #"p.adjust" adjusts p-values for multiple comparisons (using the Benjamini & Hochberg (1995) correction method)
+        q.value = p.adjust(p.value, n = nrow(.), method = 'fdr'), 
         q.label = paste0(signif(estimate, 2), signif.num(q.value)),
         q.star = signif.num(q.value)
     )
 ```
+
+To create this dataframe, `D`, we start with the previous dataframe, `logit_gene_var` that contains all of the information of the predictiors of our 10 gene models. The first two lines filter out the rows where the term is `GenderFemale` or `race_b`. Including them in the model, but excluding them from the subsequent analysis ensures that they are controlled for.
+
+The next mutate step renames the predictor terms from more technical language (`therapy_binarytreated`, `smoke_bin1`, and `age_scaled`) to more broadly understandable terms (`Therapy`, `Smoking`, and `Age`) to be included in the figures. Next, this `term` column is changed into the factor type, with each of these three values as a level.
+
+After this, a new column, `p_fdr` is created, which adjusts the p-values for multiple comparisons using the Benjamini & Hochberg (1995) correction method with `p.adjust`. This correction is necessary when doing multiple large scale comparisons, to ensure that the significance you're seeing isn't simply due to chance. Additionally, another new column `termGene` is made which takes each row's gene name and appends it to the end of the term.
+
+Next, this dataframe is sorted from lowest `estimate` value, which is approximately the effect the term has on the overall prediction. In the case of a tie between `estimate` values, the rows are then sorted by `Gene` name. Then, the type of the previously created `termGene` is changed from a character to a factor.
+
+Subsequently, a `gene_cat` is added, with the value of "DTA" or "DDR" if the gene is involved in one of these commonly understood pathways, with the value of "Splicing" if it's a spliceosome gene, and with a value of "Other" if the gene is in none of these lists. Then `gene_cat` is factored.
+
+After this, the significance estimates are determined. The `q.value` becomes the fdr adjusted p-value,
+
+It seems as though they began adjusting their p-values when they create `p_fdr`, but then move on to other things and come back to do this same thing at the end of this code chunk. This makes it seem like the authors did not clearly look over their code to assess what each of their steps are doing. In fact, looking over the rest of entire `Reviewer_Code.Rmd` reveals that they did not use this `p_fdr` column of this dataset for anything else. This finding speaks to the importance of understanding your code
+
+        q.value = p.adjust(p.value, n = nrow(.), method = 'fdr'), 
+        q.label = paste0(signif(estimate, 2), signif.num(q.value)),
+        q.star = signif.num(q.value)
+    )
+
+The order of these steps doesn't seem to be the most logical. For example, `termGene` seems to be created at an artibrary point in the process, and is later revisted to be factored. I personally think it would've made more sense to reviewers or others reading this code if the authors had factored `termGene` directly after creating it, and done everything p-value related at the same time point. However, this makes no different on the dataframe itself, so there is nothing technically wrong with it. Yet, data scientists should strive to make their code hospitable to all those reading it. Being considerate of even the little things, such as logically grouping similar `mutate()`s together, can help others understand *why* a certain choice was made, or see the significance of a specific step. Though most of the code is still pretty clear, this is one area where I think these authors could improve.
 
 \[FIXTHIS: pick up on rubric here... **Discussion of findings**\]
 
@@ -849,6 +919,24 @@ for (gene in gene_list) {
   gene_vals <- c(gene_vals, this_val[1])
 }
 pander::pander(as.data.frame(gene_vals), col.names = "Gene Values")
+signif.num <- function(x, ns = FALSE) {
+    if (ns) {
+        symbols = c("***", "**", "*", "ns")
+    } else {
+        symbols = c("***", "**", "*", "")
+    }
+    
+    symnum(unlist(x), corr = FALSE, na = FALSE, legend = FALSE,
+           cutpoints = c(0, 0.001, 0.01, 0.05, 1), 
+           symbols = symbols)
+}
+signif_table <- c()
+signif_table$value <- c("0 - 0.001", "0.001 - 0.01", "0.01 - 0.05", "0.05 - 1")
+signif_table$code <- c("***", "**", "*", "ns or ''")
+signif_table %>%
+  as.data.frame() %>%
+  pander::pander(col.names = c("Range of Values", "Significance Level"))
+
 # for each gene
 D = logit_gene_var %>%
     filter(!term %in% c("GenderFemale", "race_b")) %>%
@@ -873,7 +961,7 @@ D = logit_gene_var %>%
     ) %>% 
     mutate(gene_cat = factor(gene_cat, c('DDR', 'DTA', 'Splicing', 'Other'))) %>%
     mutate(
-        q.value = p.adjust(p.value, n = nrow(.), method = 'fdr'), #"p.adjust" adjusts p-values for multiple comparisons (using the Benjamini & Hochberg (1995) correction method)
+        q.value = p.adjust(p.value, n = nrow(.), method = 'fdr'), 
         q.label = paste0(signif(estimate, 2), signif.num(q.value)),
         q.star = signif.num(q.value)
     )
