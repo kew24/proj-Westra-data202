@@ -76,20 +76,71 @@ This very large dataset is appropriate for answering the question answered in Fi
 
 This dataframe is read in with `fread`, and most columns' data type is as expected. However, there are some instances where I think it would be best if the data were factors (many of the indicator variables or categories) but instead, they are coded as integers or strings. In all of our columns, the data types are broken down below:
 
-| Type      |  \# of Columns|
-|:----------|--------------:|
-| character |              4|
-| integer   |            547|
-| numeric   |             11|
+<table style="width:36%;">
+<colgroup>
+<col width="16%" />
+<col width="19%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">Type</th>
+<th align="center"># of Columns</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">character</td>
+<td align="center">4</td>
+</tr>
+<tr class="even">
+<td align="center">integer</td>
+<td align="center">547</td>
+</tr>
+<tr class="odd">
+<td align="center">numeric</td>
+<td align="center">11</td>
+</tr>
+</tbody>
+</table>
 
 Some examples of variables I think should be renamed include:
 
-| Variable              | Current Type | Ideal Type |
-|:----------------------|:-------------|:-----------|
-| Gender                | character    | factor     |
-| ind\_ds\_fluorouracil | integer      | factor     |
-| age\_cat              | integer      | factor     |
-| smoke                 | integer      | factor     |
+<table style="width:68%;">
+<colgroup>
+<col width="30%" />
+<col width="20%" />
+<col width="16%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">Variable</th>
+<th align="center">Current Type</th>
+<th align="center">Ideal Type</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">Gender</td>
+<td align="center">character</td>
+<td align="center">factor</td>
+</tr>
+<tr class="even">
+<td align="center">ind_ds_fluorouracil</td>
+<td align="center">integer</td>
+<td align="center">factor</td>
+</tr>
+<tr class="odd">
+<td align="center">age_cat</td>
+<td align="center">integer</td>
+<td align="center">factor</td>
+</tr>
+<tr class="even">
+<td align="center">smoke</td>
+<td align="center">integer</td>
+<td align="center">factor</td>
+</tr>
+</tbody>
+</table>
 
 As seen in the table above, I would change most datatypes to factor, which could be easily done with the `data.table::fread()` option, `stringsAsFactors = TRUE`. It would make sense to change these to factors due to their use in this analysis -- `Gender` was essentially considered a factor, with the following options: Female, Male, and the indicator variables (like `ind_ds_fluorouracil`) having the following levels: 0, 1. I am unsure of why they chose to leave strings as characters, but because it doesn't really affect the analysis, this isn't an imperative issue.
 
@@ -102,17 +153,56 @@ Exploratory Data Analysis
 
 In `M_wide_all`, it appears as if some preprocessing steps have already been taken, such as adding a column for the age categories -- breaking down each person's exact decimal age, into an age bracket. To explore how these age categories are broken down, I created the following table and bar graph:
 
-| Age Group |  Number of People|
-|:----------|-----------------:|
-| 1         |               337|
-| 2         |               297|
-| 3         |               708|
-| 4         |              1519|
-| 5         |              3177|
-| 6         |              5788|
-| 7         |              7074|
-| 8         |              4219|
-| 9         |              1027|
+<table style="width:42%;">
+<colgroup>
+<col width="16%" />
+<col width="25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">Age Group</th>
+<th align="center">Number of People</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">1</td>
+<td align="center">337</td>
+</tr>
+<tr class="even">
+<td align="center">2</td>
+<td align="center">297</td>
+</tr>
+<tr class="odd">
+<td align="center">3</td>
+<td align="center">708</td>
+</tr>
+<tr class="even">
+<td align="center">4</td>
+<td align="center">1519</td>
+</tr>
+<tr class="odd">
+<td align="center">5</td>
+<td align="center">3177</td>
+</tr>
+<tr class="even">
+<td align="center">6</td>
+<td align="center">5788</td>
+</tr>
+<tr class="odd">
+<td align="center">7</td>
+<td align="center">7074</td>
+</tr>
+<tr class="even">
+<td align="center">8</td>
+<td align="center">4219</td>
+</tr>
+<tr class="odd">
+<td align="center">9</td>
+<td align="center">1027</td>
+</tr>
+</tbody>
+</table>
 
 ![](Report_files/figure-markdown_github/age-bars-1.png)
 
@@ -176,136 +266,86 @@ To observe some of these changes, we'll look at what two these variables look li
 
 Originally, the number of mutations, `mutnum_all`, is broken down into 9 categories. The new variable, `mutnum_all_r`, only has 3 categories. By comparing the breakdowns, we see that any people with more than 2 mutations have been included in the `mutnum_all_r` "2" category. Below is the breakdown of these two variables:
 
-<table>
-<caption>
-mutnum all
-</caption>
+<table style="width:56%;">
+<caption>mutnum_all</caption>
+<colgroup>
+<col width="30%" />
+<col width="25%" />
+</colgroup>
 <thead>
-<tr>
-<th style="text-align:left;">
-Number of Mutations
-</th>
-<th style="text-align:right;">
-Number of People
-</th>
+<tr class="header">
+<th align="center">Number of Mutations</th>
+<th align="center">Number of People</th>
 </tr>
 </thead>
 <tbody>
-<tr>
-<td style="text-align:left;">
-0
-</td>
-<td style="text-align:right;">
-16930
-</td>
+<tr class="odd">
+<td align="center">0</td>
+<td align="center">16930</td>
 </tr>
-<tr>
-<td style="text-align:left;">
-1
-</td>
-<td style="text-align:right;">
-4952
-</td>
+<tr class="even">
+<td align="center">1</td>
+<td align="center">4952</td>
 </tr>
-<tr>
-<td style="text-align:left;">
-2
-</td>
-<td style="text-align:right;">
-1544
-</td>
+<tr class="odd">
+<td align="center">2</td>
+<td align="center">1544</td>
 </tr>
-<tr>
-<td style="text-align:left;">
-3
-</td>
-<td style="text-align:right;">
-496
-</td>
+<tr class="even">
+<td align="center">3</td>
+<td align="center">496</td>
 </tr>
-<tr>
-<td style="text-align:left;">
-4
-</td>
-<td style="text-align:right;">
-158
-</td>
+<tr class="odd">
+<td align="center">4</td>
+<td align="center">158</td>
 </tr>
-<tr>
-<td style="text-align:left;">
-5
-</td>
-<td style="text-align:right;">
-46
-</td>
+<tr class="even">
+<td align="center">5</td>
+<td align="center">46</td>
 </tr>
-<tr>
-<td style="text-align:left;">
-6
-</td>
-<td style="text-align:right;">
-14
-</td>
+<tr class="odd">
+<td align="center">6</td>
+<td align="center">14</td>
 </tr>
-<tr>
-<td style="text-align:left;">
-7
-</td>
-<td style="text-align:right;">
-5
-</td>
+<tr class="even">
+<td align="center">7</td>
+<td align="center">5</td>
 </tr>
-<tr>
-<td style="text-align:left;">
-8
-</td>
-<td style="text-align:right;">
-1
-</td>
+<tr class="odd">
+<td align="center">8</td>
+<td align="center">1</td>
 </tr>
 </tbody>
 </table>
-<table>
-<caption>
-mutnum all r
-</caption>
+
+<table style="width:56%;">
+<caption>mutnum_all_r</caption>
+<colgroup>
+<col width="30%" />
+<col width="25%" />
+</colgroup>
 <thead>
-<tr>
-<th style="text-align:left;">
-Number of Mutations
-</th>
-<th style="text-align:right;">
-Number of People
-</th>
+<tr class="header">
+<th align="center">Number of Mutations</th>
+<th align="center">Number of People</th>
 </tr>
 </thead>
 <tbody>
-<tr>
-<td style="text-align:left;">
-0
-</td>
-<td style="text-align:right;">
-16930
-</td>
+<tr class="odd">
+<td align="center">0</td>
+<td align="center">16930</td>
 </tr>
-<tr>
-<td style="text-align:left;">
-1
-</td>
-<td style="text-align:right;">
-4952
-</td>
+<tr class="even">
+<td align="center">1</td>
+<td align="center">4952</td>
 </tr>
-<tr>
-<td style="text-align:left;">
-2
-</td>
-<td style="text-align:right;">
-2264
-</td>
+<tr class="odd">
+<td align="center">2</td>
+<td align="center">2264</td>
 </tr>
 </tbody>
 </table>
+
 **Age Scaling**
 
 In the plot below, the distribution of `age` is shown on top of the distribution of `age_scaled`. The distribution itself is the same, but the age values change (due to the centering and scaling). To see the new values, note the different x-axis value range for `age_scaled`.
@@ -370,24 +410,166 @@ Modeling
 
 From the figure legend, we see that the question in Figure 1c is whether *specific molecular subtypes of CH-PD correlate with age, previous therapy exposure and smoking history*. The authors answer this question by creating *multivariable logistic regression models adjusted for therapy, smoking, ancestry, age, sex and time from diagnosis to blood draw.* In Figure 1c, they display the odds ratio with its 95% confidence interval for CH-PD mutations in the ten most commonly mutated genes. They show three consecutive forest plots displaying different groups compared; for the top, increasing age (n = 10,138); middle, patients previously exposed to cancer therapy (n = 5,978) compared with those with no exposure (n = 4,160); bottom, current/former smokers (n = 4,989) compared with nonsmokers (n = 5,145). Significance levels are determined by Q values (FDR-corrected P values): \* Q &lt; 0.05, \*\* Q &lt; 0.01, \*\*\* Q &lt; 0.001.
 
-Clearly state what is the target variable you are trying to predict, which variables (features) you are using to predict it, and why you chose those features.
+#### Pre-modeling Setup
 
--   **Modeling setup/ task description**: Modeling task is both clearly described and well motivated (e.g., alternative decisions are identified and considered)
-    -   more than: *Clear description of the model setup. e.g., for a predictive model, what are the features and targets, why those were chosen, what validation method was employed and why, etc.*
+To start, though, some other setup needs to occur. This setup selects specific genes of interest, and the code for this step is as follows:
 
-Fit a basic predictive model using one of the techniques we discussed in class (regression: Nearest Neighbors or Linear Regression, classification: Nearest Neighbors or Logistic Regression; other choices such as Decision Trees are also fine)
+``` r
+## forest plot
+DTA = c('DNMT3A', 'TET2', 'ASXL1')
+DDR = c('PPM1D', 'TP53', 'CHEK2')
+SPL = c('SF3B1', 'SRSF2')
+OTH = c('JAK2', 'ATM')
 
-Report the results of your basic predictive model on held-out data or via cross-validation.
+gene_list = c(DDR, DTA, SPL, OTH)
+```
 
--   **Modeling baselie results**: A baseline was thoughtfully chosen and evaluated.
-    -   more than: *Results of a correctly applied baseline model are reported correctly*
+From the article, we know that these genes were selected based on their biochemical pathway. A brief discription of the pathway is shown below:
 
-Make one or more changes to the predictive model to improve the accuracy. Discuss what changes you made, why you made them, and what the results were.
+<table style="width:85%;">
+<colgroup>
+<col width="13%" />
+<col width="38%" />
+<col width="31%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">Pathway</th>
+<th align="left">Function</th>
+<th align="center">Selected Genes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">DTA</td>
+<td align="left">epigenetic modifiers</td>
+<td align="center"><em>DNMT3A, TET2, ASXL1</em></td>
+</tr>
+<tr class="even">
+<td align="center">DDR</td>
+<td align="left">DNA damage response genes</td>
+<td align="center"><em>PPM1D, TP53, CHEK2</em></td>
+</tr>
+<tr class="odd">
+<td align="center">SPL</td>
+<td align="left">spliceosome genes</td>
+<td align="center"><em>SF3B1, SRSF2</em></td>
+</tr>
+<tr class="even">
+<td align="center">OTH</td>
+<td align="left">other</td>
+<td align="center"><em>JAK2, ATM</em></td>
+</tr>
+</tbody>
+</table>
 
--   **Modeling refinements**: Particular thought or insight was given to the choice of changes to make and/or analysis of their implications.
-    -   more than: *Reports what changes were made, why they were made, and what the results were.*
+All of these pathway functions are pretty clear, except the "other" category. I couldn't find any reason in the article or code for why these 2 genes (*JAK2* and *ATM*) specifically were included. Looking through journal articles revealed that *ATM* is in a [key DDR-related pathway for "critical DNA damage response kinases"](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5961503/), and that mutations in *JAK2* have previously been [found in patients with myeloproliferative disorders](https://www.nature.com/articles/nature03546). Because of these previous studies, it would make sense that these two extra genes were included. However, I think it would have been better if a more thorough explaination had detailed why these two "other genes" were selected, instead of it being a seemingly haphazard choice.
 
-**Alternative**: instead of a supervised prediction task, you can define an unsupervised learning task and use clustering. In this case, clearly state what you want to understand through the clustering, and report your observations.
+#### Model Creation
+
+The next bit of code creates models for each of the genes of interest. It looks as follows:
+
+``` r
+#ALL adjusted for treatment
+logit_gene_var = list()
+
+for (gene in gene_list) {
+    logit = glm(
+        formula = get(gene) ~ age_scaled + smoke_bin + race_b + Gender + therapy_binary,
+        data = M_wide,
+        family = "binomial")
+    logit_data = logit %>% sjPlot::get_model_data(type="est") %>% cbind(Gene = gene)
+    logit_gene_var = rbind(logit_gene_var, logit_data)
+}
+```
+
+To break down what this code is doing, the first line starts out by making an empty list, `logit_gene_var`, that will eventually contain all the data on \_\_\_\_\_. Then, for each of the 10 genes in the `gene_list` that was previously created, a Binomial Regression Model (a type of Generalized Linear Model) is created, predicting `gene` from the variables `age_scaled`, `smoke_bin`, `race_b`, `Gender`, and `therapy_binary`. The model uses the Binomial error distribution, which is a discrete distribution where the outcomes are 0 and 1.
+
+To verify that the binomial model is what we should be using, we'll make sure that each of our genes has values of either 0 or 1:
+
+<table style="width:33%;">
+<colgroup>
+<col width="33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">Gene Values</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">Values for PPM1D: 0:1</td>
+</tr>
+<tr class="even">
+<td align="center">Values for TP53: 0:1</td>
+</tr>
+<tr class="odd">
+<td align="center">Values for CHEK2: 0:1</td>
+</tr>
+<tr class="even">
+<td align="center">Values for DNMT3A: 0:1</td>
+</tr>
+<tr class="odd">
+<td align="center">Values for TET2: 0:1</td>
+</tr>
+<tr class="even">
+<td align="center">Values for ASXL1: 0:1</td>
+</tr>
+<tr class="odd">
+<td align="center">Values for SF3B1: 0:1</td>
+</tr>
+<tr class="even">
+<td align="center">Values for SRSF2: 0:1</td>
+</tr>
+<tr class="odd">
+<td align="center">Values for JAK2: 0:1</td>
+</tr>
+<tr class="even">
+<td align="center">Values for ATM: 0:1</td>
+</tr>
+</tbody>
+</table>
+
+Because all of these contain values of only 0 or 1, we can go ahead with our binomial model.
+
+The last two lines of code in this chunk take our model, `logit`, and gets data from its forest-plot of estimates. This contains details about each predictor, with the columns: term, estimate, std.error, conf.low, conf.high, statistic, den.df, p.value, p.stars, p.label, group, xpos, xmin, xmax. From here, an additional column is added with the gene name. This dataframe is then added to a larger dataframe, `logit_gene_var`, which contains rows for each predictor variable for each gene. This combined dataframe has 50 rows (10 genes \* 5 predictor variables).
+
+I am a bit curious why `cbind` was used instead of `mutate` to add the gene name to all of these rows. Previous code by these authors reveals ubiquitous use of `dplyr` functions, so simply adding a column with a string seems easily done with `mutate`. Doing so with `cbind` seems unconventional, so I wonder if there's any reason why these authors chose it over `mutate`. Perhaps it's simply what first came to mind.
+
+#### Modeling Results Dataset
+
+From here, the specific dataframe for Figure 1c is created.
+
+``` r
+# for each gene
+D = logit_gene_var %>%
+    filter(!term %in% c("GenderFemale", "race_b")) %>%
+    mutate(
+        term = c(
+            'therapy_binarytreated' = 'Therapy',
+            'smoke_bin1' = 'Smoking',
+            'age_scaled' = 'Age'
+        )[as.character(term)]
+    ) %>%
+    mutate(term = factor(term, c("Age", "Therapy", "Smoking"))) %>%
+    mutate(p_fdr = p.adjust(p.value, method = "fdr")) %>%
+    mutate(termGene = paste0(term, Gene)) %>%
+    arrange(estimate, Gene) %>%
+    mutate(termGene = factor(termGene, levels = termGene)) %>%
+    mutate(gene_cat = case_when(
+        Gene %in% DTA ~ 'DTA', 
+        Gene %in% DDR ~ 'DDR', 
+        Gene %in% SPL ~ 'Splicing', 
+        T ~ 'Other'
+      )
+    ) %>% 
+    mutate(gene_cat = factor(gene_cat, c('DDR', 'DTA', 'Splicing', 'Other'))) %>%
+    mutate(
+        q.value = p.adjust(p.value, n = nrow(.), method = 'fdr'), #"p.adjust" adjusts p-values for multiple comparisons (using the Benjamini & Hochberg (1995) correction method)
+        q.label = paste0(signif(estimate, 2), signif.num(q.value)),
+        q.star = signif.num(q.value)
+    )
+```
 
 \[FIXTHIS: pick up on rubric here... **Discussion of findings**\]
 
@@ -519,55 +701,55 @@ hide_for_now <- function() {
   #   scale_fill_manual(values = therapy_colors) +
   #   scale_color_manual(values = therapy_colors)
 }
+# 
+# ## forest plot
+# DTA = c('DNMT3A', 'TET2', 'ASXL1')
+# DDR = c('PPM1D', 'TP53', 'CHEK2')
+# SPL = c('SF3B1', 'SRSF2')
+# OTH = c('JAK2', 'ATM')
+# 
+# gene_list = c(DDR, DTA, SPL, OTH)
 
-## forest plot
-DTA = c('DNMT3A', 'TET2', 'ASXL1')
-DDR = c('PPM1D', 'TP53', 'CHEK2')
-SPL = c('SF3B1', 'SRSF2')
-OTH = c('JAK2', 'ATM')
+# #ALL adjusted for treatment
+# logit_gene_var = list()
+# 
+# for (gene in gene_list) {
+#     logit = glm(
+#         formula = get(gene) ~ age_scaled + smoke_bin + race_b + Gender + therapy_binary,
+#         data = M_wide,
+#         family = "binomial")
+#     logit_data = logit %>% sjPlot::get_model_data(type="est") %>% cbind(Gene = gene)
+#     logit_gene_var = rbind(logit_gene_var, logit_data)
+# }
 
-gene_list = c(DDR, DTA, SPL, OTH)
-
-#ALL adjusted for treatment
-logit_gene_var = list()
-
-for (gene in gene_list) {
-    logit = glm(
-        formula = get(gene) ~ age_scaled + smoke_bin + race_b + Gender + therapy_binary,
-        data = M_wide,
-        family = "binomial")
-    logit_data = logit %>% sjPlot::get_model_data(type="est") %>% cbind(Gene = gene)
-    logit_gene_var = rbind(logit_gene_var, logit_data)
-}
-
-# for each gene
-D = logit_gene_var %>%
-    filter(!term %in% c("GenderFemale", "race_b")) %>%
-    mutate(
-        term = c(
-            'therapy_binarytreated' = 'Therapy',
-            'smoke_bin1' = 'Smoking',
-            'age_scaled' = 'Age'
-        )[as.character(term)]
-    ) %>%
-    mutate(term = factor(term, c("Age", "Therapy", "Smoking"))) %>%
-    mutate(p_fdr = p.adjust(p.value, method = "fdr")) %>%
-    mutate(termGene = paste0(term, Gene)) %>%
-    arrange(estimate, Gene) %>%
-    mutate(termGene = factor(termGene, levels = termGene)) %>%
-    mutate(gene_cat = case_when(
-        Gene %in% DTA ~ 'DTA', 
-        Gene %in% DDR ~ 'DDR', 
-        Gene %in% SPL ~ 'Splicing', 
-        T ~ 'Other'
-      )
-    ) %>% 
-    mutate(gene_cat = factor(gene_cat, c('DDR', 'DTA', 'Splicing', 'Other'))) %>%
-    mutate(
-        q.value = p.adjust(p.value, n = nrow(.), method = 'fdr'), #"p.adjust" adjusts p-values for multiple comparisons (using the Benjamini & Hochberg (1995) correction method)
-        q.label = paste0(signif(estimate, 2), signif.num(q.value)),
-        q.star = signif.num(q.value)
-    )
+# # for each gene
+# D = logit_gene_var %>%
+#     filter(!term %in% c("GenderFemale", "race_b")) %>%
+#     mutate(
+#         term = c(
+#             'therapy_binarytreated' = 'Therapy',
+#             'smoke_bin1' = 'Smoking',
+#             'age_scaled' = 'Age'
+#         )[as.character(term)]
+#     ) %>%
+#     mutate(term = factor(term, c("Age", "Therapy", "Smoking"))) %>%
+#     mutate(p_fdr = p.adjust(p.value, method = "fdr")) %>%
+#     mutate(termGene = paste0(term, Gene)) %>%
+#     arrange(estimate, Gene) %>%
+#     mutate(termGene = factor(termGene, levels = termGene)) %>%
+#     mutate(gene_cat = case_when(
+#         Gene %in% DTA ~ 'DTA', 
+#         Gene %in% DDR ~ 'DDR', 
+#         Gene %in% SPL ~ 'Splicing', 
+#         T ~ 'Other'
+#       )
+#     ) %>% 
+#     mutate(gene_cat = factor(gene_cat, c('DDR', 'DTA', 'Splicing', 'Other'))) %>%
+#     mutate(
+#         q.value = p.adjust(p.value, n = nrow(.), method = 'fdr'), #"p.adjust" adjusts p-values for multiple comparisons (using the Benjamini & Hochberg (1995) correction method)
+#         q.label = paste0(signif(estimate, 2), signif.num(q.value)),
+#         q.star = signif.num(q.value)
+#     )
 
 p_forest = plot_forest(
       D,
@@ -641,7 +823,9 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 M_wide_all = suppressWarnings(data.table::fread('./data/M_wide_all.txt', sep = '\t', header = T)) %>%
   as.data.frame()
-knitr::kable(table(sapply(M_wide_all, class)), col.names = c("Type", "# of Columns"))
+table(sapply(M_wide_all, class)) %>%
+  as.data.frame() %>%
+  pander::pander(col.names = c("Type", "# of Columns"))
 data.frame(Variable = c("Gender",
                         "ind_ds_fluorouracil",
                         "age_cat",
@@ -651,13 +835,13 @@ data.frame(Variable = c("Gender",
                               typeof(M_wide_all$age_cat),
                               typeof(M_wide_all$smoke)),
            `IdealType` = c(rep("factor",4))) %>%
-  knitr::kable(col.names = c("Variable", "Current Type", "Ideal Type"))
+  pander::pander(col.names = c("Variable", "Current Type", "Ideal Type"))
 #how many age groups are there?
 table(M_wide_all$age_cat) %>%
   as.data.frame() %>%
   rename(`Age Group` = Var1,
          `Number of People` = Freq) %>%
-  knitr::kable()
+  pander::pander()
 
 ggplot(data = as.data.frame(table(M_wide_all$age_cat)), aes(x = Var1, y = Freq)) +
   geom_col(fill = c("#e8c1b3", "#e8b8a7", "#e8b09b", "#e8a790", "#e89f84", "#e89679", "#e88e6d", "#e88561", "#e87d56")) + ##e79e84 base color
@@ -715,13 +899,13 @@ M_wide_all = M_wide_all %>%
       therapy_binary = relevel(factor(therapy_binary), 'untreated')
     )
 table(M_wide_all$mutnum_all) %>%
-  knitr::kable(col.names = c("Number of Mutations","Number of People"),
-               caption = "mutnum all",
-               format = "html")
+  as.data.frame() %>%
+  pander::pander(col.names = c("Number of Mutations","Number of People"),
+                 caption = "mutnum_all")
 table(M_wide_all$mutnum_all_r) %>%
-  knitr::kable(col.names = c("Number of Mutations","Number of People"),
-               caption = "mutnum all r",
-               format = "html")
+  as.data.frame() %>%
+  pander::pander(col.names = c("Number of Mutations","Number of People"),
+                 caption = "mutnum_all_r")
 original_age_density <- ggplot(data = M_wide_all, aes(x = age)) +
   geom_density(fill = "#5691c1") +
   theme_classic() +
@@ -782,6 +966,74 @@ M_wide %>%
     geom_label(label.size = .1, label.padding = unit(1, "lines")) +
     labs(x = "TET2 Mutation", y = "Smoker") +
     theme_light()
+## forest plot
+DTA = c('DNMT3A', 'TET2', 'ASXL1')
+DDR = c('PPM1D', 'TP53', 'CHEK2')
+SPL = c('SF3B1', 'SRSF2')
+OTH = c('JAK2', 'ATM')
+
+gene_list = c(DDR, DTA, SPL, OTH)
+pretty_genelist <- c()
+pretty_genelist$pathway <- c("DTA", "DDR", "SPL", "OTH")
+pretty_genelist$role <- c("epigenetic modifiers", "DNA damage response genes", 
+                          "spliceosome genes", "other")
+pretty_genelist$genes <- c("DNMT3A, TET2, ASXL1", "PPM1D, TP53, CHEK2", "SF3B1, SRSF2", "JAK2, ATM")
+pretty_genelist <- as.data.frame(pretty_genelist)
+pretty_genelist %>%
+  pander::pander(emphasize.italics.cols = 3,
+                 col.names = c("Pathway", "Function", "Selected Genes"),
+                 justify = "clc")
+#ALL adjusted for treatment
+logit_gene_var = list()
+
+for (gene in gene_list) {
+    logit = glm(
+        formula = get(gene) ~ age_scaled + smoke_bin + race_b + Gender + therapy_binary,
+        data = M_wide,
+        family = "binomial")
+    logit_data = logit %>% sjPlot::get_model_data(type="est") %>% cbind(Gene = gene)
+    logit_gene_var = rbind(logit_gene_var, logit_data)
+}
+gene_vals <- c()
+for (gene in gene_list) {
+  this_val <- M_wide %>% 
+    select(all_of(gene)) %>%
+    filter(!is.na(get(gene))) %>%
+    as.factor() %>% 
+    levels() %>%
+    paste0("Values for ", gene, ": ", .) %>%
+    as.character()
+  gene_vals <- c(gene_vals, this_val[1])
+}
+pander::pander(as.data.frame(gene_vals), col.names = "Gene Values")
+# for each gene
+D = logit_gene_var %>%
+    filter(!term %in% c("GenderFemale", "race_b")) %>%
+    mutate(
+        term = c(
+            'therapy_binarytreated' = 'Therapy',
+            'smoke_bin1' = 'Smoking',
+            'age_scaled' = 'Age'
+        )[as.character(term)]
+    ) %>%
+    mutate(term = factor(term, c("Age", "Therapy", "Smoking"))) %>%
+    mutate(p_fdr = p.adjust(p.value, method = "fdr")) %>%
+    mutate(termGene = paste0(term, Gene)) %>%
+    arrange(estimate, Gene) %>%
+    mutate(termGene = factor(termGene, levels = termGene)) %>%
+    mutate(gene_cat = case_when(
+        Gene %in% DTA ~ 'DTA', 
+        Gene %in% DDR ~ 'DDR', 
+        Gene %in% SPL ~ 'Splicing', 
+        T ~ 'Other'
+      )
+    ) %>% 
+    mutate(gene_cat = factor(gene_cat, c('DDR', 'DTA', 'Splicing', 'Other'))) %>%
+    mutate(
+        q.value = p.adjust(p.value, n = nrow(.), method = 'fdr'), #"p.adjust" adjusts p-values for multiple comparisons (using the Benjamini & Hochberg (1995) correction method)
+        q.label = paste0(signif(estimate, 2), signif.num(q.value)),
+        q.star = signif.num(q.value)
+    )
 ## Main figures
 # Figure 1 - mutational characteristics
 hide_this_too <- function(){
@@ -907,55 +1159,55 @@ hide_for_now <- function() {
   #   scale_fill_manual(values = therapy_colors) +
   #   scale_color_manual(values = therapy_colors)
 }
+# 
+# ## forest plot
+# DTA = c('DNMT3A', 'TET2', 'ASXL1')
+# DDR = c('PPM1D', 'TP53', 'CHEK2')
+# SPL = c('SF3B1', 'SRSF2')
+# OTH = c('JAK2', 'ATM')
+# 
+# gene_list = c(DDR, DTA, SPL, OTH)
 
-## forest plot
-DTA = c('DNMT3A', 'TET2', 'ASXL1')
-DDR = c('PPM1D', 'TP53', 'CHEK2')
-SPL = c('SF3B1', 'SRSF2')
-OTH = c('JAK2', 'ATM')
+# #ALL adjusted for treatment
+# logit_gene_var = list()
+# 
+# for (gene in gene_list) {
+#     logit = glm(
+#         formula = get(gene) ~ age_scaled + smoke_bin + race_b + Gender + therapy_binary,
+#         data = M_wide,
+#         family = "binomial")
+#     logit_data = logit %>% sjPlot::get_model_data(type="est") %>% cbind(Gene = gene)
+#     logit_gene_var = rbind(logit_gene_var, logit_data)
+# }
 
-gene_list = c(DDR, DTA, SPL, OTH)
-
-#ALL adjusted for treatment
-logit_gene_var = list()
-
-for (gene in gene_list) {
-    logit = glm(
-        formula = get(gene) ~ age_scaled + smoke_bin + race_b + Gender + therapy_binary,
-        data = M_wide,
-        family = "binomial")
-    logit_data = logit %>% sjPlot::get_model_data(type="est") %>% cbind(Gene = gene)
-    logit_gene_var = rbind(logit_gene_var, logit_data)
-}
-
-# for each gene
-D = logit_gene_var %>%
-    filter(!term %in% c("GenderFemale", "race_b")) %>%
-    mutate(
-        term = c(
-            'therapy_binarytreated' = 'Therapy',
-            'smoke_bin1' = 'Smoking',
-            'age_scaled' = 'Age'
-        )[as.character(term)]
-    ) %>%
-    mutate(term = factor(term, c("Age", "Therapy", "Smoking"))) %>%
-    mutate(p_fdr = p.adjust(p.value, method = "fdr")) %>%
-    mutate(termGene = paste0(term, Gene)) %>%
-    arrange(estimate, Gene) %>%
-    mutate(termGene = factor(termGene, levels = termGene)) %>%
-    mutate(gene_cat = case_when(
-        Gene %in% DTA ~ 'DTA', 
-        Gene %in% DDR ~ 'DDR', 
-        Gene %in% SPL ~ 'Splicing', 
-        T ~ 'Other'
-      )
-    ) %>% 
-    mutate(gene_cat = factor(gene_cat, c('DDR', 'DTA', 'Splicing', 'Other'))) %>%
-    mutate(
-        q.value = p.adjust(p.value, n = nrow(.), method = 'fdr'), #"p.adjust" adjusts p-values for multiple comparisons (using the Benjamini & Hochberg (1995) correction method)
-        q.label = paste0(signif(estimate, 2), signif.num(q.value)),
-        q.star = signif.num(q.value)
-    )
+# # for each gene
+# D = logit_gene_var %>%
+#     filter(!term %in% c("GenderFemale", "race_b")) %>%
+#     mutate(
+#         term = c(
+#             'therapy_binarytreated' = 'Therapy',
+#             'smoke_bin1' = 'Smoking',
+#             'age_scaled' = 'Age'
+#         )[as.character(term)]
+#     ) %>%
+#     mutate(term = factor(term, c("Age", "Therapy", "Smoking"))) %>%
+#     mutate(p_fdr = p.adjust(p.value, method = "fdr")) %>%
+#     mutate(termGene = paste0(term, Gene)) %>%
+#     arrange(estimate, Gene) %>%
+#     mutate(termGene = factor(termGene, levels = termGene)) %>%
+#     mutate(gene_cat = case_when(
+#         Gene %in% DTA ~ 'DTA', 
+#         Gene %in% DDR ~ 'DDR', 
+#         Gene %in% SPL ~ 'Splicing', 
+#         T ~ 'Other'
+#       )
+#     ) %>% 
+#     mutate(gene_cat = factor(gene_cat, c('DDR', 'DTA', 'Splicing', 'Other'))) %>%
+#     mutate(
+#         q.value = p.adjust(p.value, n = nrow(.), method = 'fdr'), #"p.adjust" adjusts p-values for multiple comparisons (using the Benjamini & Hochberg (1995) correction method)
+#         q.label = paste0(signif(estimate, 2), signif.num(q.value)),
+#         q.star = signif.num(q.value)
+#     )
 
 p_forest = plot_forest(
       D,
