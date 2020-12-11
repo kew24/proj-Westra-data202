@@ -9,9 +9,9 @@ Kaitlyn Westra
 -   [Exploratory Data Analysis](#exploratory-data-analysis)
 -   [Modeling](#modeling)
 -   [Findings](#findings)
--   [Limitations](#limitations)
+-   [Limitations and Ethical Considerations](#limitations-and-ethical-considerations)
 -   [Future Directions](#future-directions)
--   [Conclusions](#conclusions)
+-   [Project Conclusions](#project-conclusions)
 -   [Author](#author)
 -   [Appendix](#appendix)
 
@@ -29,7 +29,7 @@ Question
 
 #### Background
 
-The story behind this article follows first author Kelly Bolton, a physician scientist (MD-PhD) and first year fellow in medical oncology at Memorial Sloan Kettering, the world’s oldest and largest private cancer center. Bolton was new to studying clonal hematopoiesis (CH), but jumped on the opportunity to research it, especially to understand if specific therapy types resulted in a higher frequency of CH. With her knowledge of epidemiology, she realized that she could use data from both electronic health records and sequential samples from patients, to understand how therapy could be promoting preexisting CH or inducing new mutations.
+The story behind this article follows first author Kelly Bolton, a physician scientist (MD-PhD) and first year fellow in medical oncology at Memorial Sloan Kettering (MSK), the world’s oldest and largest private cancer center. Bolton was new to studying clonal hematopoiesis (CH), but jumped on the opportunity to research it, especially to understand if specific therapy types resulted in a higher frequency of CH. With her knowledge of epidemiology, she realized that she could use data from both electronic health records and sequential samples from patients, to understand how therapy could be promoting preexisting CH or inducing new mutations.
 
 CH essentially happens when a hematopoietic stem cell, which can develop into different types of blood cells, starts making cells with the same genetic mutation in individuals without a blood disease. As such, clonal hematopoiesis [includes](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7065480/) the entire spectrum of premalignant conditions related to somatic mutations in genes associated with myeloid disorders. CH remains benign in most people, but sometimes progresses to malignancy.
 
@@ -37,7 +37,7 @@ Previously, studies have shown that certain types of chemotherapy lead to a high
 
 #### Project
 
-With this project, I aim to replicate this lab's findings that mutations in genes are enriched based on specific exposures. Specifically, I will set out to verify that "**mutations in *ASXL1* are enriched in current or former smokers, whereas cancer therapy with radiation, platinum and topoisomerase II inhibitors preferentially selects for mutations in DNA damage response genes (*TP53*, *PPM1D*, *CHEK2*).**"
+With this project, I aim to replicate this lab's findings that mutations in genes are enriched based on specific exposures. Specifically, I will set out to verify that "**the relative fitness of acquired mutations in hematopoietic stem and progenitor cells is modulated by environmental factors such as cancer treatment, smoking or the aging microenvironment in a gene-dependent manner.**"
 
 To do so, I will be recreating their **Figure 1c** using exactly the same data the authors used, and a combination of their published R code and some of my own original code. In this process, I will be thoroughly narrating my steps to give insight into the process and decisions that were made. Because a big part of data science and computer science is looking through others' code, understanding it, and adapting it to fit your needs, doing so with this available example will be an exercise in this skill. Being able to accomplish the objectives I have outlined herein demonstrate the knowledge I've gained this semester in DATA-202, and that I am equipped to practically apply this in new situations.
 
@@ -452,7 +452,7 @@ From the article, we know that these genes were selected based on their biochemi
 </tr>
 <tr class="odd">
 <td align="center">SPL</td>
-<td align="left">spliceosome genes</td>
+<td align="left">splicing regulators</td>
 <td align="center"><em>SF3B1, SRSF2</em></td>
 </tr>
 <tr class="even">
@@ -463,7 +463,7 @@ From the article, we know that these genes were selected based on their biochemi
 </tbody>
 </table>
 
-All of these pathway functions are pretty clear, except the "other" category. I couldn't find any reason in the article or code for why these 2 genes (*JAK2* and *ATM*) specifically were included. Looking through journal articles revealed that *ATM* is in a [key DDR-related pathway for "critical DNA damage response kinases"](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5961503/), and that mutations in *JAK2* have previously been [found in patients with myeloproliferative disorders](https://www.nature.com/articles/nature03546). Because of these previous studies, it would make sense that these two extra genes were included. However, I think it would have been better if a more thorough explanation had detailed why these two "other genes" were selected, instead of it being a seemingly haphazard choice.
+All of these pathway functions are pretty clear, except the "other" category. I couldn't find an abundantly clear reason in the article or code for why these 2 genes (*JAK2* and *ATM*) specifically were included. Looking through journal articles revealed that *ATM* is in a [key DDR-related pathway for "critical DNA damage response kinases"](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5961503/), and that mutations in *JAK2* have previously been [found in patients with myeloproliferative disorders](https://www.nature.com/articles/nature03546). Because of these previous studies, it would make sense that these two extra genes were included. Further, the figure legend for Figure 1 revealed that these 10 genes were the "ten most commonly mutated genes" in this cohort. It makes sense, then, that they would choose these 10 genes to do the analysis on, however from what I could tell, this was only mentioned briefly in the figure legend. I think it would have been better if a more thorough explanation had detailed why these 10 genes -- especially the two "other genes" -- were selected. As it is, my initial thought was that it was a seemingly haphazard choice, so more discussion on the selection of these genes would have been appreciated.
 
 #### Model Creation
 
@@ -620,116 +620,7 @@ D = logit_gene_var %>%
         q.label = paste0(signif(estimate, 2), signif.num(q.value)),
         q.star = signif.num(q.value)
     )
-
-#FIXTHIS DELETE
-print(D)
 ```
-
-    ##       term  estimate  std.error  conf.low conf.high   statistic den.df
-    ## 1  Therapy 0.5546006 0.33796215 0.2859607  1.075608 -1.74429920    Inf
-    ## 2  Smoking 0.8200258 0.12363785 0.6435567  1.044884 -1.60484410    Inf
-    ## 3  Smoking 0.9574955 0.14008012 0.7276128  1.260008 -0.31006747    Inf
-    ## 4  Therapy 1.0077691 0.34642966 0.5110690  1.987204  0.02233952    Inf
-    ## 5  Smoking 1.0557788 0.06904873 0.9221436  1.208780  0.78609313    Inf
-    ## 6  Therapy 1.0690663 0.32214618 0.5685823  2.010092  0.20731465    Inf
-    ## 7  Therapy 1.0922160 0.12278401 0.8586074  1.389385  0.71840530    Inf
-    ## 8  Therapy 1.1148707 0.06823799 0.9753045  1.274409  1.59351724    Inf
-    ## 9  Therapy 1.1334621 0.18630948 0.7867198  1.633029  0.67241237    Inf
-    ## 10 Smoking 1.2710092 0.27622281 0.7396519  2.184087  0.86818027    Inf
-    ## 11 Smoking 1.3498264 0.23375133 0.8537062  2.134260  1.28331246    Inf
-    ## 12 Therapy 1.6226709 0.28096392 0.9355641  2.814410  1.72290275    Inf
-    ## 13 Smoking 1.7558998 0.24667828 1.0827465  2.847559  2.28224979    Inf
-    ## 14 Smoking 1.8593155 0.36220819 0.9141994  3.781510  1.71229811    Inf
-    ## 15 Smoking 2.0079923 0.39143275 0.9323391  4.324642  1.78098380    Inf
-    ## 16     Age 2.0566534 0.04498379 1.8830889  2.246215 16.02977622    Inf
-    ## 17 Smoking 2.1727015 0.41148217 0.9699421  4.866921  1.88579569    Inf
-    ## 18 Smoking 2.4681387 0.22287885 1.5946110  3.820185  4.05361172    Inf
-    ## 19     Age 2.5173710 0.15686213 1.8510832  3.423486  5.88551915    Inf
-    ## 20 Therapy 2.8363443 0.26775174 1.6782175  4.793687  3.89359191    Inf
-    ## 21     Age 2.9980980 0.14031657 2.2772366  3.947149  7.82500682    Inf
-    ## 22     Age 3.0066870 0.16782888 2.1638743  4.177769  6.55929322    Inf
-    ## 23     Age 3.0255808 0.24034273 1.8889856  4.846061  4.60635146    Inf
-    ## 24     Age 3.0558576 0.10026324 2.5106657  3.719438 11.14127409    Inf
-    ## 25     Age 3.2711197 0.08973571 2.7435524  3.900135 13.20691984    Inf
-    ## 26     Age 3.5949385 0.19887186 2.4345092  5.308496  6.43392609    Inf
-    ## 27     Age 3.6257729 0.27341197 2.1216411  6.196255  4.71108669    Inf
-    ## 28 Therapy 4.2758367 0.17857336 3.0131392  6.067685  8.13659884    Inf
-    ## 29 Therapy 4.4798721 0.31485362 2.4169170  8.303659  4.76283079    Inf
-    ## 30     Age 5.0469606 0.27399009 2.9499124  8.634769  5.90819244    Inf
-    ##         p.value p.stars  p.label group xpos  xmin  xmax   Gene        p_fdr
-    ## 1  8.110693e-02            0.55    neg    1 0.825 1.175  SF3B1 1.302626e-01
-    ## 2  1.085281e-01            0.82    neg    4 3.825 4.175   TET2 1.514239e-01
-    ## 3  7.565096e-01            0.96    neg    4 3.825 4.175  PPM1D 8.105461e-01
-    ## 4  9.821771e-01            1.01    pos    1 0.825 1.175  SRSF2 9.821771e-01
-    ## 5  4.318129e-01            1.06    pos    4 3.825 4.175 DNMT3A 5.181755e-01
-    ## 6  8.357641e-01            1.07    pos    1 0.825 1.175   JAK2 8.645836e-01
-    ## 7  4.725074e-01            1.09    pos    1 0.825 1.175   TET2 5.452009e-01
-    ## 8  1.110442e-01            1.11    pos    1 0.825 1.175 DNMT3A 1.514239e-01
-    ## 9  5.013212e-01            1.13    pos    1 0.825 1.175  ASXL1 5.570236e-01
-    ## 10 3.852957e-01            1.27    pos    4 3.825 4.175    ATM 4.816196e-01
-    ## 11 1.993826e-01            1.35    pos    4 3.825 4.175   TP53 2.600643e-01
-    ## 12 8.490611e-02            1.62    pos    1 0.825 1.175    ATM 1.302626e-01
-    ## 13 2.247460e-02       *   1.76 *   pos    4 3.825 4.175  CHEK2 4.494919e-02
-    ## 14 8.684175e-02            1.86    pos    4 3.825 4.175   JAK2 1.302626e-01
-    ## 15 7.491510e-02            2.01    pos    4 3.825 4.175  SF3B1 1.302626e-01
-    ## 16 7.916732e-58     *** 2.06 ***   pos    5 4.825 5.175 DNMT3A 2.375020e-56
-    ## 17 5.932249e-02            2.17    pos    4 3.825 4.175  SRSF2 1.112297e-01
-    ## 18 5.043290e-05     *** 2.47 ***   pos    4 3.825 4.175  ASXL1 1.163836e-04
-    ## 19 3.968064e-09     *** 2.52 ***   pos    5 4.825 5.175   TP53 1.322688e-08
-    ## 20 9.877076e-05     *** 2.84 ***   pos    1 0.825 1.175   TP53 2.116516e-04
-    ## 21 5.076294e-15     *** 3.00 ***   pos    5 4.825 5.175  ASXL1 3.045776e-14
-    ## 22 5.406340e-11     *** 3.01 ***   pos    5 4.825 5.175  CHEK2 2.703170e-10
-    ## 23 4.097956e-06     *** 3.03 ***   pos    5 4.825 5.175   JAK2 1.024489e-05
-    ## 24 7.898126e-29     *** 3.06 ***   pos    5 4.825 5.175  PPM1D 7.898126e-28
-    ## 25 8.003287e-40     *** 3.27 ***   pos    5 4.825 5.175   TET2 1.200493e-38
-    ## 26 1.243493e-10     *** 3.59 ***   pos    5 4.825 5.175    ATM 5.329258e-10
-    ## 27 2.463994e-06     *** 3.63 ***   pos    5 4.825 5.175  SRSF2 6.719983e-06
-    ## 28 4.065370e-16     *** 4.28 ***   pos    1 0.825 1.175  PPM1D 3.049027e-15
-    ## 29 1.908959e-06     *** 4.48 ***   pos    1 0.825 1.175  CHEK2 5.726877e-06
-    ## 30 3.458818e-09     *** 5.05 ***   pos    5 4.825 5.175  SF3B1 1.297057e-08
-    ##         termGene gene_cat      q.value q.label q.star
-    ## 1   TherapySF3B1 Splicing 1.302626e-01    0.55       
-    ## 2    SmokingTET2      DTA 1.514239e-01    0.82       
-    ## 3   SmokingPPM1D      DDR 8.105461e-01    0.96       
-    ## 4   TherapySRSF2 Splicing 9.821771e-01       1       
-    ## 5  SmokingDNMT3A      DTA 5.181755e-01     1.1       
-    ## 6    TherapyJAK2    Other 8.645836e-01     1.1       
-    ## 7    TherapyTET2      DTA 5.452009e-01     1.1       
-    ## 8  TherapyDNMT3A      DTA 1.514239e-01     1.1       
-    ## 9   TherapyASXL1      DTA 5.570236e-01     1.1       
-    ## 10    SmokingATM    Other 4.816196e-01     1.3       
-    ## 11   SmokingTP53      DDR 2.600643e-01     1.3       
-    ## 12    TherapyATM    Other 1.302626e-01     1.6       
-    ## 13  SmokingCHEK2      DDR 4.494919e-02    1.8*      *
-    ## 14   SmokingJAK2    Other 1.302626e-01     1.9       
-    ## 15  SmokingSF3B1 Splicing 1.302626e-01       2       
-    ## 16     AgeDNMT3A      DTA 2.375020e-56  2.1***    ***
-    ## 17  SmokingSRSF2 Splicing 1.112297e-01     2.2       
-    ## 18  SmokingASXL1      DTA 1.163836e-04  2.5***    ***
-    ## 19       AgeTP53      DDR 1.322688e-08  2.5***    ***
-    ## 20   TherapyTP53      DDR 2.116516e-04  2.8***    ***
-    ## 21      AgeASXL1      DTA 3.045776e-14    3***    ***
-    ## 22      AgeCHEK2      DDR 2.703170e-10    3***    ***
-    ## 23       AgeJAK2    Other 1.024489e-05    3***    ***
-    ## 24      AgePPM1D      DDR 7.898126e-28  3.1***    ***
-    ## 25       AgeTET2      DTA 1.200493e-38  3.3***    ***
-    ## 26        AgeATM    Other 5.329258e-10  3.6***    ***
-    ## 27      AgeSRSF2 Splicing 6.719983e-06  3.6***    ***
-    ## 28  TherapyPPM1D      DDR 3.049027e-15  4.3***    ***
-    ## 29  TherapyCHEK2      DDR 5.726877e-06  4.5***    ***
-    ## 30      AgeSF3B1 Splicing 1.297057e-08    5***    ***
-
-``` r
-print(typeof(D))
-```
-
-    ## [1] "list"
-
-``` r
-print(class(D))
-```
-
-    ## [1] "data.frame"
 
 To create this dataframe, `D`, we start with the previous dataframe, `logit_gene_var` that contains all of the information of the predictiors of our 10 gene models. The first two lines filter out the rows where the term is `GenderFemale` or `race_b`. Including them in the model, but excluding them from the subsequent analysis ensures that they are controlled for.
 
@@ -739,7 +630,7 @@ After this, a new column, `p_fdr` is created, which adjusts the p-values for mul
 
 Next, this dataframe is sorted from lowest `estimate` value, which is approximately the effect the term has on the overall prediction. In the case of a tie between `estimate` values, the rows are then sorted by `Gene` name. Then, the type of the previously created `termGene` is changed from a character to a factor.
 
-Subsequently, a `gene_cat` is added, with the value of "DTA" or "DDR" if the gene is involved in one of these commonly understood pathways, with the value of "Splicing" if it's a spliceosome gene, and with a value of "Other" if the gene is in none of these lists. Then `gene_cat` is factored.
+Subsequently, a `gene_cat` is added, with the value of "DTA" if it is an epigenetic modifier, "DDR" if the gene is involved in the commonly understood DDR pathway, "Splicing" if it's a splicing regulator, and "Other" if the gene is in the top 10 mutated genes in this cohort, but doesn't fit into one of these other 3 categories. At this point, `gene_cat` is also factored.
 
 After this, the significance estimates are determined. The `q.value` becomes the fdr adjusted p-value; the `q.label` rounds the estimate to the nearest 0.01 along with the q-value; and `q.star` is the resulting significance level in stars.
 
@@ -750,20 +641,6 @@ Additionally, the order of these steps doesn't seem to be the most logical. For 
 #### Create Figure
 
 The last step needed to make Figure 1c is to take the dataframe we just set up and actually make the figure! The code for this step is shown below:
-
-``` r
-# ggplot(D) + #, aes_string(x = "termGene", y = "estimate", ymin = "conf.low", ymax = "conf.high", col = 'gene_cat', fill = NULL)) +
-#     geom_blank() #+
-
-# ggplot(D, aes_string(x = "termGene", y = "estimate", ymin = "conf.low", ymax = "conf.high", col = 'gene_cat', fill = NULL)) + 
-#     geom_blank() #+
-    # geom_hline(yintercept = 1, color = "gray", linetype = "solid") +
-    # geom_errorbar(position = position_dodge(width = .8), width = 0, size=0.3) + 
-    # geom_point(position = position_dodge(width = .8), size=1.5) +
-    # geom_text(aes_string(label = "p.label", vjust = 0), position = position_dodge(width = .8), color = 'black', size = 2, alpha = .9) +
-    # coord_flip() +
-    # ggtitle("")
-```
 
 ``` r
 p_forest <- plot_forest(
@@ -797,7 +674,7 @@ theme(
 )
 ```
 
-This plot starts off by calling `plot_forest()`, another function defined in `toolbox.R`. For the sake of this project, instead of walking through how the function works, I'll simply discuss only what arguments are used here. `D`, our previously-created dataframe, contains all the data needed for this plot. The plot eventually undergoes a `coord_flip()` as part of the `plot_forest()` function, so "x" is our "termGene", which is resultingly on the *y*-axis. "y" defaults to "estimate", so this is what is shown on the final *x*-axis. The annotation above each of the lines is the star values, from `q.star`; the `eb_w` and `eb_s` are the width and size of the error bars; the `ps` is the size of the point; the `or_s` is the size of the label text; the `nudge` is the vertical offset of the label text; and the `col` is the color of each line, colored by its gene category.
+This code starts off by calling `plot_forest()`, another function defined in `toolbox.R`. For the sake of this project, instead of walking through how the function works, I'll simply discuss only what arguments are used here. `D`, our previously-created dataframe, contains all the data needed for this plot. The plot eventually undergoes a `coord_flip()` as part of the `plot_forest()` function, so "x" is our "termGene", which is resultingly on the *y*-axis. "y" defaults to "estimate", so this is what is shown on the final *x*-axis. The annotation above each of the lines is the star values, from `q.star`; the `eb_w` and `eb_s` are the width and size of the error bars; the `ps` is the size of the point; the `or_s` is the size of the label text; the `nudge` is the vertical offset of the label text; and the `col` is the color of each line, colored by its gene category.
 
 After this, the whole plot is broken up into 3 sub-plots, based on the value of `term`, resulting in one for each of "Age", "Therapy", and "Smoking". Additionally, the x-axis scale becomes the name of each gene. The x-axis is unlabeled, and the y-axis label gets defined. A color palette, inspired by plots in *The New England Journal of Medicine*, is chosen from the `ggsci` package. The general appearance of the plot is specified with `panel_theme`, which is defined previously in `Revier_Code.Rmd` and used in other plots. Lastly, some additional appearance changes are made specific to this plot.
 
@@ -816,46 +693,40 @@ And there it is! Our final version of Figure 1c.
 Findings
 --------
 
-\[FIXTHIS: pick up on rubric here... **Discussion of findings**\]
+In this final forest plot that comprises Figure 1c, we see that for the Smoking category, *ASXL1* has a significantly higher odds ratio. This means that current or former smokers had a higher liklihood of having a CH putative cancer-driver mutation in *ASXL1* compared to people who have never been a smoker. In the article, the authors state this as: "Mutations in *ASXL1* were significantly associated with smoking history."
 
-Summarize the analyses you performed and what the results told you. What do your findings say about the real-world and prediction (or clustering) questions you posed?
+In the therapy subplot, we see in red that all of the DNA damage response (DDR) genes, *CHEK2*, *PPPM1D*, and *TP53*, have significanty higher odds ratio of having a CH putative cancer-driver mutations. This means that those who had been "exposed to cancer therapy (including cytotoxic therapy, radiation therapy, targeted therapy and immunotherapy)" were more likely to have these mutations in the DDR genes than those who were treatment-naive. The authors state this as: "CH mutations in the DDR genes *TP53*, *PPM1D* and *CHEK2* were most strongly associated with previous exposure to cancer therapy". Additionally, they note on the genes that did not show significance from this model: "CH defined by mutations in epigenetic modifiers (*DNMT3A*, *TET2*) or splicing regulators (*SRSF2*, *SF3B1*, *U2AF1*) was not strongly affected by exposure to therapy."
 
--   3pts: *Particular thought or insight was given to how the findings connect to the questions*
--   2pts: *Results are summarized in a way that clearly connects to the questions that were posed*
+In the age subplot, each of our 10 genes of interest has a significantly higher odds ratio for the presence of a CH putative cancer-driver mutation. This means that as patients got older, they were more likely to have these mutations in any of these 10 genes. The authors highlight the top two genes and write that: "mutations in the spliceosome genes *SRSF2* and *SF3B1* ... showed the strongest association with age".
 
-Limitations
------------
+With this project, I set out to replicate and verify the evidence that "the relative fitness of acquired mutations in hematopoietic stem and progenitor cells is modulated by environmental factors such as cancer treatment, smoking or the aging microenvironment in a gene-dependent manner." I found all parts of this statement to be true. As seen in the plot and in these prior three paragraphs, the presence of mutations in these cells was indeed impacted by age, cancer therapy, and smoking. This data and analysis sufficiently supports this statement.
 
-What are some limitations of your analyses and potential biases of the data you used?
+Limitations and Ethical Considerations
+--------------------------------------
 
-and Ethical Considerations
+The limitations of this analysis and data include that most (78.3346889%) of this cohort is white. The authors noted that "CH was less common in patients of Asian ancestry relative to white ancestry", but I think this study would have been more well rounded if it had included more diverse individuals. This is an issue that [needs to be addressed](https://www.nature.com/articles/s41588-019-0394-y) in all areas related to human genetics. Though I understand that this cohort was primarily made up of MSK patients, perhaps purposely recruiting more diverse patients would have been beneficial.
 
--   3pts: *Particular thought was given to identifying and characterizing limitations*
--   2pts: *includes a coherent discussion of limitations and potential biases of the data, analysis approach, or other aspects* -- not "superficial or limited"
+Because of the nature of my project, there are some natural shortcomings. To start with, the scope of my project is only one paragraph in a greater published article. Due to this extremely limited scope, I have been able to immerse myself in all the small details involved in this specific sub-analysis; however, this intense focus makes it easy to lose sight of how this connects to the bigger picture. Thus, instead of maintaining an ultra-narrow view, it is still important to keep in mind what the goal of this part of the analysis was, and how it contributes towards the overall goal of the study. I would encourage anyone reading my project to read the actual article as well, in order to gain a broader understanding of the authors' findings.
+
+Additionally, as an outside source, I may not have understood all the minute details of the analysis. I may have not understood every coding convention, acronym, or external reference. However, I tried my best to infer what the authors might have meant by consulting relevant sections of the article and doing some additional research. On a similar note, I am not an expert in clonal hematopoiesis, nor am I an epidemiologist or a human geneticist. My understanding of these concepts is that of an undergraduate student, and should be interpreted as such.
+
+Though these limitations exists, there are some positives to this analysis and project, such as the emphasis on reproducibility. To ensure reproducibily in this document, a random seed was set at the beginning of this document using `set.seed()`. The value chosen was the same value used by the original authors, to ensure that any randomness was the same as theirs. Additionally, an appendix is included at the bottom of this document with all the code, even for hidden chunks, which allows for maximal reproducibility. Further, this exact report Rmd can be found at <https://github.com/Calvin-DS202-FA20/proj-Westra/blob/master/Report.Rmd> for those with access to the repo.
 
 Future Directions
 -----------------
 
-What new questions came up following your exploration of this data? Describe at least one question that could not be answered using your data alone, and specify what additional data you would collect to address it.
+Obviously, further directions include looking closely at the rest of this article's analysis and finds. An investigation into the impact of specific types of therapies and of the molecular characteristics of CH that increase risk of tMN could specifically be of interest. To do so, the other datasets would need to be used, including those available in the original GitHub repo. Additionally, the dataset available on [cBioPortal for Cancer Genomics](https://www.cbioportal.org) that accompanies this paper could be used. This dataset contains the variant calls, where instead of each row being a patient, each row would be a specific genetic mutation. This could be used to further investigate specific variants. The number of samples with a specific mutation could be compared to the population average in the [genome aggreagation database](https://gnomad.broadinstitute.org), to determine which variants appear unique to this specific cohort. From here, addition analyses could reveal if any other genes might be implicated in CH, and potentially if any genes contain a higher proportion of rare variants.
 
--   3pts: *Identifies multiple questions, or particularly thoughtful questions*
--   2pts: *identifies at least one question that would require new data or a new analysis approach, and specifies what steps would be required*
--   maybe pull something from *their* future directions section & discuss what type of data would be necessary for this?
--   discuss what the rest of the analysis and figures go on to show... and what extra data is needed for this?
+Using the same dataset used in Figure 1c, it could be interesting to look at specific therapy types. The last ~75 of the columns of this dataset indicate whether or not the individual recieved specific therapies. The same analysis steps could be used, where instead of using `therapy_binary` as a predictor variable, these 75 columns could be used to potentially identify if any genes are significantly enriched due to these therapies. Another variable in this dataset is `generaltumortype`, which could be used in a quick analysis to see if any of the gene enrichment is dependent on the tumor location/type.
 
-Conclusions
------------
+Project Conclusions
+-------------------
 
-> this is my own added section. see if I want to include this or not. if not, put this paragraph somewhere else
+In this project, I was able to successfully replicate a figure panel in a *Nature Genetics* article. By closely inspecting the original code that was used to create this figure panel, I was able to understand what choices the authors made, and how exactly they analyzed their data to come to their conclusions. I believe that this has satisfactorily demonstrated what I have learned in DATA-202, and I am sure that this skill will be of use to me in my future endeavors.
 
-FIXTHIS: go back & take a look @ EDA plots. Decide if you want to keep the 0s and 1s, or change it to be the *actual* thing it *means*. I think that might be better for the sake of easy-reading. My text can still explain the 0s and 1s.
+In embarking on this project and addressing this question, I gained not only an understanding of how data science is used in my chosen career field, but also an appreciation for the hard work done by women in STEM. To my surprise, first author Kelly Bolton, MD-PhD, as well as lab PI, Elli Papaemmanuil, PhD, are both women. Though I had assumed they were both male, I was pleasently surprised to find out that they are women. I find this encouraging as I plan to further my education and hopefully am able to contribute to similarly important research.
 
-In addressing this question, I gained not only an understanding of how data science is used in my chosen career field, but also an appreciation for the hard work done by women in STEM -- as, to my surprise, first author Kelly Bolton MD PhD, as well as lab PI, Elli Papaemmanuil, PhD, are both women.
-
-**Results are replicable** - *Extra steps are taken towards reproducibility (e.g., data checksums provided, random seeds set, etc.)* -- or maybe a note on "because none of the functions rely on randomness, this same analysis will be repeated every time. An appendix is included at the bottom of this document with all the code, even for hidden chunks, which allows for maximal reproducibility. Additionally, this exact report Rmd can be found at <https://github.com/Calvin-DS202-FA20/proj-Westra/blob/master/Report.Rmd> for those with access to the repo.
-
-**Responsibility and Justice**:
-- *"Demonstrated humility and awareness throughout the project. e.g., included appropriate caveats with claims, included discussion of implications of decisions that were made during acquisition / modeling / communication. Identified potential ethical issues raised by existing data."* -- "Particularly thoughtful here."
+Beyond this, though this project, I have maintained and grown my interest in epidemiology, genetics, and data science -- and particularly the intersection between these all! I am excited to see where my future leads, and am ready to use the skills I have gained from this project wherever I end up.
 
 Author
 ------
@@ -868,6 +739,7 @@ Appendix
 ``` r
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+set.seed(2020) #same seed the authors used, for the sake of reproducibility ;)
 M_wide_all = suppressWarnings(data.table::fread('./data/M_wide_all.txt', sep = '\t', header = T)) %>%
   as.data.frame()
 table(sapply(M_wide_all, class)) %>%
@@ -1023,7 +895,7 @@ gene_list = c(DDR, DTA, SPL, OTH)
 pretty_genelist <- c()
 pretty_genelist$pathway <- c("DTA", "DDR", "SPL", "OTH")
 pretty_genelist$role <- c("epigenetic modifiers", "DNA damage response genes", 
-                          "spliceosome genes", "other")
+                          "splicing regulators", "other")
 pretty_genelist$genes <- c("DNMT3A, TET2, ASXL1", "PPM1D, TP53, CHEK2", "SF3B1, SRSF2", "JAK2, ATM")
 pretty_genelist <- as.data.frame(pretty_genelist)
 pretty_genelist %>%
@@ -1099,15 +971,7 @@ D = logit_gene_var %>%
         q.label = paste0(signif(estimate, 2), signif.num(q.value)),
         q.star = signif.num(q.value)
     )
-
-#FIXTHIS DELETE
-print(D)
-print(typeof(D))
-print(class(D))
-#source everything from toolbox in order to use plot_forest.... otherwise, weird knitting error: "You're passing a function as global data. Have you misspelled the `data` argument in `ggplot()`"
-# source("./toolbox.R")
-
-# #define plot_forest from toolbox
+#define plot_forest from toolbox
 plot_forest <- function(class_results, x = "class", y = "estimate", ymin = "conf.low", ymax = "conf.high",
                        label = "p.label", limits = NULL, breaks = waiver(), title = "", col = NULL, fill = NULL,
                         dodge_width = 0.8, outer_limit_arrows = FALSE, ps=3, eb_w=0.4, eb_s=0.4, or_s=4, OR=T, yinter = 1,
@@ -1169,20 +1033,11 @@ do_plot = function(p, f, w, h, r = 300, save_pdf = F) {
   knitr::include_graphics(paste0('./figures/',f))
 }
 
-#specify font size
+#specify font size from .Rmd
 font_size = 8
-library(ggsci)
-# ggplot(D) + #, aes_string(x = "termGene", y = "estimate", ymin = "conf.low", ymax = "conf.high", col = 'gene_cat', fill = NULL)) +
-#     geom_blank() #+
 
-# ggplot(D, aes_string(x = "termGene", y = "estimate", ymin = "conf.low", ymax = "conf.high", col = 'gene_cat', fill = NULL)) + 
-#     geom_blank() #+
-    # geom_hline(yintercept = 1, color = "gray", linetype = "solid") +
-    # geom_errorbar(position = position_dodge(width = .8), width = 0, size=0.3) + 
-    # geom_point(position = position_dodge(width = .8), size=1.5) +
-    # geom_text(aes_string(label = "p.label", vjust = 0), position = position_dodge(width = .8), color = 'black', size = 2, alpha = .9) +
-    # coord_flip() +
-    # ggtitle("")
+#load required package for color palette from .Rmd
+library(ggsci)
 p_forest <- plot_forest(
       class_results = D,
       x = "termGene",
