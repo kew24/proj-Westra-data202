@@ -587,6 +587,8 @@ To quickly summarize what this is doing, `signif.num` takes a list, `x`, and ass
 </tbody>
 </table>
 
+#### Exact Figure Dataset
+
 Now that the function has been defined, we're ready to move on to create the specific dataframe used in Figure 1c. This code for this is shown below:
 
 ``` r
@@ -630,59 +632,64 @@ Next, this dataframe is sorted from lowest `estimate` value, which is approximat
 
 Subsequently, a `gene_cat` is added, with the value of "DTA" or "DDR" if the gene is involved in one of these commonly understood pathways, with the value of "Splicing" if it's a spliceosome gene, and with a value of "Other" if the gene is in none of these lists. Then `gene_cat` is factored.
 
-After this, the significance estimates are determined. The `q.value` becomes the fdr adjusted p-value,
+After this, the significance estimates are determined. The `q.value` becomes the fdr adjusted p-value; the `q.label` rounds the estimate to the nearest 0.01 along with the q-value; and `q.star` is the resulting significance level in stars.
 
-It seems as though they began adjusting their p-values when they create `p_fdr`, but then move on to other things and come back to do this same thing at the end of this code chunk. This makes it seem like the authors did not clearly look over their code to assess what each of their steps are doing. In fact, looking over the rest of entire `Reviewer_Code.Rmd` reveals that they did not use this `p_fdr` column of this dataset for anything else. This finding speaks to the importance of understanding your code
+Interestingly, it seems as though they began adjusting their p-values when they create `p_fdr`, but then move on to other things and come back to do this same thing at the end of this code chunk. This makes it seem like the authors did not clearly look over their code to assess what each of their steps are doing. In fact, looking over the rest of entire `Reviewer_Code.Rmd` reveals that they did not use this `p_fdr` column of this dataset for anything else. This finding speaks to the importance of understanding what your code does, instead of being at a point where you accidentally do the same thing twice.
 
-        q.value = p.adjust(p.value, n = nrow(.), method = 'fdr'), 
-        q.label = paste0(signif(estimate, 2), signif.num(q.value)),
-        q.star = signif.num(q.value)
-    )
+Additionally, the order of these steps doesn't seem to be the most logical. For example, `termGene` seems to be created at an artibrary point in the process, and is later revisted to be factored. I personally think it would've made more sense to reviewers or others reading this code if the authors had factored `termGene` directly after creating it, and done everything p-value related at the same time point. However, this makes no different on the dataframe itself, so there is nothing technically wrong with it. Yet, data scientists should strive to make their code hospitable to all those reading it. Being considerate of even the little things, such as logically grouping similar `mutate()`s together, can help others understand *why* a certain choice was made, or see the significance of a specific step. Though most of the code is still pretty clear, this is one area where I think these authors could improve.
 
-The order of these steps doesn't seem to be the most logical. For example, `termGene` seems to be created at an artibrary point in the process, and is later revisted to be factored. I personally think it would've made more sense to reviewers or others reading this code if the authors had factored `termGene` directly after creating it, and done everything p-value related at the same time point. However, this makes no different on the dataframe itself, so there is nothing technically wrong with it. Yet, data scientists should strive to make their code hospitable to all those reading it. Being considerate of even the little things, such as logically grouping similar `mutate()`s together, can help others understand *why* a certain choice was made, or see the significance of a specific step. Though most of the code is still pretty clear, this is one area where I think these authors could improve.
+#### Create Figure
 
-\[FIXTHIS: pick up on rubric here... **Discussion of findings**\]
-
-Direct Code from Reviewer\_Code.Rmd (from here, I just need 1c):
+The last step needed to make Figure 1c is to take the dataframe we just set up and actually make the figure! The code for this step is shown below:
 
 ``` r
-p_forest = plot_forest(
-      D,
-      x = "termGene",
-      label = 'q.star',
-      eb_w = 0,
-      eb_s = 0.3,
-      ps = 1.5,
-      or_s = 2,
-      nudge = -0.3,
-      col = 'gene_cat'
-  ) + 
-  facet_wrap(~term, scale = 'free_y', ncol = 1) +
-  scale_x_discrete(
-      breaks = D$termGene,
-      labels = D$Gene,
-      expand = c(0.1,0)
-  ) +
-  xlab('') + ylab('Odds Ratio of CH-PD') +
-  scale_color_nejm() +
-  panel_theme +
-  theme(
-    axis.text = element_text(size = font_size),
-    axis.title = element_text(size = font_size),
-    strip.text = element_text(size = font_size),
-    legend.position = 'top',
-    legend.title = element_blank(),
-    legend.text = element_text(size = font_size/1.2),
-    legend.key.size = unit(3, "mm")
-  ) 
-
-combo = ((p_hist + labs(title = 'A')) / (p_stack + labs(title = 'B'))) | (p_forest+ labs(title = 'C'))
-
-do_plot(combo, "fig1c.png", 10, 6, save_pdf = F) #no pdf
+# p_forest <- plot_forest(
+#       class_results = D,
+#       x = "termGene",
+#       label = 'q.star',
+#       eb_w = 0,
+#       eb_s = 0.3,
+#       ps = 1.5,
+#       or_s = 2,
+#       nudge = -0.3,
+#       col = 'gene_cat'
+#   ) #+ 
+  # facet_wrap(~term, scale = 'free_y', ncol = 1) +
+  # scale_x_discrete(
+  #     breaks = D$termGene,
+  #     labels = D$Gene,
+  #     expand = c(0.1,0)
+  # ) +
+  # xlab('') + ylab('Odds Ratio of CH-PD') +
+  # scale_color_nejm() +
+  # panel_theme +
+  # theme(
+  #   axis.text = element_text(size = font_size),
+  #   axis.title = element_text(size = font_size),
+  #   strip.text = element_text(size = font_size),
+  #   legend.position = 'top',
+  #   legend.title = element_blank(),
+  #   legend.text = element_text(size = font_size/1.2),
+  #   legend.key.size = unit(3, "mm")
+  # ) 
 ```
+
+This plot starts off by calling `plot_forest()`, another function defined in `toolbox.R`. For the sake of this project, instead of walking through how the function works, I'll simply discuss only what arguments are used here. `D`, our previously-created dataframe, contains all the data needed for this plot. The plot eventually undergoes a `coord_flip()` as part of the `plot_forest()` function, so "x" is our "termGene", which is resultingly on the *y*-axis. "y" defaults to "estimate", so this is what is shown on the final *x*-axis. The annotation above each of the lines is the star values, from `q.star`; the `eb_w` and `eb_s` are the width and size of the error bars; the `ps` is the size of the point; the `or_s` is the size of the label text; the `nudge` is the vertical offset of the label text; and the `col` is the color of each line, colored by its gene category.
+
+After this, the whole plot is broken up into 3 sub-plots, based on the value of `term`, resulting in one for each of "Age", "Therapy", and "Smoking". Additionally, the x-axis scale becomes the name of each gene. The x-axis is unlabeled, and the y-axis label gets defined. A color palette, inspired by plots in *The New England Journal of Medicine*, is chosen from the `ggsci` package. The general appearance of the plot is specified with `panel_theme`, which is defined previously in `Revier_Code.Rmd` and used in other plots. Lastly, some additional appearance changes are made specific to this plot.
+
+Finally, `do_plot()` makes the plot and saves it with the specified dimensions:
+
+``` r
+#do_plot(p_forest, "my_fig1c.png", 5, 6, save_pdf = F)
+```
+
+And there it is! Our final version of Figure 1c.
 
 Findings
 --------
+
+\[FIXTHIS: pick up on rubric here... **Discussion of findings**\]
 
 Summarize the analyses you performed and what the results told you. What do your findings say about the real-world and prediction (or clustering) questions you posed?
 
@@ -965,38 +972,99 @@ D = logit_gene_var %>%
         q.label = paste0(signif(estimate, 2), signif.num(q.value)),
         q.star = signif.num(q.value)
     )
+#define plot_forest
+plot_forest <- function(class_results, x = "class", y = "estimate", ymin = "conf.low", ymax = "conf.high",
+                       label = "p.label", limits = NULL, breaks = waiver(), title = "", col = NULL, fill = NULL,
+                        dodge_width = 0.8, outer_limit_arrows = FALSE, ps=3, eb_w=0.4, eb_s=0.4, or_s=4, OR=T, yinter = 1,
+                        nudge = 0, base_plot = geom_blank(), bar_col = 'black') { 
+    # suppressWarnings(ggthemr::ggthemr("fresh"))
+  #' Forest plot of the coefficients in 'class_results'
+  output_plot <- ggplot(class_results, aes_string(x = x, y = y, ymin = ymin, ymax = ymax, col = col, fill = fill)) + 
+    base_plot +
+    geom_hline(yintercept = yinter, color = "gray", linetype = "solid") +
+    geom_errorbar(position = position_dodge(width = dodge_width), width = eb_w, size=eb_s) + 
+    geom_point(position = position_dodge(width = dodge_width), size=ps) +
+    geom_text(aes_string(label = label, vjust = nudge), position = position_dodge(width = dodge_width), color = 'black', size = or_s, alpha = .9) +
+    coord_flip() +
+    ggtitle(title)
+  
+  if (OR==T) {
+  output_plot <-  output_plot +   
+    scale_y_log10(limits = limits, breaks = breaks)
+  }
+  
+  if (outer_limit_arrows) {
+    stopifnot(length(limits) > 0)
+    # Check for errorbar values outside 
+    class_results[, "ymin_out"] <- ifelse(class_results[, ymin] < limits[1], limits[1], NA)
+    class_results[, "linestyle_min"] <- ifelse(class_results[, ymin] < limits[1], "b", NA)
+    class_results[, "ymax_out"] <- ifelse(class_results[, ymax] > limits[2], limits[2], NA)
+    class_results[, "linestyle_max"] <- ifelse(class_results[, ymax] > limits[2], "b", NA)
+    
+    output_plot <- output_plot + geom_linerange(data = class_results, aes_string(x = x, ymin = "ymin_out", ymax = ymax), linetype = 3, position = position_dodge(width = dodge_width))
+    output_plot <- output_plot + geom_linerange(data = class_results, aes_string(x = x, ymin = ymin, ymax = "ymax_out"), linetype = 3, position = position_dodge(width = dodge_width))
+    output_plot <- output_plot + geom_linerange(data = class_results, aes_string(x = x, ymin = "ymin_out", ymax = "ymax_out"), linetype = 3, position = position_dodge(width = dodge_width))
+  }
+  return(output_plot)
+}
 
-p_forest = plot_forest(
-      D,
-      x = "termGene",
-      label = 'q.star',
-      eb_w = 0,
-      eb_s = 0.3,
-      ps = 1.5,
-      or_s = 2,
-      nudge = -0.3,
-      col = 'gene_cat'
-  ) + 
-  facet_wrap(~term, scale = 'free_y', ncol = 1) +
-  scale_x_discrete(
-      breaks = D$termGene,
-      labels = D$Gene,
-      expand = c(0.1,0)
-  ) +
-  xlab('') + ylab('Odds Ratio of CH-PD') +
-  scale_color_nejm() +
-  panel_theme +
-  theme(
-    axis.text = element_text(size = font_size),
-    axis.title = element_text(size = font_size),
-    strip.text = element_text(size = font_size),
-    legend.position = 'top',
-    legend.title = element_blank(),
-    legend.text = element_text(size = font_size/1.2),
-    legend.key.size = unit(3, "mm")
-  ) 
+#define panel_theme for figure 1
+panel_theme = theme_bw() + theme(
+    panel.border = element_blank(),
+    legend.position = "none",
+    panel.grid.minor = element_blank(),
+    plot.subtitle = element_text(hjust = 0.5, size = 8),
+    plot.title = element_text(face = 'bold', size = 12, hjust = 0, vjust = -11),
+    panel.grid.major = element_blank(),
+    strip.background = element_blank(),
+    strip.text = element_text(size = 6),
+    axis.text.y = element_text(size = 6),
+    axis.text.x = element_text(size = 6),
+    axis.title = element_text(size = 8),
+    axis.line = element_line(),
+    plot.margin = unit(c(0,0,0,0), 'pt')
+) 
 
-combo = ((p_hist + labs(title = 'A')) / (p_stack + labs(title = 'B'))) | (p_forest+ labs(title = 'C'))
+#define do_plot from .Rmd
+do_plot = function(p, f, w, h, r = 300, save_pdf = F) {
+  ggsave(paste0('./figures/',f), plot = p, width = w, height = h, dpi = r)
+  if (save_pdf) {
+    ggsave(paste0('./figures/', str_remove(f, '\\..+'), '.pdf'), plot = p, width = w, height = h, dpi = r)
+  }
+  knitr::include_graphics(paste0('./figures/',f))
+}
 
-do_plot(combo, "fig1c.png", 10, 6, save_pdf = F) #no pdf
+#specify font size
+font_size = 8
+library(ggsci)
+# p_forest <- plot_forest(
+#       class_results = D,
+#       x = "termGene",
+#       label = 'q.star',
+#       eb_w = 0,
+#       eb_s = 0.3,
+#       ps = 1.5,
+#       or_s = 2,
+#       nudge = -0.3,
+#       col = 'gene_cat'
+#   ) #+ 
+  # facet_wrap(~term, scale = 'free_y', ncol = 1) +
+  # scale_x_discrete(
+  #     breaks = D$termGene,
+  #     labels = D$Gene,
+  #     expand = c(0.1,0)
+  # ) +
+  # xlab('') + ylab('Odds Ratio of CH-PD') +
+  # scale_color_nejm() +
+  # panel_theme +
+  # theme(
+  #   axis.text = element_text(size = font_size),
+  #   axis.title = element_text(size = font_size),
+  #   strip.text = element_text(size = font_size),
+  #   legend.position = 'top',
+  #   legend.title = element_blank(),
+  #   legend.text = element_text(size = font_size/1.2),
+  #   legend.key.size = unit(3, "mm")
+  # ) 
+#do_plot(p_forest, "my_fig1c.png", 5, 6, save_pdf = F)
 ```
