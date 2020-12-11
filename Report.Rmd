@@ -466,7 +466,7 @@ signif_table %>%
 
 Now that the function has been defined, we're ready to move on to create the specific dataframe used in Figure 1c. This code for this is shown below:
 
-```{r D-dataframe, eval=FALSE}
+```{r D-dataframe}
 # for each gene
 D = logit_gene_var %>%
     filter(!term %in% c("GenderFemale", "race_b")) %>%
@@ -495,6 +495,11 @@ D = logit_gene_var %>%
         q.label = paste0(signif(estimate, 2), signif.num(q.value)),
         q.star = signif.num(q.value)
     )
+
+#FIXTHIS DELETE
+print(D)
+print(typeof(D))
+print(class(D))
 ```
 
 
@@ -519,35 +524,38 @@ Additionally, the order of these steps doesn't seem to be the most logical. For 
 The last step needed to make Figure 1c is to take the dataframe we just set up and actually make the figure! The code for this step is shown below:
 
 ```{r quitely-define-functions-from-toolbox, echo=FALSE}
-#define plot_forest
+#source everything from toolbox in order to use plot_forest.... otherwise, weird knitting error: "You're passing a function as global data. Have you misspelled the `data` argument in `ggplot()`"
+# source("./toolbox.R")
+
+# #define plot_forest from toolbox
 plot_forest <- function(class_results, x = "class", y = "estimate", ymin = "conf.low", ymax = "conf.high",
                        label = "p.label", limits = NULL, breaks = waiver(), title = "", col = NULL, fill = NULL,
                         dodge_width = 0.8, outer_limit_arrows = FALSE, ps=3, eb_w=0.4, eb_s=0.4, or_s=4, OR=T, yinter = 1,
-                        nudge = 0, base_plot = geom_blank(), bar_col = 'black') { 
+                        nudge = 0, base_plot = geom_blank(), bar_col = 'black') {
     # suppressWarnings(ggthemr::ggthemr("fresh"))
   #' Forest plot of the coefficients in 'class_results'
-  output_plot <- ggplot(class_results, aes_string(x = x, y = y, ymin = ymin, ymax = ymax, col = col, fill = fill)) + 
+  output_plot <- ggplot(class_results, aes_string(x = x, y = y, ymin = ymin, ymax = ymax, col = col, fill = fill)) +
     base_plot +
     geom_hline(yintercept = yinter, color = "gray", linetype = "solid") +
-    geom_errorbar(position = position_dodge(width = dodge_width), width = eb_w, size=eb_s) + 
+    geom_errorbar(position = position_dodge(width = dodge_width), width = eb_w, size=eb_s) +
     geom_point(position = position_dodge(width = dodge_width), size=ps) +
     geom_text(aes_string(label = label, vjust = nudge), position = position_dodge(width = dodge_width), color = 'black', size = or_s, alpha = .9) +
     coord_flip() +
     ggtitle(title)
-  
+
   if (OR==T) {
-  output_plot <-  output_plot +   
+  output_plot <-  output_plot +
     scale_y_log10(limits = limits, breaks = breaks)
   }
-  
+
   if (outer_limit_arrows) {
     stopifnot(length(limits) > 0)
-    # Check for errorbar values outside 
+    # Check for errorbar values outside
     class_results[, "ymin_out"] <- ifelse(class_results[, ymin] < limits[1], limits[1], NA)
     class_results[, "linestyle_min"] <- ifelse(class_results[, ymin] < limits[1], "b", NA)
     class_results[, "ymax_out"] <- ifelse(class_results[, ymax] > limits[2], limits[2], NA)
     class_results[, "linestyle_max"] <- ifelse(class_results[, ymax] > limits[2], "b", NA)
-    
+
     output_plot <- output_plot + geom_linerange(data = class_results, aes_string(x = x, ymin = "ymin_out", ymax = ymax), linetype = 3, position = position_dodge(width = dodge_width))
     output_plot <- output_plot + geom_linerange(data = class_results, aes_string(x = x, ymin = ymin, ymax = "ymax_out"), linetype = 3, position = position_dodge(width = dodge_width))
     output_plot <- output_plot + geom_linerange(data = class_results, aes_string(x = x, ymin = "ymin_out", ymax = "ymax_out"), linetype = 3, position = position_dodge(width = dodge_width))
@@ -589,37 +597,52 @@ font_size = 8
 library(ggsci)
 ```
 
+```{r delete-this}
+# ggplot(D) + #, aes_string(x = "termGene", y = "estimate", ymin = "conf.low", ymax = "conf.high", col = 'gene_cat', fill = NULL)) +
+#     geom_blank() #+
 
-```{r reviewer-code}
-# p_forest <- plot_forest(
-#       class_results = D,
-#       x = "termGene",
-#       label = 'q.star',
-#       eb_w = 0,
-#       eb_s = 0.3,
-#       ps = 1.5,
-#       or_s = 2,
-#       nudge = -0.3,
-#       col = 'gene_cat'
-#   ) #+ 
-  # facet_wrap(~term, scale = 'free_y', ncol = 1) +
-  # scale_x_discrete(
-  #     breaks = D$termGene,
-  #     labels = D$Gene,
-  #     expand = c(0.1,0)
-  # ) +
-  # xlab('') + ylab('Odds Ratio of CH-PD') +
-  # scale_color_nejm() +
-  # panel_theme +
-  # theme(
-  #   axis.text = element_text(size = font_size),
-  #   axis.title = element_text(size = font_size),
-  #   strip.text = element_text(size = font_size),
-  #   legend.position = 'top',
-  #   legend.title = element_blank(),
-  #   legend.text = element_text(size = font_size/1.2),
-  #   legend.key.size = unit(3, "mm")
-  # ) 
+# ggplot(D, aes_string(x = "termGene", y = "estimate", ymin = "conf.low", ymax = "conf.high", col = 'gene_cat', fill = NULL)) + 
+#     geom_blank() #+
+    # geom_hline(yintercept = 1, color = "gray", linetype = "solid") +
+    # geom_errorbar(position = position_dodge(width = .8), width = 0, size=0.3) + 
+    # geom_point(position = position_dodge(width = .8), size=1.5) +
+    # geom_text(aes_string(label = "p.label", vjust = 0), position = position_dodge(width = .8), color = 'black', size = 2, alpha = .9) +
+    # coord_flip() +
+    # ggtitle("")
+```
+
+
+
+```{r combind-these}
+p_forest <- plot_forest(
+      class_results = D,
+      x = "termGene",
+      label = 'q.star',
+      eb_w = 0,
+      eb_s = 0.3,
+      ps = 1.5,
+      or_s = 2,
+      nudge = -0.3,
+      col = 'gene_cat'
+  ) +
+facet_wrap(~term, scale = 'free_y', ncol = 1) +
+scale_x_discrete(
+    breaks = D$termGene,
+    labels = D$Gene,
+    expand = c(0.1,0)
+) +
+xlab('') + ylab('Odds Ratio of CH-PD') +
+scale_color_nejm() +
+panel_theme +
+theme(
+  axis.text = element_text(size = font_size),
+  axis.title = element_text(size = font_size),
+  strip.text = element_text(size = font_size),
+  legend.position = 'top',
+  legend.title = element_blank(),
+  legend.text = element_text(size = font_size/1.2),
+  legend.key.size = unit(3, "mm")
+)
 ```
 
 This plot starts off by calling `plot_forest()`, another function defined in `toolbox.R`. For the sake of this project, instead of walking through how the function works, I'll simply discuss only what arguments are used here. `D`, our previously-created dataframe, contains all the data needed for this plot. The plot eventually undergoes a `coord_flip()` as part of the `plot_forest()` function, so "x" is our "termGene", which is resultingly on the *y*-axis. "y" defaults to  "estimate", so this is what is shown on the final *x*-axis. The annotation above each of the lines is the star values, from `q.star`; the `eb_w` and `eb_s` are the width and size of the error bars; the `ps` is the size of the point; the `or_s` is the size of the label text; the `nudge` is the vertical offset of the label text; and the `col` is the color of each line, colored by its gene category.
@@ -629,7 +652,7 @@ After this, the whole plot is broken up into 3 sub-plots, based on the value of 
 Finally, `do_plot()` makes the plot and saves it with the specified dimensions:
 
 ```{r do-plot}
-#do_plot(p_forest, "my_fig1c.png", 5, 6, save_pdf = F)
+do_plot(p_forest, "my_fig1c.png", 5, 6, save_pdf = F)
 ```
 
 And there it is! Our final version of Figure 1c.

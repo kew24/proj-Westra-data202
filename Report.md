@@ -620,7 +620,116 @@ D = logit_gene_var %>%
         q.label = paste0(signif(estimate, 2), signif.num(q.value)),
         q.star = signif.num(q.value)
     )
+
+#FIXTHIS DELETE
+print(D)
 ```
+
+    ##       term  estimate  std.error  conf.low conf.high   statistic den.df
+    ## 1  Therapy 0.5546006 0.33796215 0.2859607  1.075608 -1.74429920    Inf
+    ## 2  Smoking 0.8200258 0.12363785 0.6435567  1.044884 -1.60484410    Inf
+    ## 3  Smoking 0.9574955 0.14008012 0.7276128  1.260008 -0.31006747    Inf
+    ## 4  Therapy 1.0077691 0.34642966 0.5110690  1.987204  0.02233952    Inf
+    ## 5  Smoking 1.0557788 0.06904873 0.9221436  1.208780  0.78609313    Inf
+    ## 6  Therapy 1.0690663 0.32214618 0.5685823  2.010092  0.20731465    Inf
+    ## 7  Therapy 1.0922160 0.12278401 0.8586074  1.389385  0.71840530    Inf
+    ## 8  Therapy 1.1148707 0.06823799 0.9753045  1.274409  1.59351724    Inf
+    ## 9  Therapy 1.1334621 0.18630948 0.7867198  1.633029  0.67241237    Inf
+    ## 10 Smoking 1.2710092 0.27622281 0.7396519  2.184087  0.86818027    Inf
+    ## 11 Smoking 1.3498264 0.23375133 0.8537062  2.134260  1.28331246    Inf
+    ## 12 Therapy 1.6226709 0.28096392 0.9355641  2.814410  1.72290275    Inf
+    ## 13 Smoking 1.7558998 0.24667828 1.0827465  2.847559  2.28224979    Inf
+    ## 14 Smoking 1.8593155 0.36220819 0.9141994  3.781510  1.71229811    Inf
+    ## 15 Smoking 2.0079923 0.39143275 0.9323391  4.324642  1.78098380    Inf
+    ## 16     Age 2.0566534 0.04498379 1.8830889  2.246215 16.02977622    Inf
+    ## 17 Smoking 2.1727015 0.41148217 0.9699421  4.866921  1.88579569    Inf
+    ## 18 Smoking 2.4681387 0.22287885 1.5946110  3.820185  4.05361172    Inf
+    ## 19     Age 2.5173710 0.15686213 1.8510832  3.423486  5.88551915    Inf
+    ## 20 Therapy 2.8363443 0.26775174 1.6782175  4.793687  3.89359191    Inf
+    ## 21     Age 2.9980980 0.14031657 2.2772366  3.947149  7.82500682    Inf
+    ## 22     Age 3.0066870 0.16782888 2.1638743  4.177769  6.55929322    Inf
+    ## 23     Age 3.0255808 0.24034273 1.8889856  4.846061  4.60635146    Inf
+    ## 24     Age 3.0558576 0.10026324 2.5106657  3.719438 11.14127409    Inf
+    ## 25     Age 3.2711197 0.08973571 2.7435524  3.900135 13.20691984    Inf
+    ## 26     Age 3.5949385 0.19887186 2.4345092  5.308496  6.43392609    Inf
+    ## 27     Age 3.6257729 0.27341197 2.1216411  6.196255  4.71108669    Inf
+    ## 28 Therapy 4.2758367 0.17857336 3.0131392  6.067685  8.13659884    Inf
+    ## 29 Therapy 4.4798721 0.31485362 2.4169170  8.303659  4.76283079    Inf
+    ## 30     Age 5.0469606 0.27399009 2.9499124  8.634769  5.90819244    Inf
+    ##         p.value p.stars  p.label group xpos  xmin  xmax   Gene        p_fdr
+    ## 1  8.110693e-02            0.55    neg    1 0.825 1.175  SF3B1 1.302626e-01
+    ## 2  1.085281e-01            0.82    neg    4 3.825 4.175   TET2 1.514239e-01
+    ## 3  7.565096e-01            0.96    neg    4 3.825 4.175  PPM1D 8.105461e-01
+    ## 4  9.821771e-01            1.01    pos    1 0.825 1.175  SRSF2 9.821771e-01
+    ## 5  4.318129e-01            1.06    pos    4 3.825 4.175 DNMT3A 5.181755e-01
+    ## 6  8.357641e-01            1.07    pos    1 0.825 1.175   JAK2 8.645836e-01
+    ## 7  4.725074e-01            1.09    pos    1 0.825 1.175   TET2 5.452009e-01
+    ## 8  1.110442e-01            1.11    pos    1 0.825 1.175 DNMT3A 1.514239e-01
+    ## 9  5.013212e-01            1.13    pos    1 0.825 1.175  ASXL1 5.570236e-01
+    ## 10 3.852957e-01            1.27    pos    4 3.825 4.175    ATM 4.816196e-01
+    ## 11 1.993826e-01            1.35    pos    4 3.825 4.175   TP53 2.600643e-01
+    ## 12 8.490611e-02            1.62    pos    1 0.825 1.175    ATM 1.302626e-01
+    ## 13 2.247460e-02       *   1.76 *   pos    4 3.825 4.175  CHEK2 4.494919e-02
+    ## 14 8.684175e-02            1.86    pos    4 3.825 4.175   JAK2 1.302626e-01
+    ## 15 7.491510e-02            2.01    pos    4 3.825 4.175  SF3B1 1.302626e-01
+    ## 16 7.916732e-58     *** 2.06 ***   pos    5 4.825 5.175 DNMT3A 2.375020e-56
+    ## 17 5.932249e-02            2.17    pos    4 3.825 4.175  SRSF2 1.112297e-01
+    ## 18 5.043290e-05     *** 2.47 ***   pos    4 3.825 4.175  ASXL1 1.163836e-04
+    ## 19 3.968064e-09     *** 2.52 ***   pos    5 4.825 5.175   TP53 1.322688e-08
+    ## 20 9.877076e-05     *** 2.84 ***   pos    1 0.825 1.175   TP53 2.116516e-04
+    ## 21 5.076294e-15     *** 3.00 ***   pos    5 4.825 5.175  ASXL1 3.045776e-14
+    ## 22 5.406340e-11     *** 3.01 ***   pos    5 4.825 5.175  CHEK2 2.703170e-10
+    ## 23 4.097956e-06     *** 3.03 ***   pos    5 4.825 5.175   JAK2 1.024489e-05
+    ## 24 7.898126e-29     *** 3.06 ***   pos    5 4.825 5.175  PPM1D 7.898126e-28
+    ## 25 8.003287e-40     *** 3.27 ***   pos    5 4.825 5.175   TET2 1.200493e-38
+    ## 26 1.243493e-10     *** 3.59 ***   pos    5 4.825 5.175    ATM 5.329258e-10
+    ## 27 2.463994e-06     *** 3.63 ***   pos    5 4.825 5.175  SRSF2 6.719983e-06
+    ## 28 4.065370e-16     *** 4.28 ***   pos    1 0.825 1.175  PPM1D 3.049027e-15
+    ## 29 1.908959e-06     *** 4.48 ***   pos    1 0.825 1.175  CHEK2 5.726877e-06
+    ## 30 3.458818e-09     *** 5.05 ***   pos    5 4.825 5.175  SF3B1 1.297057e-08
+    ##         termGene gene_cat      q.value q.label q.star
+    ## 1   TherapySF3B1 Splicing 1.302626e-01    0.55       
+    ## 2    SmokingTET2      DTA 1.514239e-01    0.82       
+    ## 3   SmokingPPM1D      DDR 8.105461e-01    0.96       
+    ## 4   TherapySRSF2 Splicing 9.821771e-01       1       
+    ## 5  SmokingDNMT3A      DTA 5.181755e-01     1.1       
+    ## 6    TherapyJAK2    Other 8.645836e-01     1.1       
+    ## 7    TherapyTET2      DTA 5.452009e-01     1.1       
+    ## 8  TherapyDNMT3A      DTA 1.514239e-01     1.1       
+    ## 9   TherapyASXL1      DTA 5.570236e-01     1.1       
+    ## 10    SmokingATM    Other 4.816196e-01     1.3       
+    ## 11   SmokingTP53      DDR 2.600643e-01     1.3       
+    ## 12    TherapyATM    Other 1.302626e-01     1.6       
+    ## 13  SmokingCHEK2      DDR 4.494919e-02    1.8*      *
+    ## 14   SmokingJAK2    Other 1.302626e-01     1.9       
+    ## 15  SmokingSF3B1 Splicing 1.302626e-01       2       
+    ## 16     AgeDNMT3A      DTA 2.375020e-56  2.1***    ***
+    ## 17  SmokingSRSF2 Splicing 1.112297e-01     2.2       
+    ## 18  SmokingASXL1      DTA 1.163836e-04  2.5***    ***
+    ## 19       AgeTP53      DDR 1.322688e-08  2.5***    ***
+    ## 20   TherapyTP53      DDR 2.116516e-04  2.8***    ***
+    ## 21      AgeASXL1      DTA 3.045776e-14    3***    ***
+    ## 22      AgeCHEK2      DDR 2.703170e-10    3***    ***
+    ## 23       AgeJAK2    Other 1.024489e-05    3***    ***
+    ## 24      AgePPM1D      DDR 7.898126e-28  3.1***    ***
+    ## 25       AgeTET2      DTA 1.200493e-38  3.3***    ***
+    ## 26        AgeATM    Other 5.329258e-10  3.6***    ***
+    ## 27      AgeSRSF2 Splicing 6.719983e-06  3.6***    ***
+    ## 28  TherapyPPM1D      DDR 3.049027e-15  4.3***    ***
+    ## 29  TherapyCHEK2      DDR 5.726877e-06  4.5***    ***
+    ## 30      AgeSF3B1 Splicing 1.297057e-08    5***    ***
+
+``` r
+print(typeof(D))
+```
+
+    ## [1] "list"
+
+``` r
+print(class(D))
+```
+
+    ## [1] "data.frame"
 
 To create this dataframe, `D`, we start with the previous dataframe, `logit_gene_var` that contains all of the information of the predictiors of our 10 gene models. The first two lines filter out the rows where the term is `GenderFemale` or `race_b`. Including them in the model, but excluding them from the subsequent analysis ensures that they are controlled for.
 
@@ -643,35 +752,49 @@ Additionally, the order of these steps doesn't seem to be the most logical. For 
 The last step needed to make Figure 1c is to take the dataframe we just set up and actually make the figure! The code for this step is shown below:
 
 ``` r
-# p_forest <- plot_forest(
-#       class_results = D,
-#       x = "termGene",
-#       label = 'q.star',
-#       eb_w = 0,
-#       eb_s = 0.3,
-#       ps = 1.5,
-#       or_s = 2,
-#       nudge = -0.3,
-#       col = 'gene_cat'
-#   ) #+ 
-  # facet_wrap(~term, scale = 'free_y', ncol = 1) +
-  # scale_x_discrete(
-  #     breaks = D$termGene,
-  #     labels = D$Gene,
-  #     expand = c(0.1,0)
-  # ) +
-  # xlab('') + ylab('Odds Ratio of CH-PD') +
-  # scale_color_nejm() +
-  # panel_theme +
-  # theme(
-  #   axis.text = element_text(size = font_size),
-  #   axis.title = element_text(size = font_size),
-  #   strip.text = element_text(size = font_size),
-  #   legend.position = 'top',
-  #   legend.title = element_blank(),
-  #   legend.text = element_text(size = font_size/1.2),
-  #   legend.key.size = unit(3, "mm")
-  # ) 
+# ggplot(D) + #, aes_string(x = "termGene", y = "estimate", ymin = "conf.low", ymax = "conf.high", col = 'gene_cat', fill = NULL)) +
+#     geom_blank() #+
+
+# ggplot(D, aes_string(x = "termGene", y = "estimate", ymin = "conf.low", ymax = "conf.high", col = 'gene_cat', fill = NULL)) + 
+#     geom_blank() #+
+    # geom_hline(yintercept = 1, color = "gray", linetype = "solid") +
+    # geom_errorbar(position = position_dodge(width = .8), width = 0, size=0.3) + 
+    # geom_point(position = position_dodge(width = .8), size=1.5) +
+    # geom_text(aes_string(label = "p.label", vjust = 0), position = position_dodge(width = .8), color = 'black', size = 2, alpha = .9) +
+    # coord_flip() +
+    # ggtitle("")
+```
+
+``` r
+p_forest <- plot_forest(
+      class_results = D,
+      x = "termGene",
+      label = 'q.star',
+      eb_w = 0,
+      eb_s = 0.3,
+      ps = 1.5,
+      or_s = 2,
+      nudge = -0.3,
+      col = 'gene_cat'
+  ) +
+facet_wrap(~term, scale = 'free_y', ncol = 1) +
+scale_x_discrete(
+    breaks = D$termGene,
+    labels = D$Gene,
+    expand = c(0.1,0)
+) +
+xlab('') + ylab('Odds Ratio of CH-PD') +
+scale_color_nejm() +
+panel_theme +
+theme(
+  axis.text = element_text(size = font_size),
+  axis.title = element_text(size = font_size),
+  strip.text = element_text(size = font_size),
+  legend.position = 'top',
+  legend.title = element_blank(),
+  legend.text = element_text(size = font_size/1.2),
+  legend.key.size = unit(3, "mm")
+)
 ```
 
 This plot starts off by calling `plot_forest()`, another function defined in `toolbox.R`. For the sake of this project, instead of walking through how the function works, I'll simply discuss only what arguments are used here. `D`, our previously-created dataframe, contains all the data needed for this plot. The plot eventually undergoes a `coord_flip()` as part of the `plot_forest()` function, so "x" is our "termGene", which is resultingly on the *y*-axis. "y" defaults to "estimate", so this is what is shown on the final *x*-axis. The annotation above each of the lines is the star values, from `q.star`; the `eb_w` and `eb_s` are the width and size of the error bars; the `ps` is the size of the point; the `or_s` is the size of the label text; the `nudge` is the vertical offset of the label text; and the `col` is the color of each line, colored by its gene category.
@@ -681,8 +804,12 @@ After this, the whole plot is broken up into 3 sub-plots, based on the value of 
 Finally, `do_plot()` makes the plot and saves it with the specified dimensions:
 
 ``` r
-#do_plot(p_forest, "my_fig1c.png", 5, 6, save_pdf = F)
+do_plot(p_forest, "my_fig1c.png", 5, 6, save_pdf = F)
 ```
+
+    ## Don't know how to automatically pick scale for object of type noquote. Defaulting to continuous.
+
+<img src="./figures/my_fig1c.png" width="1500" />
 
 And there it is! Our final version of Figure 1c.
 
@@ -972,35 +1099,43 @@ D = logit_gene_var %>%
         q.label = paste0(signif(estimate, 2), signif.num(q.value)),
         q.star = signif.num(q.value)
     )
-#define plot_forest
+
+#FIXTHIS DELETE
+print(D)
+print(typeof(D))
+print(class(D))
+#source everything from toolbox in order to use plot_forest.... otherwise, weird knitting error: "You're passing a function as global data. Have you misspelled the `data` argument in `ggplot()`"
+# source("./toolbox.R")
+
+# #define plot_forest from toolbox
 plot_forest <- function(class_results, x = "class", y = "estimate", ymin = "conf.low", ymax = "conf.high",
                        label = "p.label", limits = NULL, breaks = waiver(), title = "", col = NULL, fill = NULL,
                         dodge_width = 0.8, outer_limit_arrows = FALSE, ps=3, eb_w=0.4, eb_s=0.4, or_s=4, OR=T, yinter = 1,
-                        nudge = 0, base_plot = geom_blank(), bar_col = 'black') { 
+                        nudge = 0, base_plot = geom_blank(), bar_col = 'black') {
     # suppressWarnings(ggthemr::ggthemr("fresh"))
   #' Forest plot of the coefficients in 'class_results'
-  output_plot <- ggplot(class_results, aes_string(x = x, y = y, ymin = ymin, ymax = ymax, col = col, fill = fill)) + 
+  output_plot <- ggplot(class_results, aes_string(x = x, y = y, ymin = ymin, ymax = ymax, col = col, fill = fill)) +
     base_plot +
     geom_hline(yintercept = yinter, color = "gray", linetype = "solid") +
-    geom_errorbar(position = position_dodge(width = dodge_width), width = eb_w, size=eb_s) + 
+    geom_errorbar(position = position_dodge(width = dodge_width), width = eb_w, size=eb_s) +
     geom_point(position = position_dodge(width = dodge_width), size=ps) +
     geom_text(aes_string(label = label, vjust = nudge), position = position_dodge(width = dodge_width), color = 'black', size = or_s, alpha = .9) +
     coord_flip() +
     ggtitle(title)
-  
+
   if (OR==T) {
-  output_plot <-  output_plot +   
+  output_plot <-  output_plot +
     scale_y_log10(limits = limits, breaks = breaks)
   }
-  
+
   if (outer_limit_arrows) {
     stopifnot(length(limits) > 0)
-    # Check for errorbar values outside 
+    # Check for errorbar values outside
     class_results[, "ymin_out"] <- ifelse(class_results[, ymin] < limits[1], limits[1], NA)
     class_results[, "linestyle_min"] <- ifelse(class_results[, ymin] < limits[1], "b", NA)
     class_results[, "ymax_out"] <- ifelse(class_results[, ymax] > limits[2], limits[2], NA)
     class_results[, "linestyle_max"] <- ifelse(class_results[, ymax] > limits[2], "b", NA)
-    
+
     output_plot <- output_plot + geom_linerange(data = class_results, aes_string(x = x, ymin = "ymin_out", ymax = ymax), linetype = 3, position = position_dodge(width = dodge_width))
     output_plot <- output_plot + geom_linerange(data = class_results, aes_string(x = x, ymin = ymin, ymax = "ymax_out"), linetype = 3, position = position_dodge(width = dodge_width))
     output_plot <- output_plot + geom_linerange(data = class_results, aes_string(x = x, ymin = "ymin_out", ymax = "ymax_out"), linetype = 3, position = position_dodge(width = dodge_width))
@@ -1037,34 +1172,45 @@ do_plot = function(p, f, w, h, r = 300, save_pdf = F) {
 #specify font size
 font_size = 8
 library(ggsci)
-# p_forest <- plot_forest(
-#       class_results = D,
-#       x = "termGene",
-#       label = 'q.star',
-#       eb_w = 0,
-#       eb_s = 0.3,
-#       ps = 1.5,
-#       or_s = 2,
-#       nudge = -0.3,
-#       col = 'gene_cat'
-#   ) #+ 
-  # facet_wrap(~term, scale = 'free_y', ncol = 1) +
-  # scale_x_discrete(
-  #     breaks = D$termGene,
-  #     labels = D$Gene,
-  #     expand = c(0.1,0)
-  # ) +
-  # xlab('') + ylab('Odds Ratio of CH-PD') +
-  # scale_color_nejm() +
-  # panel_theme +
-  # theme(
-  #   axis.text = element_text(size = font_size),
-  #   axis.title = element_text(size = font_size),
-  #   strip.text = element_text(size = font_size),
-  #   legend.position = 'top',
-  #   legend.title = element_blank(),
-  #   legend.text = element_text(size = font_size/1.2),
-  #   legend.key.size = unit(3, "mm")
-  # ) 
-#do_plot(p_forest, "my_fig1c.png", 5, 6, save_pdf = F)
+# ggplot(D) + #, aes_string(x = "termGene", y = "estimate", ymin = "conf.low", ymax = "conf.high", col = 'gene_cat', fill = NULL)) +
+#     geom_blank() #+
+
+# ggplot(D, aes_string(x = "termGene", y = "estimate", ymin = "conf.low", ymax = "conf.high", col = 'gene_cat', fill = NULL)) + 
+#     geom_blank() #+
+    # geom_hline(yintercept = 1, color = "gray", linetype = "solid") +
+    # geom_errorbar(position = position_dodge(width = .8), width = 0, size=0.3) + 
+    # geom_point(position = position_dodge(width = .8), size=1.5) +
+    # geom_text(aes_string(label = "p.label", vjust = 0), position = position_dodge(width = .8), color = 'black', size = 2, alpha = .9) +
+    # coord_flip() +
+    # ggtitle("")
+p_forest <- plot_forest(
+      class_results = D,
+      x = "termGene",
+      label = 'q.star',
+      eb_w = 0,
+      eb_s = 0.3,
+      ps = 1.5,
+      or_s = 2,
+      nudge = -0.3,
+      col = 'gene_cat'
+  ) +
+facet_wrap(~term, scale = 'free_y', ncol = 1) +
+scale_x_discrete(
+    breaks = D$termGene,
+    labels = D$Gene,
+    expand = c(0.1,0)
+) +
+xlab('') + ylab('Odds Ratio of CH-PD') +
+scale_color_nejm() +
+panel_theme +
+theme(
+  axis.text = element_text(size = font_size),
+  axis.title = element_text(size = font_size),
+  strip.text = element_text(size = font_size),
+  legend.position = 'top',
+  legend.title = element_blank(),
+  legend.text = element_text(size = font_size/1.2),
+  legend.key.size = unit(3, "mm")
+)
+do_plot(p_forest, "my_fig1c.png", 5, 6, save_pdf = F)
 ```
