@@ -1,4 +1,4 @@
-Genetic Mutations from Cancer Therapies
+Clonal Hematopoiesis Genetic Mutations Correlate with Age, Smoking History, and Exposure to Cancer Therapies
 ================
 Kaitlyn Westra
 11 December 2020
@@ -39,7 +39,7 @@ Previously, studies have shown that certain types of chemotherapy lead to a high
 
 With this project, I aim to replicate this lab's findings that mutations in genes are enriched based on specific exposures. Specifically, I will set out to verify that "**the relative fitness of acquired mutations in hematopoietic stem and progenitor cells is modulated by environmental factors such as cancer treatment, smoking or the aging microenvironment in a gene-dependent manner.**"
 
-To do so, I will be recreating their **Figure 1c** using exactly the same data the authors used, and a combination of their published R code and some of my own original code. In this process, I will be thoroughly narrating my steps to give insight into the process and decisions that were made. Because a big part of data science and computer science is looking through others' code, understanding it, and adapting it to fit your needs, doing so with this available example will be an exercise in this skill. Being able to accomplish the objectives I have outlined herein demonstrate the knowledge I've gained this semester in DATA-202, and that I am equipped to practically apply this in new situations.
+To do so, I will be recreating their **Figure 1c** using exactly the same data the authors used, and a combination of their published R code and some of my own original code (any code shown in this document is taken directly from the authors, and my additional supplementary code can be found as an appendix at the end of this document). In this process, I will be thoroughly narrating my steps to give insight into the process and decisions that were made. Because a big part of data science and computer science is looking through others' code, understanding it, and adapting it to fit your needs, doing so with this available example will be an exercise in this skill. Being able to accomplish the objectives I have outlined herein demonstrate the knowledge I've gained this semester in DATA-202, and that I am equipped to practically apply this in new situations.
 
 > *Much of the technical background information, including specific phrases, in this section was found in Bolton's [Nature Research blog post](https://cancercommunity.nature.com/posts/cancer-therapy-shapes-the-fitness-landscape-of-clonal-hematopoiesis).*
 
@@ -53,26 +53,26 @@ M_wide_all = suppressWarnings(data.table::fread('./data/M_wide_all.txt', sep = '
   as.data.frame()
 ```
 
-The dataset used in Figure 1c is originally called `M_wide_all`. It contains brings together data on patients' demographics, exposures, and blood/tumor mutations. Used together, this information allows for correlations to be tested.
+The dataset used in Figure 1c is originally named `M_wide_all`. It contains data on patients' demographics, exposures, and blood/tumor mutations. Used together, this information allows for correlations to be tested.
 
-The `M_wide_all` dataset was obtained directly from the lab's available [GitHub repo](https://github.com/papaemmelab/bolton_NG_CH) for this project. Descriptions of how this data was originally acquired, though, are found in the Methods section of the published paper. While a comprehensive overview of the exact details can be found in the paper, a summary is provided here as well. Patients in the MSK-IMPACT cohort had nonhematologic cancers at Memorial Sloan Kettering (MSK) Cancer Center, and data on these patients' ancestry, smoking, date of birth and cancer history was extracted from the MSK cancer registry. Additional blood sample data was added from their Serial Sampling cohort. All participants underwent matched tumor and blood sequencing, which encompassed the exomes of all cancer-associated genes. After sequencing, variant calling for each blood sample was performed by various methods, and variants that were called by two callers were retained. Further, variants were annotated, leaving us with the dataset that appears to be `M_wide_all`.
+The `M_wide_all` dataset was obtained directly from the lab's available [GitHub repo](https://github.com/papaemmelab/bolton_NG_CH) for this project. Descriptions of how this data was originally acquired, though, are found in the Methods section of the published paper. While a comprehensive overview of the exact details can be found in the paper, a summary is provided here as well. Patients in the MSK-IMPACT cohort had nonhematologic cancers at Memorial Sloan Kettering (MSK) Cancer Center, and data on these patients' ancestry, smoking, date of birth and cancer history was extracted from the MSK cancer registry. Additional blood sample data was added from their Serial Sampling cohort. All participants underwent matched tumor and blood sequencing, which encompassed the exomes of all cancer-associated genes. After sequencing, variant calling for each blood sample was performed by various methods, and variants that were called by two callers were retained. Further, variants were annotated, and the presence of variants in each gene was summed and added as a column, leaving us with the dataset that appears to be `M_wide_all`.
 
 > *Much of the technical methods information, including specific phrases, in this section was found in the [Nature Article](https://www.nature.com/articles/s41588-020-00710-0) itself.*
 
-I am comfortable saying the data is reliable due to the fact that the authors followed standard scientific protocols, the study was reviewed and accepted by a Institutional Review Board, and the final paper was peer reviewed and published in a high impact journal. Additionally, because this data is from real patients in a well known cancer treatment / research institution, this data is applicable to the questions the authors set out to answer.
+I am comfortable saying the data is reliable due to the fact that the authors followed standard scientific protocols, that the study was reviewed and accepted by a Institutional Review Board, and that the final paper was peer reviewed and published in a high-impact journal. Additionally, because this data is from real patients in a well known cancer treatment and research institution, this data is applicable to the questions the authors set out to answer.
 
 #### Dataset Description
 
 `M_wide_all` contains 24146 rows, with 562 columns, making it an extremely large dataset. Because there are 24146 unique `STUDY_ID`s and 24146 rows in this dataset, we know that the `STUDY_ID` acts as a unique identifier for every row. Each row contains data from one patient and their blood/tumor, with columns for:
 - their `STUDY_ID`
-- the presence/number of mutations in each specific gene (`BRCA1`, `DNAJB1`, `ERBB4`, `FOXO1`, `TET2`, `TP53`, etc.)
+- the presence of mutations in each specified gene (`BRCA1`, `DNAJB1`, `ERBB4`, `FOXO1`, `TET2`, `TP53`, etc.)
 - information about these mutations' variant allele fraction (`VAF_all`, `VAF_nonsilent`, `VAF_silent`, `VAF_my`, etc.)
 - the number of different types of mutations (`mutnum_all`, `mutnum_nonsilent`, `mutnum_my`, etc.)
-- the presence of clonal hematopoiesis mutations (`ch_nonmy`, `CH_nonsilent`, `ch_my_pd` \[PD being "putative cancer-driver mutations"\], etc.)
+- the presence of clonal hematopoiesis mutations (`ch_nonmy`, `CH_nonsilent`, `ch_my_pd`, etc., with "PD" being "putative cancer-driver mutations")
 - demographic information about the patient (`Gender`, `race`, `age`)
-- the patient's exposures (`therapy_known`, `therapy_binary`, `smoke`, `ind_cytotoxic_therapy`, `ind_ds_fluorouracil`, etc.).
+- the patient's exposures (`therapy_binary`, `smoke`, `ind_cytotoxic_therapy`, `ind_ds_fluorouracil`, etc.).
 
-This very large dataset is appropriate for answering the question answered in Figure 1c. As stated above, there are columns for mutations in many specific genes, which is what we are measuring. Additionally, there are columns for the exposures as well, including Therapy and Smoking. As these are the two primary things shown in Figure 1c, this dataset is applicable to our question of interest.
+This very large dataset is appropriate for answering the question answered in Figure 1c. As stated above, there are columns for mutations in many specific genes, which is what we are measuring. Additionally, there are columns for the exposures as well, including Therapy and Smoking, and for demographics, such as Age. As these are the three primary things shown in Figure 1c, this dataset is applicable to our question of interest.
 
 This dataframe is read in with `fread`, and most columns' data type is as expected. However, there are some instances where I think it would be best if the data were factors (many of the indicator variables or categories) but instead, they are coded as integers or strings. In all of our columns, the data types are broken down below:
 
@@ -142,7 +142,7 @@ Some examples of variables I think should be renamed include:
 </tbody>
 </table>
 
-As seen in the table above, I would change most datatypes to factor, which could be easily done with the `data.table::fread()` option, `stringsAsFactors = TRUE`. It would make sense to change these to factors due to their use in this analysis -- `Gender` was essentially considered a factor, with the following options: Female, Male, and the indicator variables (like `ind_ds_fluorouracil`) having the following levels: 0, 1. I am unsure of why they chose to leave strings as characters, but because it doesn't really affect the analysis, this isn't an imperative issue.
+As seen in the table above, I would change most datatypes to factor, which could be easily done with the `stringsAsFactors = TRUE` option within `data.table::fread()`. It would make sense to change these to factors due to their use in this analysis -- `Gender` was essentially considered a factor, with the following options: Female, Male; and the indicator variables (like `ind_ds_fluorouracil`) having the following levels: 0, 1. I am unsure of why they chose to leave strings as characters, but because it doesn't really affect the analysis, this isn't an imperative issue.
 
 With the knowledge of which variable names are included in this dataset, it makes sense to explore individual variables further and determine what they mean, what the distribution looks like, and how they're related to other variables. This allows us to to make choices about how to further interpret and analyze this data, as well as give some ideas on which data wrangling steps need to be taken.
 
@@ -212,7 +212,7 @@ To gain an understanding of what ages are included in each group, I made the fol
 
 ![](Report_files/figure-markdown_github/age-boxes-1.png)
 
-As shown above, the age cutoffs for each category are: 0.128679, 11.093771, 21.0047913, 31.0006847, 41.0047913, 51.0061607, 61.0020523, 71.0006866, 81.0047913, indicating that they chose 0, 11, 21, 31, 41, 51, 61, 71, 81 as their minimum ages for each age group. These cutoffs appear in grey dashed lines on the series of boxplots, demonstrating that these categories are chosen based on age itself, as opposed to having category containing the same number of people (e.g., 9 quantiles). The violin plot shown demonstrates how many samples are included in the entire dataset, by age, aligned with the violin plots to give a insight into the comparative amount of patients in each group.
+As shown above, the age cutoffs for each category are: 0.128679, 11.093771, 21.0047913, 31.0006847, 41.0047913, 51.0061607, 61.0020523, 71.0006866, 81.0047913, indicating that they chose 0, 11, 21, 31, 41, 51, 61, 71, 81 as their minimum ages for each age group. These cutoffs appear in grey dashed lines on the series of boxplots, demonstrating that these categories are chosen based on age itself, as opposed to having category containing the same number of people (e.g., 9 quantiles). The violin plot shown demonstrates how many samples are included in the entire dataset, by age, aligned with the boxplots to give a insight into the comparative amount of patients in each group.
 
 Some of the other variables that are primarily used to create Figure 1c are `race`, `mutnum_all`, `smoke`, `Gender`, and `therapy_binary`. However, before creating the figure, they "process dataframes a bit", which I'll walk through next.
 
@@ -248,19 +248,22 @@ This step of consecutive mutating essentially makes many of the variables of int
 -   `age_scaled`: the `age` value, centered (by subtracting the mean `age`) and scaled (by dividing the centered `age` by its standard deviation).
 -   `age_d`: simply takes the `age` value and divides it by 10.
 -   `mutnum_all_r`: the number of mutations, with a value of 2 for any individual with 2+ mutations.
--   `smoke_bin`: a binary version of `smoke`, with a value of 1 if patient is a current (`smoke` value of 1) or former (`smoke` value of 2) smoker
+-   `smoke_bin`: a binary version of `smoke`, with a value of 1 if patient is a current (`smoke` value of 1) or former (`smoke` value of 2) smoker.
 
-In the last step of the above code, the variables `Gender`, `race`, `smoke`, `smoke_bin`, and `therapy_binary` are factored and releveled with specific references. - Reference values are important when modelling because any differences are in comparison to the reference category. Because its the basis for which values are compared to, this can change the interpretation of the results.
+In the last step of the above code, the variables `Gender`, `race`, `smoke`, `smoke_bin`, and `therapy_binary` are factored and releveled with specific references.
+- Reference values are important when modeling because any differences are in comparison to the reference category. Because it's the basis for which values are compared to, this can change the interpretation of the results.
 - After releveling, the resulting base level for the following values are:
 <ul>
 -   `Gender`: Male
 -   `race`: White
 -   `smoke`: 0 (never smoker)
 -   `smoke_bin`: 0 (never smoker)
--   `therapy_binary`: untreated (no cancer directed therapy during interval other than hormonal therapy)
+-   `therapy_binary`: untreated (no cancer directed therapy during study interval other than hormonal therapy)
 
 </ul>
 To observe some of these changes, we'll look at what two these variables look like before and after the change:
+
+#### Changed Variables
 
 **Number of Mutations**
 
@@ -348,58 +351,60 @@ Originally, the number of mutations, `mutnum_all`, is broken down into 9 categor
 
 **Age Scaling**
 
-In the plot below, the distribution of `age` is shown on top of the distribution of `age_scaled`. The distribution itself is the same, but the age values change (due to the centering and scaling). To see the new values, note the different x-axis value range for `age_scaled`.
+In the plot below, the distribution of `age` is shown on top of the distribution of `age_scaled`. The distribution itself is the same, but the age values change (due to the centering and scaling). To see the new values, note the different x-axis value range for `age_scaled`:
 
 ![](Report_files/figure-markdown_github/mutate-changes-1.png)
 
 In addition to `age_scaled` and `mutnum_all_r`, the variables that are used in Figure 1c include `smoke_bin`, `race_b`, `Gender`, and `therapy_binary`.
 
-**Smoke Binned**
+#### Other Variables of Interest
 
-In the processing code above, we saw that `smoke_bin` has a value of 1 if patient is a current (`smoke` value of 1) or former (`smoke` value of 2) smoker, and a 0 if they have never been a smoker. The number of people in each of these categories is shown below, demonstrating that there is a similar amount of people who are current/former smokes and have never smoked.
+s **Smoke Binned**
+
+In the processing code above, we saw that `smoke_bin` has a value of 1 if patient is a current (`smoke` value of 1) or former (`smoke` value of 2) smoker, and a 0 if they have never been a smoker. The number of people in each of these categories is shown below, demonstrating that there is a similar amount of people who are current/former smokes and have never smoked:
 
 ![](Report_files/figure-markdown_github/smoke-binned-EDA-1.png)
 
 **Race Binary**
 
-`race_b` was also created in the processing code shown above, as a binary version of `race` with a value of 1 for "White", and a 0 for anything else. The amount of people that fall into each of these categories is shown below, with the majority of patients in this study being white.
+`race_b` was also created in the processing code shown above, as a binary version of `race` with a value of 1 for "White", and a 0 for anything else. The amount of people that fall into each of these categories is shown below, with the majority of patients in this study being white:
 
 ![](Report_files/figure-markdown_github/race-binary-1.png)
 
 **Gender**
 
-`Gender` is a factor with one of two values: Male or Female. Here is the breakdown for participants in this study, displaying a comparable number of each gender, with slightly more females.
+`Gender` is a factor with one of two values: Male or Female. Here is the breakdown for participants in this study, displaying a comparable number of each gender, with slightly more females:
 
 ![](Report_files/figure-markdown_github/gender-plot-1.png)
 
 **Therapy Binary**
 
-Lastly, `therapy_binary` indicates if the patient had any cancer directed therapy other than hormonal therapy. Based on the distribution below, it is evident that for most of the original patients, it was unknown whether or not they had therapy during the interval. Of the patients where their therapy status was known, there were more treated patients than untreated.
+Lastly, `therapy_binary` indicates if the patient had any cancer directed therapy other than hormonal therapy. Based on the distribution below, it is evident that for most of the original patients, it was unknown whether or not they had therapy during the interval. This could possibly be due to missing information or discrepancies in these patients' medical records. Of the patients where their therapy status was known, there were more treated patients than untreated.
 
 ![](Report_files/figure-markdown_github/therapy-plot-1.png)
 
-From this point in the authors' code, the dataset was subsetted to create a new dataset:
+At this point in the authors' code, the dataset was subsetted to create a new dataset:
 
 ``` r
 #Define wide data frame with treatment known
 M_wide <- M_wide_all %>% filter(therapy_known==1)
 ```
 
-This newly created dataset, `M_wide`, contains only the rows where the therapy information is known. This is an appropriate way to identify and deal with missing data, which is necessary due to the large amount of patients with unknown therapy history, as shown in the plot above. Subsetting this dataset into `M_wide` ensures that the data we're using contains all the information we need, and allows for the comparisons to be made.
+This newly created dataset, `M_wide`, contains only the rows where the therapy information is known. This is an appropriate way to identify and deal with missing data, which is necessary due to the large amount of patients with unknown therapy history, as shown in the plot above. Subsetting this dataset into `M_wide` ensures that the data we're using contains all the information we need, which in turn allows for our comparisons to be made.
 
 #### Bivariate EDA
 
 To do some exploratory bivariate data analysis, I made a series of quick plots to see what relationships might be present between our variables of interest.
 
-I am first looking at the relationship between the presence of mutations in the gene *TP53* (`TP53`) and whether the patient received therapy (`therapy_binary`) during this period. Because these are each binary variables, it really only makes sense to calculate the odds ratio, but to show this same idea in a figure, the number of people that belong to each of these categories is shown in a 2-by-2 table. From this, we see that there seems to be a higher percentage of people with *TP53* mutations in the treated group than the untreated group:
+I am first looking at the relationship between the presence of mutations in the gene *TP53* (`TP53`) and whether the patient received therapy (`therapy_binary`) during this period. Because these are each binary variables, it really only makes sense to calculate the odds ratio, but to show this same idea in a figure, the number of people that belong to each of these categories is shown in a two-by-two table, which are commonly used in the field of epidemiology. From this, we see that there seems to be a higher percentage of people with *TP53* mutations in the treated group than the untreated group:
 
 ![](Report_files/figure-markdown_github/EDA-tp53-therapy-1.png)
 
-Similarly, we can make the same plot for `smoke_bin` and the mutations in the gene *ASXL1* (`ASXL1`). From this, we see that there seems to be a higher percentage of current/former smokers (`smoke_bin` == 1) with mutations in *ASXL1* compared to non-smokers:
+Similarly, we can make the same plot for `smoke_bin` and the mutations in the gene *ASXL1* (`ASXL1`). From this, we see that there seems to be a higher percentage of current/former smokers (`smoke_bin` value of 1) with mutations in *ASXL1* compared to non-smokers:
 
 ![](Report_files/figure-markdown_github/EDA-asxl1-smoke-1.png)
 
-Just out of curiosity, we'll check the same thing -- if the presence of mutations correlates with smoking status -- in a *different* gene: *TET2*. Based on Figure 1c, I'd expect this not to show a significant difference between the groups. As expected, the figure below shows that there doesn't appear to be a significantly higher amount of current/former smokers with new mutations in this gene compared to non-smokers:
+Just out of curiosity, we'll check the same thing -- if the presence of mutations correlates with smoking status -- in a *different* gene: *TET2*. Based on Figure 1c, I'd expect this not to show a significant difference between the groups. Though the amount in smokers is still higher than in non-smokers, the effect is not as drastic as the previous two-by-two tables, leading me to believe that there probably doesn't appear to be a *significantly* higher amount of current/former smokers with new mutations in this gene compared to non-smokers:
 
 ![](Report_files/figure-markdown_github/EDA-tet2-smoke-1.png)
 
@@ -408,11 +413,11 @@ All of these bivariate plots give us some insight into what we expect to see wit
 Modeling
 --------
 
-From the figure legend, we see that the question in Figure 1c is whether *specific molecular subtypes of CH-PD correlate with age, previous therapy exposure and smoking history*. The authors answer this question by creating *multivariable logistic regression models adjusted for therapy, smoking, ancestry, age, sex and time from diagnosis to blood draw.* In Figure 1c, they display the odds ratio with its 95% confidence interval for CH-PD mutations in the ten most commonly mutated genes. They show three consecutive forest plots displaying different groups compared; for the top, increasing age (n = 10,138); middle, patients previously exposed to cancer therapy (n = 5,978) compared with those with no exposure (n = 4,160); bottom, current/former smokers (n = 4,989) compared with nonsmokers (n = 5,145). Significance levels are determined by Q values (FDR-corrected P values): \* Q &lt; 0.05, \*\* Q &lt; 0.01, \*\*\* Q &lt; 0.001.
+From the figure legend, we see that the question in Figure 1c is whether *specific molecular subtypes of CH-PD correlate with age, previous therapy exposure and smoking history*. The authors answer this question by creating *multivariable logistic regression models adjusted for therapy, smoking, ancestry, age, sex and time from diagnosis to blood draw.* In Figure 1c, they display the odds ratio with its 95% confidence interval for CH-PD mutations in the ten most commonly mutated genes. They show three consecutive forest plots, each displaying the effect of the given variable; for the top, increasing age (n = 10,138); middle, previous exposure to cancer therapy (n = 5,978) compared to no exposure (n = 4,160); bottom, current/former smokers (n = 4,989) compared with nonsmokers (n = 5,145). Significance levels are determined by Q values (False Discovery Rate (FDR)-corrected P values): \* Q &lt; 0.05, \*\* Q &lt; 0.01, \*\*\* Q &lt; 0.001.
 
 #### Pre-modeling Setup
 
-To start, though, some other setup needs to occur. This setup selects specific genes of interest, and the code for this step is as follows:
+Before starting on the model, some other setup needed to occur. This setup selects specific genes of interest, and the code for this step is as follows:
 
 ``` r
 ## forest plot
@@ -424,7 +429,7 @@ OTH = c('JAK2', 'ATM')
 gene_list = c(DDR, DTA, SPL, OTH)
 ```
 
-From the article, we know that these genes were selected based on their biochemical pathway. A brief description of the pathway is shown below:
+From the article, we know that these genes were selected as the most commonly mutated in the cohort, and categorized based on their biochemical pathway. A brief description of the pathway is shown below:
 
 <table style="width:85%;">
 <colgroup>
@@ -463,7 +468,9 @@ From the article, we know that these genes were selected based on their biochemi
 </tbody>
 </table>
 
-All of these pathway functions are pretty clear, except the "other" category. I couldn't find an abundantly clear reason in the article or code for why these 2 genes (*JAK2* and *ATM*) specifically were included. Looking through journal articles revealed that *ATM* is in a [key DDR-related pathway for "critical DNA damage response kinases"](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5961503/), and that mutations in *JAK2* have previously been [found in patients with myeloproliferative disorders](https://www.nature.com/articles/nature03546). Because of these previous studies, it would make sense that these two extra genes were included. Further, the figure legend for Figure 1 revealed that these 10 genes were the "ten most commonly mutated genes" in this cohort. It makes sense, then, that they would choose these 10 genes to do the analysis on, however from what I could tell, this was only mentioned briefly in the figure legend. I think it would have been better if a more thorough explanation had detailed why these 10 genes -- especially the two "other genes" -- were selected. As it is, my initial thought was that it was a seemingly haphazard choice, so more discussion on the selection of these genes would have been appreciated.
+The figure legend for Figure 1 revealed that these 10 genes were the "ten most commonly mutated genes" in this cohort. It makes sense, then, that they would choose these 10 genes to do the analysis on, however from what I could tell, this was only mentioned briefly in the figure legend. I had initially thought that these 10 genes were chosen by hand simply because the authors had reason to believe they might show significance based on their biochemical pathway. However, this didn't explain the two genes in the "other" category. I couldn't find an abundantly clear reason in the article or code for why these 2 genes (*JAK2* and *ATM*) specifically were included. Looking through journal articles revealed that *ATM* is in a [key DDR-related pathway for "critical DNA damage response kinases"](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5961503/), and that mutations in *JAK2* have previously been [found in patients with myeloproliferative disorders](https://www.nature.com/articles/nature03546). Because of these previous studies, I thought it would make sense that these two extra genes could be included in a hand-selected list of genes.
+
+This initial confusion on how these genes were selected would have been cleared up if the article and code had included a clearer and obvious explanation. My first thought was that it was a seemingly haphazard choice, so more discussion on the selection of these genes would have been appreciated. Simply stating in the article's text (in addition to the figure legend) that these 10 genes were chosen due to being commonly mutated would have cleared this up. Additionally, it would've been great if the code had referenced the mutation numbers in each gene to create this list instead of naming them individually, as this made it seem like a hand-selected list. This demonstrates that there are some communication elements that could have made clearer, but this was a relatively small part of what they did.
 
 #### Model Creation
 
@@ -626,17 +633,17 @@ To create this dataframe, `D`, we start with the previous dataframe, `logit_gene
 
 The next mutate step renames the predictor terms from more technical language (`therapy_binarytreated`, `smoke_bin1`, and `age_scaled`) to more broadly understandable terms (`Therapy`, `Smoking`, and `Age`) to be included in the figures. Next, this `term` column is changed into the factor type, with each of these three values as a level.
 
-After this, a new column, `p_fdr` is created, which adjusts the p-values for multiple comparisons using the Benjamini & Hochberg (1995) correction method with `p.adjust`. This correction is necessary when doing multiple large scale comparisons, to ensure that the significance you're seeing isn't simply due to chance. Additionally, another new column `termGene` is made which takes each row's gene name and appends it to the end of the term.
+After this, a new column, `p_fdr` is created, which adjusts the p-values for multiple comparisons using the Benjamini & Hochberg (1995) correction method with `p.adjust`. This correction is necessary when doing multiple large scale comparisons, to ensure that the apparent significance isn't simply due to chance. Additionally, another new column, `termGene`, is made which takes each row's gene name and appends it to the end of the term.
 
-Next, this dataframe is sorted from lowest `estimate` value, which is approximately the effect the term has on the overall prediction. In the case of a tie between `estimate` values, the rows are then sorted by `Gene` name. Then, the type of the previously created `termGene` is changed from a character to a factor.
+Next, this dataframe is sorted from lowest to highest `estimate` value, which is approximately the effect the term has on the overall prediction. In the case of a tie between `estimate` values, the rows are then sorted by `Gene` name. Then, the type of the previously created `termGene` is changed from a character to a factor.
 
-Subsequently, a `gene_cat` is added, with the value of "DTA" if it is an epigenetic modifier, "DDR" if the gene is involved in the commonly understood DDR pathway, "Splicing" if it's a splicing regulator, and "Other" if the gene is in the top 10 mutated genes in this cohort, but doesn't fit into one of these other 3 categories. At this point, `gene_cat` is also factored.
+Subsequently, a `gene_cat` column is added, with the value of "DTA" if it is an epigenetic modifier, "DDR" if the gene is involved in the commonly understood DDR pathway, "Splicing" if it's a splicing regulator, and "Other" if the gene is in the top 10 mutated genes in this cohort, but doesn't fit into one of these other 3 categories. At this point, `gene_cat` is also factored.
 
-After this, the significance estimates are determined. The `q.value` becomes the FDR adjusted p-value; the `q.label` rounds the estimate to the nearest 0.01 along with the q-value; and `q.star` is the resulting significance level in stars.
+After this, the significance estimates are determined and corrected (again). The `q.value` becomes the FDR adjusted p-value; the `q.label` rounds the estimate to the nearest 0.01 and displays this with the q-value; and `q.star` is the resulting significance level in stars.
 
 Interestingly, it seems as though they began adjusting their p-values when they create `p_fdr`, but then move on to other things and come back to do this same thing at the end of this code chunk. This makes it seem like the authors did not clearly look over their code to assess what each of their steps are doing. In fact, looking over the rest of entire `Reviewer_Code.Rmd` reveals that they did not use this `p_fdr` column of this dataset for anything else. This finding speaks to the importance of understanding what your code does, instead of being at a point where you accidentally do the same thing twice.
 
-Additionally, the order of these steps doesn't seem to be the most logical. For example, `termGene` seems to be created at an arbitrary point in the process, and is later revisited to become factored. I personally think it would've made more sense to reviewers or others reading this code if the authors had factored `termGene` directly after creating it, and done everything p-value related at the same time point. However, this makes no different on the dataframe itself, so there is nothing technically wrong with it. Yet, data scientists should strive to make their code hospitable to all those reading it. Being considerate of even the little things, such as logically grouping similar `mutate()`s together, can help others understand *why* a certain choice was made, or see the significance of a specific step. Though most of the code is still pretty clear, this is one area where I think these authors could improve.
+Additionally, the order of these steps doesn't seem to be the most logical. For example, `termGene` seems to be created at an arbitrary point in the process, and is later revisited to become factored. I personally think it would've made more sense to reviewers or others reading this code if the authors had factored `termGene` directly after creating it, and done everything p-value related at the same time point. However, this makes no difference to the dataframe itself, so there is nothing technically wrong with it. Yet, data scientists should strive to make their code hospitable to all those reading it. Being considerate of even the little things, such as logically grouping similar `mutate()`s together, can help others understand *why* a certain choice was made, or see the significance of a specific step. Though most of the code is still pretty clear, this is one area where I think these authors could improve.
 
 #### Create Figure
 
@@ -674,7 +681,7 @@ theme(
 )
 ```
 
-This code starts off by calling `plot_forest()`, another function defined in `toolbox.R`. For the sake of this project, instead of walking through how the function works, I'll simply discuss only what arguments are used here. `D`, our previously-created dataframe, contains all the data needed for this plot. The plot eventually undergoes a `coord_flip()` as part of the `plot_forest()` function, so "x" is our "termGene", which is resultingly on the *y*-axis. "y" defaults to "estimate", so this is what is shown on the final *x*-axis. The annotation above each of the lines is the star values, from `q.star`; the `eb_w` and `eb_s` are the width and size of the error bars; the `ps` is the size of the point; the `or_s` is the size of the label text; the `nudge` is the vertical offset of the label text; and the `col` is the color of each line, colored by its gene category.
+This code starts off by calling `plot_forest()`, another function defined in `toolbox.R`. For the sake of this project, instead of walking through how the function works, I'll simply discuss only what arguments are used here. `D`, our previously-created dataframe, contains all the data needed for this plot. The plot eventually undergoes a `coord_flip()` as part of the `plot_forest()` function, so "x" is our `termGene`, which is resultingly on the *y*-axis. "y" defaults to `estimate`, so this is what is shown on the final *x*-axis. The annotation above each of the lines is the star values, from `q.star`; the `eb_w` and `eb_s` are the width and size of the error bars; the `ps` is the size of the point; the `or_s` is the size of the label text; the `nudge` is the vertical offset of the label text; and the `col` is the color of each line, colored by its gene category.
 
 After this, the whole plot is broken up into 3 sub-plots, based on the value of `term`, resulting in one for each of "Age", "Therapy", and "Smoking". Additionally, the x-axis scale becomes the name of each gene. The x-axis is unlabeled, and the y-axis label gets defined. A color palette, inspired by plots in *The New England Journal of Medicine*, is chosen from the `ggsci` package. The general appearance of the plot is specified with `panel_theme`, which is defined previously in `Revier_Code.Rmd` and used in other plots. Lastly, some additional appearance changes are made specific to this plot.
 
@@ -684,8 +691,6 @@ Finally, `do_plot()` makes the plot and saves it with the specified dimensions:
 do_plot(p_forest, "my_fig1c.png", 5, 6, save_pdf = F)
 ```
 
-    ## Don't know how to automatically pick scale for object of type noquote. Defaulting to continuous.
-
 <img src="./figures/my_fig1c.png" width="1500" />
 
 And there it is! Our final version of Figure 1c.
@@ -693,9 +698,9 @@ And there it is! Our final version of Figure 1c.
 Findings
 --------
 
-In this final forest plot that comprises Figure 1c, we see that for the Smoking category, *ASXL1* has a significantly higher odds ratio. This means that current or former smokers had a higher likelihood of having a CH putative cancer-driver mutation in *ASXL1* compared to people who have never been a smoker. In the article, the authors state this as: "Mutations in *ASXL1* were significantly associated with smoking history."
+In this final forest plot that comprises Figure 1c, we see that for the Smoking category, *ASXL1* has a significantly higher odds ratio. This means that current or former smokers have a higher likelihood of having a CH putative cancer-driver mutation in *ASXL1* compared to people who have never been a smoker. In the article, the authors state this as: "Mutations in *ASXL1* were significantly associated with smoking history."
 
-In the therapy subplot, we see in red that all of the DNA damage response (DDR) genes, *CHEK2*, *PPPM1D*, and *TP53*, have significantly higher odds ratio of having a CH putative cancer-driver mutations. This means that those who had been "exposed to cancer therapy (including cytotoxic therapy, radiation therapy, targeted therapy and immunotherapy)" were more likely to have these mutations in the DDR genes than those who were treatment-naive. The authors state this as: "CH mutations in the DDR genes *TP53*, *PPM1D* and *CHEK2* were most strongly associated with previous exposure to cancer therapy". Additionally, they note on the genes that did not show significance from this model: "CH defined by mutations in epigenetic modifiers (*DNMT3A*, *TET2*) or splicing regulators (*SRSF2*, *SF3B1*, *U2AF1*) was not strongly affected by exposure to therapy."
+In the therapy subplot, we see in red that all of the DNA damage response (DDR) genes, *CHEK2*, *PPPM1D*, and *TP53*, have a significantly higher odds ratio for having CH putative cancer-driver mutations. This means that those who had been "exposed to cancer therapy (including cytotoxic therapy, radiation therapy, targeted therapy and immunotherapy)" were more likely to have these mutations in the DDR genes than those who were treatment-naive. The authors state this as: "CH mutations in the DDR genes *TP53*, *PPM1D* and *CHEK2* were most strongly associated with previous exposure to cancer therapy". Additionally, they note the genes that did not show significance from this model: "CH defined by mutations in epigenetic modifiers (*DNMT3A*, *TET2*) or splicing regulators (*SRSF2*, *SF3B1*, *U2AF1*) was not strongly affected by exposure to therapy."
 
 In the age subplot, each of our 10 genes of interest has a significantly higher odds ratio for the presence of a CH putative cancer-driver mutation. This means that as patients got older, they were more likely to have these mutations in any of these 10 genes. The authors highlight the top two genes and write that: "mutations in the spliceosome genes *SRSF2* and *SF3B1* ... showed the strongest association with age".
 
@@ -704,7 +709,7 @@ With this project, I set out to replicate and verify the evidence that "the rela
 Limitations and Ethical Considerations
 --------------------------------------
 
-The limitations of this analysis and data include that most (78.3346889%) of this cohort is white. The authors noted that "CH was less common in patients of Asian ancestry relative to white ancestry", but I think this study would have been more well rounded if it had included more diverse individuals. This is an issue that [needs to be addressed](https://www.nature.com/articles/s41588-019-0394-y) in all areas related to human genetics. Though I understand that this cohort was primarily made up of MSK patients, perhaps purposely recruiting more diverse patients would have been beneficial.
+The limitations of this analysis and data include that most (78%) of this cohort is white. The authors noted that "CH was less common in patients of Asian ancestry relative to white ancestry", but I think this study would have been more well rounded if it had included more diverse individuals. This is an issue that [needs to be addressed](https://www.nature.com/articles/s41588-019-0394-y) in all areas related to human genetics. Though I understand that this cohort was primarily made up of MSK patients, perhaps purposely recruiting more diverse patients would have been beneficial.
 
 Because of the nature of my project, there are some natural shortcomings. To start with, the scope of my project is only one paragraph in a greater published article. Due to this extremely limited scope, I have been able to immerse myself in all the small details involved in this specific sub-analysis; however, this intense focus makes it easy to lose sight of how this connects to the bigger picture. Thus, instead of maintaining an ultra-narrow view, it is still important to keep in mind what the goal of this part of the analysis was, and how it contributes towards the overall goal of the study. I would encourage anyone reading my project to read the actual article as well, in order to gain a broader understanding of the authors' findings.
 
@@ -715,18 +720,18 @@ Though these limitations exist, there are some positives to this analysis and pr
 Future Directions
 -----------------
 
-Obviously, further directions include looking closely at the rest of this article's analysis and finds. An investigation into the impact of specific types of therapies and of the molecular characteristics of CH that increase risk of tMN could specifically be of interest. To do so, the other datasets would need to be used, including those available in the original GitHub repo. Additionally, the dataset available on [cBioPortal for Cancer Genomics](https://www.cbioportal.org) that accompanies this paper could be used. This dataset contains the variant calls, where instead of each row being a patient, each row would be a specific genetic mutation. This could be used to further investigate specific variants. The number of samples with a specific mutation could be compared to the population average in the [genome aggregation database](https://gnomad.broadinstitute.org), to determine which variants appear unique to this specific cohort. From here, addition analyses could reveal if any other genes might be implicated in CH, and potentially if any genes contain a higher proportion of rare variants.
+Obviously, further directions include looking closely at the rest of this article's analyses and findings. An investigation into the impact of specific types of therapies and of the molecular characteristics of CH that increase risk of tMN could specifically be of interest. To do so, the other datasets would need to be used, including those available in the original GitHub repo. Additionally, the dataset available on [cBioPortal for Cancer Genomics](https://www.cbioportal.org) that accompanies this paper could be used. This dataset contains the variant calls, where instead of each row being a patient, each row is a specific genetic mutation. This could be used to further investigate specific variants. The number of samples with a specific mutation could be compared to the population average in the [genome aggregation database](https://gnomad.broadinstitute.org), to determine which variants appear unique to this specific cohort. From here, addition analyses could reveal if any other genes might be implicated in CH, and potentially if any genes contain a higher proportion of rare variants in a burden analysis.
 
-Using the same dataset used in Figure 1c, it could be interesting to look at specific therapy types. The last ~75 of the columns of this dataset indicate whether or not the individual received specific therapies. The same analysis steps could be used, where instead of using `therapy_binary` as a predictor variable, these 75 columns could be used to potentially identify if any genes are significantly enriched due to these therapies. Another variable in this dataset is `generaltumortype`, which could be used in a quick analysis to see if any of the gene enrichment is dependent on the tumor location/type.
+Using the same dataset used in Figure 1c, it could be interesting to look at specific therapy types. The last ~75 columns of this dataset indicate whether or not the individual received specific therapies. The same analysis steps could be used, where instead of using `therapy_binary` as a predictor variable, these 75 columns could be used to potentially identify if any genes are significantly enriched due to these therapies. Another variable in this dataset is `generaltumortype`, which could be used in a quick analysis to see if any of the gene enrichment is dependent on the tumor location/type.
 
 Project Conclusions
 -------------------
 
 In this project, I was able to successfully replicate a figure panel in a *Nature Genetics* article. By closely inspecting the original code that was used to create this figure panel, I was able to understand what choices the authors made, and how exactly they analyzed their data to come to their conclusions. I believe that this has satisfactorily demonstrated what I have learned in DATA-202, and I am sure that this skill will be of use to me in my future endeavors.
 
-In embarking on this project and addressing this question, I gained not only an understanding of how data science is used in my chosen career field, but also an appreciation for the hard work done by women in STEM. To my surprise, first author Kelly Bolton, MD-PhD, as well as lab PI, Elli Papaemmanuil, PhD, are both women. Though I had assumed they were both male, I was pleasantly surprised to find out that they are women. I find this encouraging as I plan to further my education and hopefully am able to contribute to similarly important research.
+In embarking on this project and addressing this question, I gained not only an understanding of how data science is used in my chosen career field, but also an appreciation for the hard work done by women in STEM. To my surprise, first author Kelly Bolton, MD-PhD, and lab PI, Elli Papaemmanuil, PhD, are both women. Though I had assumed they were both male, I was pleasantly surprised to find out that they are women. I find this encouraging as I plan to further my education and hopefully am able to contribute to similarly important research.
 
-Beyond this, though this project, I have maintained and grown my interest in epidemiology, genetics, and data science -- and particularly the intersection between these all! I am excited to see where my future leads, and am ready to use the skills I have gained from this project wherever I end up.
+Beyond this, through this project I have maintained and grown my interest in epidemiology, genetics, and data science -- and particularly the intersection between these all! I am excited to see where my future leads, and am ready to use the skills I have gained from this project wherever I end up.
 
 Author
 ------
