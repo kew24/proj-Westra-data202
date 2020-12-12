@@ -9,7 +9,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, fig.align="center")
 ```
 
 ```{r quietly-install-packages, include=FALSE}
@@ -77,13 +77,19 @@ This very large dataset is appropriate for answering the question answered in Fi
 
 This dataframe is read in with `fread`, and most columns' data type is as expected. However, there are some instances where I think it would be best if the data were factors (many of the indicator variables or categories) but instead, they are coded as integers or strings. In all of our columns, the data types are broken down below:
 
+<center>
+
 ```{r datatypes-table, echo=FALSE}
 table(sapply(M_wide_all, class)) %>%
   as.data.frame() %>%
   pander::pander(col.names = c("Type", "# of Columns"))
 ```
 
+</center>
+
 Some examples of variables I think should be renamed include: 
+
+<center>
 
 ```{r datatypes-ideal, echo=FALSE}
 data.frame(Variable = c("Gender",
@@ -98,6 +104,8 @@ data.frame(Variable = c("Gender",
   pander::pander(col.names = c("Variable", "Current Type", "Ideal Type"))
 ```
 
+</center>
+
 As seen in the table above, I would change most datatypes to factor, which could be easily done with the `stringsAsFactors = TRUE` option within `data.table::fread()`. It would make sense to change these to factors due to their use in this analysis -- `Gender` was essentially considered a factor, with the following options: `r M_wide_all$Gender %>% as.factor() %>% levels()`; and the indicator variables (like `ind_ds_fluorouracil`) having the following levels: `r M_wide_all$ind_ds_fluorouracil %>% as.factor() %>% levels()`. I am unsure of why they chose to leave strings as characters, but because it doesn't really affect the analysis, this isn't an imperative issue.
 
 With the knowledge of which variable names are included in this dataset, it makes sense to explore individual variables further and determine what they mean, what the distribution looks like, and how they're related to other variables. This allows us to to make choices about how to further interpret and analyze this data, as well as give some ideas on which data wrangling steps need to be taken.
@@ -107,6 +115,8 @@ With the knowledge of which variable names are included in this dataset, it make
 #### Univariate EDA
 
 In `M_wide_all`, it appears as if some preprocessing steps have already been taken, such as adding a column for the age categories -- breaking down each person's exact decimal age, into an age bracket. To explore how these age categories are broken down, I created the following table and bar graph:
+
+<center>
 
 ```{r age-bars, echo=FALSE}
 #how many age groups are there?
@@ -121,6 +131,8 @@ ggplot(data = as.data.frame(table(M_wide_all$age_cat)), aes(x = Var1, y = Freq))
   theme_classic() +
   labs(x = "Age Group", y = "Number of People")
 ```
+
+</center>
 
 From this table and bar graph, we know that there are 9 different age categories, each with the specified number of people. This distribution is left-skewed, and most people appear to be in the higher numbered age groups.
 
@@ -219,6 +231,8 @@ To observe some of these changes, we'll look at what two these variables look li
 
 Originally, the number of mutations, `mutnum_all`, is broken down into `r M_wide_all$mutnum_all %>% as.factor() %>% nlevels()` categories. The new variable, `mutnum_all_r`, only has `r M_wide_all$mutnum_all_r %>% as.factor() %>% nlevels()` categories. By comparing the breakdowns, we see that any people with more than 2 mutations have been included in the `mutnum_all_r` "2" category. Below is the breakdown of these two variables:
 
+<center>
+
 ```{r mutnum_table, echo=FALSE}
 table(M_wide_all$mutnum_all) %>%
   as.data.frame() %>%
@@ -229,6 +243,8 @@ table(M_wide_all$mutnum_all_r) %>%
   pander::pander(col.names = c("Number of Mutations","Number of People"),
                  caption = "mutnum_all_r")
 ```
+
+</center>
 
 **Age Scaling**
 
@@ -379,6 +395,8 @@ gene_list = c(DDR, DTA, SPL, OTH)
 
 From the article, we know that these genes were selected as the most commonly mutated in the cohort, and categorized based on their biochemical pathway. A brief description of the pathway is shown below:
 
+<center>
+
 ```{r genelist-pretty, echo=FALSE}
 pretty_genelist <- c()
 pretty_genelist$pathway <- c("DTA", "DDR", "SPL", "OTH")
@@ -391,6 +409,8 @@ pretty_genelist %>%
                  col.names = c("Pathway", "Function", "Selected Genes"),
                  justify = "clc")
 ```
+
+</center>
 
 The figure legend for Figure 1 revealed that these 10 genes were the "ten most commonly mutated genes" in this cohort. It makes sense, then, that they would choose these 10 genes to do the analysis on, however from what I could tell, this was only mentioned briefly in the figure legend. I had initially thought that these 10 genes were chosen by hand simply because the authors had reason to believe they might show significance based on their biochemical pathway. However, this didn't explain the two genes in the "other" category. I couldn't find an abundantly clear reason in the article or code for why these 2 genes (*JAK2* and *ATM*) specifically were included. Looking through journal articles revealed that *ATM* is in a [key DDR-related pathway for "critical DNA damage response kinases"](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5961503/), and that mutations in *JAK2* have previously been [found in patients with myeloproliferative disorders](https://www.nature.com/articles/nature03546). Because of these previous studies, I thought it would make sense that these two extra genes could be included in a hand-selected list of genes.  
 
@@ -418,6 +438,8 @@ To break down what this code is doing, the first line starts out by making an em
 
 To verify that the binomial model is what we should be using, we'll make sure that each of our genes has values of either 0 or 1:
 
+<center>
+
 ```{r gene_names-0-1, echo=FALSE}
 gene_vals <- c()
 for (gene in gene_list) {
@@ -432,6 +454,8 @@ for (gene in gene_list) {
 }
 pander::pander(as.data.frame(gene_vals), col.names = "Gene Values")
 ```
+
+</center>
 
 Because all of these contain values of only 0 or 1, we can go ahead with our binomial model.
 
@@ -459,6 +483,8 @@ signif.num <- function(x, ns = FALSE) {
 
 To quickly summarize what this is doing, `signif.num` takes a list, `x`, and assigns a significance level to the items within it, depending on the value of each item. This, specifically, assigns the following values: 
 
+<center>
+
 ```{r signif.num-levels-table, echo=FALSE}
 signif_table <- c()
 signif_table$value <- c("0 - 0.001", "0.001 - 0.01", "0.01 - 0.05", "0.05 - 1")
@@ -468,6 +494,8 @@ signif_table %>%
   pander::pander(col.names = c("Range of Values", "Significance Level"))
 
 ```
+
+</center>
 
 #### Exact Figure Dataset
 

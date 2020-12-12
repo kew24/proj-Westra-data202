@@ -76,6 +76,7 @@ This very large dataset is appropriate for answering the question answered in Fi
 
 This dataframe is read in with `fread`, and most columns' data type is as expected. However, there are some instances where I think it would be best if the data were factors (many of the indicator variables or categories) but instead, they are coded as integers or strings. In all of our columns, the data types are broken down below:
 
+<center>
 <table style="width:36%;">
 <colgroup>
 <col width="16%" />
@@ -103,8 +104,10 @@ This dataframe is read in with `fread`, and most columns' data type is as expect
 </tbody>
 </table>
 
+</center>
 Some examples of variables I think should be renamed include:
 
+<center>
 <table style="width:68%;">
 <colgroup>
 <col width="30%" />
@@ -142,6 +145,7 @@ Some examples of variables I think should be renamed include:
 </tbody>
 </table>
 
+</center>
 As seen in the table above, I would change most datatypes to factor, which could be easily done with the `stringsAsFactors = TRUE` option within `data.table::fread()`. It would make sense to change these to factors due to their use in this analysis -- `Gender` was essentially considered a factor, with the following options: Female, Male; and the indicator variables (like `ind_ds_fluorouracil`) having the following levels: 0, 1. I am unsure of why they chose to leave strings as characters, but because it doesn't really affect the analysis, this isn't an imperative issue.
 
 With the knowledge of which variable names are included in this dataset, it makes sense to explore individual variables further and determine what they mean, what the distribution looks like, and how they're related to other variables. This allows us to to make choices about how to further interpret and analyze this data, as well as give some ideas on which data wrangling steps need to be taken.
@@ -153,6 +157,7 @@ Exploratory Data Analysis
 
 In `M_wide_all`, it appears as if some preprocessing steps have already been taken, such as adding a column for the age categories -- breaking down each person's exact decimal age, into an age bracket. To explore how these age categories are broken down, I created the following table and bar graph:
 
+<center>
 <table style="width:42%;">
 <colgroup>
 <col width="16%" />
@@ -204,13 +209,14 @@ In `M_wide_all`, it appears as if some preprocessing steps have already been tak
 </tbody>
 </table>
 
-![](Report_files/figure-markdown_github/age-bars-1.png)
+<img src="Report_files/figure-markdown_github/age-bars-1.png" style="display: block; margin: auto;" />
 
+</center>
 From this table and bar graph, we know that there are 9 different age categories, each with the specified number of people. This distribution is left-skewed, and most people appear to be in the higher numbered age groups.
 
 To gain an understanding of what ages are included in each group, I made the following exploratory plot:
 
-![](Report_files/figure-markdown_github/age-boxes-1.png)
+<img src="Report_files/figure-markdown_github/age-boxes-1.png" style="display: block; margin: auto;" />
 
 As shown above, the age cutoffs for each category are: 0.128679, 11.093771, 21.0047913, 31.0006847, 41.0047913, 51.0061607, 61.0020523, 71.0006866, 81.0047913, indicating that they chose 0, 11, 21, 31, 41, 51, 61, 71, 81 as their minimum ages for each age group. These cutoffs appear in grey dashed lines on the series of boxplots, demonstrating that these categories are chosen based on age itself, as opposed to having category containing the same number of people (e.g., 9 quantiles). The violin plot shown demonstrates how many samples are included in the entire dataset, by age, aligned with the boxplots to give a insight into the comparative amount of patients in each group.
 
@@ -269,6 +275,7 @@ To observe some of these changes, we'll look at what two these variables look li
 
 Originally, the number of mutations, `mutnum_all`, is broken down into 9 categories. The new variable, `mutnum_all_r`, only has 3 categories. By comparing the breakdowns, we see that any people with more than 2 mutations have been included in the `mutnum_all_r` "2" category. Below is the breakdown of these two variables:
 
+<center>
 <table style="width:56%;">
 <caption>mutnum_all</caption>
 <colgroup>
@@ -349,11 +356,12 @@ Originally, the number of mutations, `mutnum_all`, is broken down into 9 categor
 </tbody>
 </table>
 
+</center>
 **Age Scaling**
 
 In the plot below, the distribution of `age` is shown on top of the distribution of `age_scaled`. The distribution itself is the same, but the age values change (due to the centering and scaling). To see the new values, note the different x-axis value range for `age_scaled`:
 
-![](Report_files/figure-markdown_github/mutate-changes-1.png)
+<img src="Report_files/figure-markdown_github/mutate-changes-1.png" style="display: block; margin: auto;" />
 
 In addition to `age_scaled` and `mutnum_all_r`, the variables that are used in Figure 1c include `smoke_bin`, `race_b`, `Gender`, and `therapy_binary`.
 
@@ -363,25 +371,25 @@ s **Smoke Binned**
 
 In the processing code above, we saw that `smoke_bin` has a value of 1 if patient is a current (`smoke` value of 1) or former (`smoke` value of 2) smoker, and a 0 if they have never been a smoker. The number of people in each of these categories is shown below, demonstrating that there is a similar amount of people who are current/former smokes and have never smoked:
 
-![](Report_files/figure-markdown_github/smoke-binned-EDA-1.png)
+<img src="Report_files/figure-markdown_github/smoke-binned-EDA-1.png" style="display: block; margin: auto;" />
 
 **Race Binary**
 
 `race_b` was also created in the processing code shown above, as a binary version of `race` with a value of 1 for "White", and a 0 for anything else. The amount of people that fall into each of these categories is shown below, with the majority of patients in this study being white:
 
-![](Report_files/figure-markdown_github/race-binary-1.png)
+<img src="Report_files/figure-markdown_github/race-binary-1.png" style="display: block; margin: auto;" />
 
 **Gender**
 
 `Gender` is a factor with one of two values: Male or Female. Here is the breakdown for participants in this study, displaying a comparable number of each gender, with slightly more females:
 
-![](Report_files/figure-markdown_github/gender-plot-1.png)
+<img src="Report_files/figure-markdown_github/gender-plot-1.png" style="display: block; margin: auto;" />
 
 **Therapy Binary**
 
 Lastly, `therapy_binary` indicates if the patient had any cancer directed therapy other than hormonal therapy. Based on the distribution below, it is evident that for most of the original patients, it was unknown whether or not they had therapy during the interval. This could possibly be due to missing information or discrepancies in these patients' medical records. Of the patients where their therapy status was known, there were more treated patients than untreated.
 
-![](Report_files/figure-markdown_github/therapy-plot-1.png)
+<img src="Report_files/figure-markdown_github/therapy-plot-1.png" style="display: block; margin: auto;" />
 
 At this point in the authors' code, the dataset was subsetted to create a new dataset:
 
@@ -398,15 +406,15 @@ To do some exploratory bivariate data analysis, I made a series of quick plots t
 
 I am first looking at the relationship between the presence of mutations in the gene *TP53* (`TP53`) and whether the patient received therapy (`therapy_binary`) during this period. Because these are each binary variables, it really only makes sense to calculate the odds ratio, but to show this same idea in a figure, the number of people that belong to each of these categories is shown in a two-by-two table, which are commonly used in the field of epidemiology. From this, we see that there seems to be a higher percentage of people with *TP53* mutations in the treated group than the untreated group:
 
-![](Report_files/figure-markdown_github/EDA-tp53-therapy-1.png)
+<img src="Report_files/figure-markdown_github/EDA-tp53-therapy-1.png" style="display: block; margin: auto;" />
 
 Similarly, we can make the same plot for `smoke_bin` and the mutations in the gene *ASXL1* (`ASXL1`). From this, we see that there seems to be a higher percentage of current/former smokers (`smoke_bin` value of 1) with mutations in *ASXL1* compared to non-smokers:
 
-![](Report_files/figure-markdown_github/EDA-asxl1-smoke-1.png)
+<img src="Report_files/figure-markdown_github/EDA-asxl1-smoke-1.png" style="display: block; margin: auto;" />
 
 Just out of curiosity, we'll check the same thing -- if the presence of mutations correlates with smoking status -- in a *different* gene: *TET2*. Based on Figure 1c, I'd expect this not to show a significant difference between the groups. Though the amount in smokers is still higher than in non-smokers, the effect is not as drastic as the previous two-by-two tables, leading me to believe that there probably doesn't appear to be a *significantly* higher amount of current/former smokers with new mutations in this gene compared to non-smokers:
 
-![](Report_files/figure-markdown_github/EDA-tet2-smoke-1.png)
+<img src="Report_files/figure-markdown_github/EDA-tet2-smoke-1.png" style="display: block; margin: auto;" />
 
 All of these bivariate plots give us some insight into what we expect to see with the model we create, and the odds ratio we'll be calculating. These plots don't adjust or control for any variables though, so this is something to keep in mind as we move forward.
 
@@ -431,6 +439,7 @@ gene_list = c(DDR, DTA, SPL, OTH)
 
 From the article, we know that these genes were selected as the most commonly mutated in the cohort, and categorized based on their biochemical pathway. A brief description of the pathway is shown below:
 
+<center>
 <table style="width:85%;">
 <colgroup>
 <col width="13%" />
@@ -468,6 +477,7 @@ From the article, we know that these genes were selected as the most commonly mu
 </tbody>
 </table>
 
+</center>
 The figure legend for Figure 1 revealed that these 10 genes were the "ten most commonly mutated genes" in this cohort. It makes sense, then, that they would choose these 10 genes to do the analysis on, however from what I could tell, this was only mentioned briefly in the figure legend. I had initially thought that these 10 genes were chosen by hand simply because the authors had reason to believe they might show significance based on their biochemical pathway. However, this didn't explain the two genes in the "other" category. I couldn't find an abundantly clear reason in the article or code for why these 2 genes (*JAK2* and *ATM*) specifically were included. Looking through journal articles revealed that *ATM* is in a [key DDR-related pathway for "critical DNA damage response kinases"](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5961503/), and that mutations in *JAK2* have previously been [found in patients with myeloproliferative disorders](https://www.nature.com/articles/nature03546). Because of these previous studies, I thought it would make sense that these two extra genes could be included in a hand-selected list of genes.
 
 This initial confusion on how these genes were selected would have been cleared up if the article and code had included a clearer and obvious explanation. My first thought was that it was a seemingly haphazard choice, so more discussion on the selection of these genes would have been appreciated. Simply stating in the article's text (in addition to the figure legend) that these 10 genes were chosen due to being commonly mutated would have cleared this up. Additionally, it would've been great if the code had referenced the mutation numbers in each gene to create this list instead of naming them individually, as this made it seem like a hand-selected list. This demonstrates that there are some communication elements that could have made clearer, but this was a relatively small part of what they did.
@@ -494,6 +504,7 @@ To break down what this code is doing, the first line starts out by making an em
 
 To verify that the binomial model is what we should be using, we'll make sure that each of our genes has values of either 0 or 1:
 
+<center>
 <table style="width:33%;">
 <colgroup>
 <col width="33%" />
@@ -537,6 +548,7 @@ To verify that the binomial model is what we should be using, we'll make sure th
 </tbody>
 </table>
 
+</center>
 Because all of these contain values of only 0 or 1, we can go ahead with our binomial model.
 
 The last two lines of code in this chunk take our model, `logit`, and gets data from its forest-plot of estimates. This contains details about each predictor, with the columns: term, estimate, std.error, conf.low, conf.high, statistic, den.df, p.value, p.stars, p.label, group, xpos, xmin, xmax. From here, an additional column is added with the gene name. This dataframe is then added to a larger dataframe, `logit_gene_var`, which contains rows for each predictor variable for each gene. This combined dataframe has 50 rows (10 genes \* 5 predictor variables).
@@ -563,6 +575,7 @@ signif.num <- function(x, ns = FALSE) {
 
 To quickly summarize what this is doing, `signif.num` takes a list, `x`, and assigns a significance level to the items within it, depending on the value of each item. This, specifically, assigns the following values:
 
+<center>
 <table style="width:53%;">
 <colgroup>
 <col width="25%" />
@@ -594,6 +607,7 @@ To quickly summarize what this is doing, `signif.num` takes a list, `x`, and ass
 </tbody>
 </table>
 
+</center>
 #### Exact Figure Dataset
 
 Now that the function has been defined, we're ready to move on to create the specific dataframe used in Figure 1c. This code for this is shown below:
@@ -691,7 +705,7 @@ Finally, `do_plot()` makes the plot and saves it with the specified dimensions:
 do_plot(p_forest, "my_fig1c.png", 5, 6, save_pdf = F)
 ```
 
-<img src="./figures/my_fig1c.png" width="1500" />
+<img src="./figures/my_fig1c.png" width="1500" style="display: block; margin: auto;" />
 
 And there it is! Our final version of Figure 1c.
 
@@ -742,7 +756,7 @@ Appendix
 --------
 
 ``` r
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, fig.align="center")
 library(tidyverse)
 set.seed(2020) #same seed the authors used, for the sake of reproducibility ;)
 M_wide_all = suppressWarnings(data.table::fread('./data/M_wide_all.txt', sep = '\t', header = T)) %>%
